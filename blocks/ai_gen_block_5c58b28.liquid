@@ -1,0 +1,297 @@
+{% doc %}
+  @prompt
+    Crear un bloque de calificación de producto (product rating) que muestre cinco estrellas con relleno personalizable y un texto que indique el puntaje basado en el número de reseñas. El bloque debe permitir ajustar el porcentaje de relleno de las estrellas y mostrar información como "4.5 basado en 23 reseñas"
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-product-rating-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+  }
+
+  .ai-product-rating-container-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: {{ block.settings.spacing }}px;
+    align-items: {{ block.settings.alignment }};
+  }
+
+  .ai-product-rating-stars-{{ ai_gen_id }} {
+    display: flex;
+    gap: {{ block.settings.star_spacing }}px;
+    align-items: center;
+  }
+
+  .ai-product-rating-star-{{ ai_gen_id }} {
+    position: relative;
+    width: {{ block.settings.star_size }}px;
+    height: {{ block.settings.star_size }}px;
+    display: inline-block;
+  }
+
+  .ai-product-rating-star-bg-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    color: {{ block.settings.empty_star_color }};
+  }
+
+  .ai-product-rating-star-fill-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow: hidden;
+    color: {{ block.settings.filled_star_color }};
+  }
+
+  .ai-product-rating-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.text_size }}px;
+    color: {{ block.settings.text_color }};
+    line-height: 1.4;
+  }
+
+  .ai-product-rating-score-{{ ai_gen_id }} {
+    font-weight: 600;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-product-rating-star-{{ ai_gen_id }} {
+      width: {{ block.settings.star_size | times: 0.8 }}px;
+      height: {{ block.settings.star_size | times: 0.8 }}px;
+    }
+
+    .ai-product-rating-text-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_size | times: 0.9 }}px;
+    }
+  }
+{% endstyle %}
+
+<product-rating-{{ ai_gen_id }} class="ai-product-rating-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-product-rating-container-{{ ai_gen_id }}">
+    <div class="ai-product-rating-stars-{{ ai_gen_id }}">
+      {% for i in (1..5) %}
+        {% assign star_fill = 0 %}
+        {% assign rating_percent = block.settings.rating_percentage %}
+        {% assign star_threshold = i | minus: 1 | times: 20 %}
+        
+        {% if rating_percent >= star_threshold %}
+          {% assign remaining = rating_percent | minus: star_threshold %}
+          {% if remaining >= 20 %}
+            {% assign star_fill = 100 %}
+          {% else %}
+            {% assign star_fill = remaining | times: 5 %}
+          {% endif %}
+        {% endif %}
+
+        <span class="ai-product-rating-star-{{ ai_gen_id }}">
+          <svg class="ai-product-rating-star-bg-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span class="ai-product-rating-star-fill-{{ ai_gen_id }}" style="width: {{ star_fill }}%;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+          </span>
+        </span>
+      {% endfor %}
+    </div>
+
+    {% if block.settings.show_rating_text %}
+      <div class="ai-product-rating-text-{{ ai_gen_id }}">
+        {% assign rating_value = block.settings.rating_percentage | divided_by: 20.0 %}
+        <span class="ai-product-rating-score-{{ ai_gen_id }}">{{ rating_value }}</span>
+        {% if block.settings.review_count > 0 %}
+          {{ block.settings.rating_text_template | replace: '[count]', block.settings.review_count }}
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</product-rating-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ProductRating{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.updateRating();
+      }
+
+      updateRating() {
+        const ratingPercent = {{ block.settings.rating_percentage }};
+        const stars = this.querySelectorAll('.ai-product-rating-star-{{ ai_gen_id }}');
+        
+        stars.forEach((star, index) => {
+          const fillElement = star.querySelector('.ai-product-rating-star-fill-{{ ai_gen_id }}');
+          const starThreshold = index * 20;
+          let starFill = 0;
+          
+          if (ratingPercent >= starThreshold) {
+            const remaining = ratingPercent - starThreshold;
+            starFill = remaining >= 20 ? 100 : remaining * 5;
+          }
+          
+          fillElement.style.width = starFill + '%';
+        });
+      }
+    }
+
+    customElements.define('product-rating-{{ ai_gen_id }}', ProductRating{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Calificación de producto",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Calificación"
+    },
+    {
+      "type": "range",
+      "id": "rating_percentage",
+      "label": "Porcentaje de calificación",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "review_count",
+      "label": "Número de reseñas",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Estrellas"
+    },
+    {
+      "type": "range",
+      "id": "star_size",
+      "label": "Tamaño de estrella",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "star_spacing",
+      "label": "Espaciado entre estrellas",
+      "min": 0,
+      "max": 16,
+      "step": 2,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "color",
+      "id": "filled_star_color",
+      "label": "Color de estrella llena",
+      "default": "#FFD700"
+    },
+    {
+      "type": "color",
+      "id": "empty_star_color",
+      "label": "Color de estrella vacía",
+      "default": "#E0E0E0"
+    },
+    {
+      "type": "header",
+      "content": "Texto de calificación"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating_text",
+      "label": "Mostrar texto de calificación",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "rating_text_template",
+      "label": "Plantilla de texto",
+      "default": "basado en [count] reseñas"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Tamaño de texto",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Color de texto",
+      "default": "#121212"
+    },
+    {
+      "type": "header",
+      "content": "Diseño"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alineación",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Izquierda"
+        },
+        {
+          "value": "center",
+          "label": "Centro"
+        },
+        {
+          "value": "flex-end",
+          "label": "Derecha"
+        }
+      ],
+      "default": "flex-start"
+    },
+    {
+      "type": "range",
+      "id": "spacing",
+      "label": "Espaciado vertical",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Ancho en escritorio",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    }
+  ],
+  "presets": [
+    {
+      "name": "Calificación de producto"
+    }
+  ]
+}
+{% endschema %}

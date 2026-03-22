@@ -1,0 +1,572 @@
+{% assign ai_gen_id = block.id | replace: '_' , '' | downcase %}
+{% assign cols_d = block.settings.columns_desktop | plus: 0 %}
+{% assign cols_m = block.settings.columns_mobile | plus: 0 %}
+{% assign gap_d  = block.settings.grid_gap | plus: 0 %}
+{% assign gap_m  = block.settings.grid_gap_mobile | plus: 0 %}
+
+{% style %}
+  .rev-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    padding: {{ block.settings.section_padding_top }}px 20px {{ block.settings.section_padding_bottom }}px;
+    background-color: {{ block.settings.background_color }};
+    box-sizing: border-box;
+  }
+  .rev-container-{{ ai_gen_id }} {
+    max-width: {{ block.settings.container_width }}px;
+    margin: 0 auto;
+  }
+  .rev-header-{{ ai_gen_id }} {
+    text-align: {{ block.settings.text_alignment }};
+    margin-bottom: {{ block.settings.header_bottom_spacing }}px;
+    padding-top: {{ block.settings.header_top_spacing }}px;
+  }
+  .rev-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_size }}px;
+    color: {{ block.settings.title_color }};
+    font-weight: {{ block.settings.title_weight }};
+    margin: 0 0 {{ block.settings.title_subtitle_spacing }}px;
+    {% if block.settings.title_transform != 'none' %}text-transform: {{ block.settings.title_transform }};{% endif %}
+    letter-spacing: {{ block.settings.title_letter_spacing }}px;
+  }
+  .rev-subtitle-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subtitle_size }}px;
+    color: {{ block.settings.subtitle_color }};
+    font-weight: {{ block.settings.subtitle_weight }};
+    margin: 0;
+    {% if block.settings.subtitle_transform != 'none' %}text-transform: {{ block.settings.subtitle_transform }};{% endif %}
+    letter-spacing: {{ block.settings.subtitle_letter_spacing }}px;
+    line-height: 1.5;
+  }
+
+  /* ===== CONTENEDOR (modo por atributo) ===== */
+  .rev-grid-{{ ai_gen_id }} {
+    margin-top: {{ block.settings.cards_top_spacing }}px;
+    align-items: stretch;
+  }
+
+  /* Carrusel: estable (sin columnas fantasma) */
+  .rev-grid-{{ ai_gen_id }}[data-carousel="carousel"] {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: {{ block.settings.grid_gap }}px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-inline: 0;
+    scroll-padding-inline: 0;
+    isolation: isolate;
+    min-width: 0;
+  }
+  .rev-grid-{{ ai_gen_id }}[data-carousel="carousel"]::-webkit-scrollbar { display: none; }
+
+  /* Tarjeta en carrusel: ancho controlado por variables */
+  .rev-grid-{{ ai_gen_id }}[data-carousel="carousel"] .rev-card-{{ ai_gen_id }} {
+    scroll-snap-align: start;
+    flex: 0 0 var(--card-basis, 100%) !important;
+    max-width: var(--card-basis, 100%) !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Cuadrícula: forzar grid y columnas (anti-Dawn) */
+  .rev-grid-{{ ai_gen_id }}[data-carousel="grid"] {
+    display: grid !important;
+    gap: {{ block.settings.grid_gap }}px !important;
+    grid-template-columns: repeat({{ block.settings.columns_desktop }}, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    isolation: isolate;
+  }
+  .rev-grid-{{ ai_gen_id }}[data-carousel="grid"] > .rev-card-{{ ai_gen_id }} {
+    margin: 0 !important;
+    float: none !important;
+    clear: none !important;
+    min-width: 0 !important;
+  }
+
+  /* Reset universal de márgenes entre items (elimina hueco 3→4) */
+  .rev-grid-{{ ai_gen_id }} > * { margin: 0 !important; }
+
+  /* ===== Tarjeta ===== */
+  .rev-card-{{ ai_gen_id }} {
+    background-color: {{ block.settings.card_background }};
+    border-radius: {{ block.settings.card_border_radius }}px;
+    padding: {{ block.settings.card_padding }}px;
+    text-align: {{ block.settings.content_alignment }};
+    box-shadow: {{ block.settings.card_shadow_horizontal }}px {{ block.settings.card_shadow_vertical }}px {{ block.settings.card_shadow_blur }}px rgba(0,0,0,{{ block.settings.card_shadow_opacity | divided_by: 100.0 }});
+    border: {{ block.settings.card_border_width }}px solid {{ block.settings.card_border_color }};
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    width: auto !important;
+  }
+  .rev-content-{{ ai_gen_id }} {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .rev-imgwrap-{{ ai_gen_id }} {
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  .rev-img-{{ ai_gen_id }}, .rev-imgph-{{ ai_gen_id }} {
+    width: {{ block.settings.image_size }}px;
+    height: {{ block.settings.image_size }}px;
+    border-radius: {% if block.settings.image_shape == 'circle' %}50%{% else %}{{ block.settings.image_border_radius }}px{% endif %};
+    object-fit: cover;
+    border: {{ block.settings.image_border_width }}px solid {{ block.settings.image_border_color }};
+  }
+  .rev-imgph-{{ ai_gen_id }} { background:#f4f4f4; display:flex; align-items:center; justify-content:center; }
+  .rev-imgph-{{ ai_gen_id }} svg { width:50%; height:50%; opacity:.3; }
+
+  /* Rating */
+  .rev-rating-{{ ai_gen_id }} {
+    display:flex; justify-content:center; gap:4px; margin:8px 0 16px; width:100%; position:relative;
+  }
+  .rev-rating-{{ ai_gen_id }}[aria-label]::before {
+    content: attr(aria-label);
+    position:absolute; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap;
+  }
+  .rev-star-{{ ai_gen_id }} { width: {{ block.settings.star_size }}px; height: {{ block.settings.star_size }}px; fill: {{ block.settings.star_color }}; }
+  .rev-star-empty-{{ ai_gen_id }} { fill: {{ block.settings.star_empty_color }}; }
+
+  .rev-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.testimonial_text_size }}px;
+    color: {{ block.settings.testimonial_text_color }};
+    line-height: 1.6;
+    margin-bottom: 16px;
+    flex-grow: 1;
+    text-align: {{ block.settings.content_alignment }};
+    {% if block.settings.clamp_lines > 0 %}
+      display: -webkit-box; -webkit-line-clamp: {{ block.settings.clamp_lines }}; -webkit-box-orient: vertical; overflow: hidden;
+    {% endif %}
+  }
+  .rev-author-{{ ai_gen_id }} { margin-top:auto; text-align: {{ block.settings.content_alignment }}; }
+  .rev-name-{{ ai_gen_id }} { font-size: {{ block.settings.name_size }}px; color: {{ block.settings.name_color }}; font-weight:600; margin-bottom:4px; }
+  .rev-role-{{ ai_gen_id }} { font-size: {{ block.settings.role_size }}px; color: {{ block.settings.role_color }}; }
+
+  .rev-controls-{{ ai_gen_id }} {
+    display:flex; justify-content:center; gap:16px; margin-top:32px;
+  }
+  .rev-btn-{{ ai_gen_id }} {
+    background: {{ block.settings.button_background }}; color: {{ block.settings.button_color }};
+    border: none; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:opacity .3s ease;
+  }
+  .rev-btn-{{ ai_gen_id }}:hover { opacity:.8; }
+  .rev-btn-{{ ai_gen_id }}:focus { outline:2px solid {{ block.settings.button_color }}; outline-offset:2px; }
+  .rev-btn-{{ ai_gen_id }} svg { width:20px; height:20px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rev-grid-{{ ai_gen_id }}, .rev-btn-{{ ai_gen_id }} { scroll-behavior: auto !important; }
+  }
+
+  /* ===== MÓVIL ===== */
+  @media screen and (max-width: 749px) {
+    .rev-{{ ai_gen_id }} { padding: {{ block.settings.section_padding_top_mobile }}px 16px {{ block.settings.section_padding_bottom_mobile }}px; }
+    .rev-header-{{ ai_gen_id }} { margin-bottom: {{ block.settings.header_bottom_spacing_mobile }}px; padding-top: {{ block.settings.header_top_spacing_mobile }}px; }
+    .rev-title-{{ ai_gen_id }} { font-size: {{ block.settings.title_size_mobile }}px; margin-bottom: {{ block.settings.title_subtitle_spacing_mobile }}px; }
+    .rev-subtitle-{{ ai_gen_id }} { font-size: {{ block.settings.subtitle_size_mobile }}px; }
+    .rev-card-{{ ai_gen_id }} { padding: {{ block.settings.card_padding_mobile }}px; }
+    .rev-img-{{ ai_gen_id }}, .rev-imgph-{{ ai_gen_id }} { width: {{ block.settings.image_size_mobile }}px; height: {{ block.settings.image_size_mobile }}px; }
+    .rev-text-{{ ai_gen_id }} { font-size: calc({{ block.settings.testimonial_text_size }}px * 0.9); }
+
+    .rev-grid-{{ ai_gen_id }}[data-carousel="grid"] {
+      gap: {{ block.settings.grid_gap_mobile }}px !important;
+      grid-template-columns: repeat({{ block.settings.columns_mobile | plus: 0 }}, minmax(0,1fr)) !important;
+    }
+    .rev-grid-{{ ai_gen_id }}[data-carousel="carousel"] { gap: {{ block.settings.grid_gap_mobile }}px !important; }
+    .rev-grid-{{ ai_gen_id }}[data-carousel="carousel"] .rev-card-{{ ai_gen_id }} {
+      flex-basis: var(--card-basis-m, var(--card-basis, 100%)) !important;
+      max-width: var(--card-basis-m, var(--card-basis, 100%)) !important;
+    }
+  }
+{% endstyle %}
+
+{%- liquid
+  assign ns = block.settings.meta_ns | default: 'custom'
+  assign key = block.settings.meta_key | default: 'testimonial'
+  assign mf  = product.metafields[ns][key]
+  assign items = nil
+  if mf != blank
+    assign items = mf.value
+  endif
+-%}
+
+<reviews-block-{{ ai_gen_id }}
+  class="rev-{{ ai_gen_id }}"
+  role="region"
+  aria-label="{{ block.settings.section_title | default: 'Reseñas' }}"
+  {{ block.shopify_attributes }}>
+  <div class="rev-container-{{ ai_gen_id }}">
+
+    {% if block.settings.section_title != blank or block.settings.section_subtitle != blank %}
+      <div class="rev-header-{{ ai_gen_id }}">
+        {% if block.settings.section_title != blank %}
+          <h2 class="rev-title-{{ ai_gen_id }}">{{ block.settings.section_title }}</h2>
+        {% endif %}
+        {% if block.settings.section_subtitle != blank %}
+          <p class="rev-subtitle-{{ ai_gen_id }}">{{ block.settings.section_subtitle }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {%- capture container_inline_styles -%}
+      {%- if block.settings.layout_style == 'grid' -%}
+        display:grid !important;
+        grid-template-columns:repeat({{ cols_d }}, minmax(0,1fr)) !important;
+        gap:{{ gap_d }}px;
+        margin-top:{{ block.settings.cards_top_spacing }}px;
+      {%- else -%}
+        display:flex !important;
+        gap:{{ gap_d }}px;
+        overflow-x:auto;
+        scroll-snap-type:x mandatory;
+        margin-top:{{ block.settings.cards_top_spacing }}px;
+      {%- endif -%}
+    {%- endcapture -%}
+
+    <div
+      class="rev-grid-{{ ai_gen_id }}"
+      data-carousel="{{ block.settings.layout_style }}"
+      style="{{ container_inline_styles | strip }};
+             --card-basis: calc((100% - ({{ cols_d | minus: 1 }} * {{ gap_d }}px)) / {{ cols_d }});
+             --card-basis-m: calc((100% - ({{ cols_m | minus: 1 }} * {{ gap_m }}px)) / {{ cols_m }});">
+
+      {%- assign shown = 0 -%}
+
+      {%- if items and items.size -%}
+        {%- for mo in items -%}
+          {%- if block.settings.limit > 0 and shown >= block.settings.limit -%}{% break %}{%- endif -%}
+          {%- assign t_name   = mo.name.value | default: mo.name -%}
+          {%- assign t_role   = mo.role.value -%}
+          {%- assign t_text   = mo.text.value -%}
+          {%- assign t_rate   = mo.rating.value | default: 0 | plus: 0 -%}
+          {%- assign t_img    = mo.image.value -%}
+
+          <div class="rev-card-{{ ai_gen_id }}">
+            <div class="rev-content-{{ ai_gen_id }}">
+              <div class="rev-imgwrap-{{ ai_gen_id }}">
+                {% if t_img %}
+                  <img
+                    src="{{ t_img | image_url: width: 240 }}"
+                    alt="{{ t_name | default: 'Cliente' | escape }}"
+                    class="rev-img-{{ ai_gen_id }}"
+                    loading="lazy"
+                    fetchpriority="low"
+                   " cy="8" r="4"></circle>
+                      <path d="M4 22c0-4 4-7 8-7s8 3 8 7"></path>
+                    </svg>
+                  </div>
+                {% endif %}
+              </div>
+
+              {% if block.settings.show_rating %}
+                {%- assign full = t_rate | floor -%}
+                {%- assign frac = t_rate | minus: full -%}
+                {%- assign star_w = block.settings.star_size | default: 24 -%}
+                {%- assign frac_w = frac | times: star_w -%}
+                <div class="rev-rating-{{ ai_gen_id }}" aria-label="Calificación: {{ t_rate }} de 5">
+                  {% for s in (1..5) %}
+                    {% assign next = full | plus: 1 %}
+                    {% if s <= full %}
+                      <svg class="rev-star-{{ ai_gen_id }}" viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="{{ star_w }}" height="{{ star_w }}">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                      </svg>
+                    {% elsif s == next and frac > 0 %}
+                      <svg class="rev-star-{{ ai_gen_id }}" viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="{{ star_w }}" height="{{ star_w }}">
+                        <defs>
+                          <clipPath id="clip-{{ ai_gen_id }}-{{ forloop.index0 }}-{{ block.id }}">
+                            <rect x="0" y="0" width="{{ frac_w }}" height="{{ star_w }}"></rect>
+                          </clipPath>
+                        </defs>
+                        <path class="rev-star-empty-{{ ai_gen_id }}" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                        <g clip-path="url(#clip-{{ ai_gen_id }}-{{ forloop.index0 }}-{{ block.id }})">
+                          <path fill="{{ block.settings.star_color }}" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                        </g>
+                      </svg>
+                    {% else %}
+                      <svg class="rev-star-{{ ai_gen_id }} rev-star-empty-{{ ai_gen_id }}" viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="{{ star_w }}" height="{{ star_w }}">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                      </svg>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              <div class="rev-text-{{ ai_gen_id }}">{{ t_text }}</div>
+              <div class="rev-author-{{ ai_gen_id }}">
+                <div class="rev-name-{{ ai_gen_id }}">{{ t_name }}</div>
+                <div class="rev-role-{{ ai_gen_id }}">{{ t_role }}</div>
+              </div>
+            </div>
+          </div>
+
+          {%- assign shown = shown | plus: 1 -%}
+        {%- endfor -%}
+
+      {%- elsif items -%}
+        {%- assign mo = items -%}
+        {%- assign t_name = mo.name.value | default: mo.name -%}
+        {%- assign t_role = mo.role.value -%}
+        {%- assign t_text = mo.text.value -%}
+        {%- assign t_rate = mo.rating.value | default: 0 | plus: 0 -%}
+        {%- assign t_img  = mo.image.value -%}
+
+        <div class="rev-card-{{ ai_gen_id }}">
+          <div class="rev-content-{{ ai_gen_id }}">
+            <div class="rev-imgwrap-{{ ai_gen_id }}">
+              {% if t_img %}
+                <img
+                  src="{{ t_img | image_url: width: 240 }}"
+                  alt="{{ t_name | default: 'Cliente' | escape }}"
+                  class="rev-img-{{ ai_gen_id }}"
+                  loading="lazy"
+                  fetchpriority="low"
+                  width="240"
+                  height="240"
+                 22c0-4 4-7 8-7s8 3 8 7"></path>
+                  </svg>
+                </div>
+              {% endif %}
+            </div>
+
+            {% if block.settings.show_rating %}
+              {%- assign full = t_rate | floor -%}
+              {%- assign frac = t_rate | minus: full -%}
+              {%- assign star_w = block.settings.star_size | default: 24 -%}
+              {%- assign frac_w = frac | times: star_w -%}
+              <div class="rev-rating-{{ ai_gen_id }}" aria-label="Calificación: {{ t_rate }} de 5">
+                {% for s in (1..5) %}
+                  {% assign next = full | plus: 1 %}
+                  {% if s <= full %}
+                    <svg class="rev-star-{{ ai_gen_id }}" viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="{{ star_w }}" height="{{ star_w }}">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                    </svg>
+                  {% elsif s == next and frac > 0 %}
+                    <svg class="rev-star-{{ ai_gen_id }}" viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="{{ star_w }}" height="{{ star_w }}">
+                      <defs>
+                        <clipPath id="clip-{{ ai_gen_id }}-single-{{ block.id }}">
+                          <rect x="0" y="0" width="{{ frac_w }}" height="{{ star_w }}"></rect>
+                        </clipPath>
+                      </defs>
+                      <path class="rev-star-empty-{{ ai_gen_id }}" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                      <g clip-path="url(#clip-{{ ai_gen_id }}-single-{{ block.id }})">
+                        <path fill="{{ block.settings.star_color }}" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                      </g>
+                    </svg>
+                  {% else %}
+                    <svg class="rev-star-{{ ai_gen_id }} rev-star-empty-{{ ai_gen_id }}" viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="{{ star_w }}" height="{{ star_w }}">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                    </svg>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="rev-text-{{ ai_gen_id }}">{{ t_text }}</div>
+            <div class="rev-author-{{ ai_gen_id }}">
+              <div class="rev-name-{{ ai_gen_id }}">{{ t_name }}</div>
+              <div class="rev-role-{{ ai_gen_id }}">{{ t_role }}</div>
+            </div>
+          </div>
+        </div>
+      {%- else -%}
+        <p style="text-align:center; color:#777;">No hay reseñas configuradas para este producto.</p>
+      {%- endif -%}
+    </div>
+
+    {% if block.settings.layout_style == 'carousel' and block.settings.show_carousel_controls %}
+      <div class="rev-controls-{{ ai_gen_id }}">
+        <button class="rev-btn-{{ ai_gen_id }}" data-direction="prev" aria-label="Anterior" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <button class="rev-btn-{{ ai_gen_id }}" data-direction="next" aria-label="Siguiente" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    {% endif %}
+  </div>
+</reviews-block-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ReviewsBlock{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.carousel = this.querySelector('.rev-grid-{{ ai_gen_id }}');
+        this.prevButton = this.querySelector('[data-direction="prev"]');
+        this.nextButton = this.querySelector('[data-direction="next"]');
+        this.isCarousel = this.carousel && this.carousel.dataset.carousel === 'carousel';
+        this._autoTimer = null;
+      }
+      connectedCallback() { if (this.isCarousel) this.setupCarousel(); }
+      setupCarousel() {
+        if (this.prevButton && this.nextButton) {
+          this.prevButton.addEventListener('click', () => this.scroll('prev'));
+          this.nextButton.addEventListener('click', () => this.scroll('next'));
+        }
+        this.addEventListener('mouseenter', () => this.stopAutoplay(), { passive: true });
+        this.addEventListener('mouseleave', () => this.startAutoplay(), { passive: true });
+        this.addEventListener('focusin', () => this.stopAutoplay());
+        this.addEventListener('focusout', () => this.startAutoplay());
+        {% if block.settings.carousel_autoplay %} this.startAutoplay(); {% endif %}
+      }
+      scroll(direction) {
+        const scrollAmount = this.carousel.offsetWidth;
+        const delta = direction === 'next' ? scrollAmount : -scrollAmount;
+        this.carousel.scrollBy({ left: delta, behavior: 'smooth' });
+      }
+      startAutoplay() {
+        {% if block.settings.carousel_autoplay %}
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+          if (this._autoTimer) return;
+          const interval = {{ block.settings.carousel_autoplay_speed | times: 1000 }};
+          this._autoTimer = setInterval(() => {
+            const maxScroll = this.carousel.scrollWidth - this.carousel.offsetWidth;
+            if (this.carousel.scrollLeft >= maxScroll - 2) {
+              this.carousel.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+              this.scroll('next');
+            }
+          }, interval);
+        {% endif %}
+      }
+      stopAutoplay() {
+        if (this._autoTimer) { clearInterval(this._autoTimer); this._autoTimer = null; }
+      }
+    }
+    customElements.define('reviews-block-{{ ai_gen_id }}', ReviewsBlock{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Reseñas",
+  "settings": [
+    { "type": "header", "content": "Fuente de datos" },
+    { "type": "text", "id": "meta_ns", "label": "Namespace del metafield", "default": "custom" },
+    { "type": "text", "id": "meta_key", "label": "Key del metafield", "default": "testimonial" },
+    { "type": "range", "id": "limit", "label": "Máximo a mostrar (0 = todos)", "min": 0, "max": 12, "step": 1, "default": 0 },
+
+    { "type": "header", "content": "Encabezado" },
+    { "type": "text", "id": "section_title", "label": "Título", "default": "Lo que dicen nuestros clientes" },
+    { "type": "textarea", "id": "section_subtitle", "label": "Subtítulo", "default": "Testimonios reales de clientes del producto" },
+
+    { "type": "header", "content": "Título" },
+    { "type": "range", "id": "title_size", "label": "Tamaño (desktop)", "min": 16, "max": 60, "step": 2, "unit": "px", "default": 28 },
+    { "type": "range", "id": "title_size_mobile", "label": "Tamaño (móvil)", "min": 14, "max": 40, "step": 2, "unit": "px", "default": 22 },
+    { "type": "color", "id": "title_color", "label": "Color", "default": "#121212" },
+    { "type": "select", "id": "title_weight", "label": "Peso",
+      "options": [ { "value": "300", "label": "Ligera" }, { "value": "400", "label": "Normal" }, { "value": "500", "label": "Media" }, { "value": "600", "label": "Semi-negrita" }, { "value": "700", "label": "Negrita" }, { "value": "800", "label": "Extra" } ],
+      "default": "700"
+    },
+    { "type": "select", "id": "title_transform", "label": "Transformación",
+      "options": [ { "value": "none", "label": "Ninguna" }, { "value": "uppercase", "label": "Mayúsculas" }, { "value": "lowercase", "label": "Minúsculas" }, { "value": "capitalize", "label": "Capitalizar" } ],
+      "default": "none"
+    },
+    { "type": "range", "id": "title_letter_spacing", "label": "Espaciado", "min": -2, "max": 4, "step": 0.5, "unit": "px", "default": 0 },
+
+    { "type": "header", "content": "Subtítulo" },
+    { "type": "range", "id": "subtitle_size", "label": "Tamaño (desktop)", "min": 12, "max": 28, "step": 1, "unit": "px", "default": 15 },
+    { "type": "range", "id": "subtitle_size_mobile", "label": "Tamaño (móvil)", "min": 11, "max": 20, "step": 1, "unit": "px", "default": 13 },
+    { "type": "color", "id": "subtitle_color", "label": "Color", "default": "#666666" },
+    { "type": "select", "id": "subtitle_weight", "label": "Peso",
+      "options": [ { "value": "300", "label": "Ligera" }, { "value": "400", "label": "Normal" }, { "value": "500", "label": "Media" }, { "value": "600", "label": "Semi-negrita" } ],
+      "default": "400"
+    },
+    { "type": "select", "id": "subtitle_transform", "label": "Transformación",
+      "options": [ { "value": "none", "label": "Ninguna" }, { "value": "uppercase", "label": "Mayúsculas" }, { "value": "lowercase", "label": "Minúsculas" }, { "value": "capitalize", "label": "Capitalizar" } ],
+      "default": "none"
+    },
+    { "type": "range", "id": "subtitle_letter_spacing", "label": "Espaciado", "min": -1, "max": 3, "step": 0.5, "unit": "px", "default": 0 },
+
+    { "type": "header", "content": "Espaciados" },
+    { "type": "range", "id": "header_top_spacing", "label": "Top (desktop)", "min": 0, "max": 80, "step": 4, "unit": "px", "default": 0 },
+    { "type": "range", "id": "header_top_spacing_mobile", "label": "Top (móvil)", "min": 0, "max": 60, "step": 4, "unit": "px", "default": 0 },
+    { "type": "range", "id": "title_subtitle_spacing", "label": "Entre título y subtítulo (desktop)", "min": 0, "max": 40, "step": 4, "unit": "px", "default": 12 },
+    { "type": "range", "id": "title_subtitle_spacing_mobile", "label": "Entre título y subtítulo (móvil)", "min": 0, "max": 32, "step": 4, "unit": "px", "default": 8 },
+    { "type": "range", "id": "header_bottom_spacing", "label": "Debajo del header (desktop)", "min": 0, "max": 80, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "header_bottom_spacing_mobile", "label": "Debajo del header (móvil)", "min": 0, "max": 60, "step": 4, "unit": "px", "default": 24 },
+    { "type": "range", "id": "cards_top_spacing", "label": "Entre header y tarjetas (desktop)", "min": 0, "max": 80, "step": 4, "unit": "px", "default": 0 },
+    { "type": "range", "id": "cards_top_spacing_mobile", "label": "Entre header y tarjetas (móvil)", "min": 0, "max": 60, "step": 4, "unit": "px", "default": 0 },
+
+    { "type": "select", "id": "text_alignment", "label": "Alineación encabezado",
+      "options": [ { "value": "left", "label": "Izquierda" }, { "value": "center", "label": "Centro" }, { "value": "right", "label": "Derecha" } ],
+      "default": "center"
+    },
+
+    { "type": "header", "content": "Diseño" },
+    { "type": "select", "id": "layout_style", "label": "Estilo",
+      "options": [ { "value": "grid", "label": "Cuadrícula" }, { "value": "carousel", "label": "Carrusel" } ],
+      "default": "grid"
+    },
+    { "type": "range", "id": "columns_desktop", "label": "Columnas desktop", "min": 1, "max": 4, "step": 1, "default": 3 },
+
+    { "type": "select", "id": "columns_mobile", "label": "Columnas móvil",
+      "options": [ { "value": "1", "label": "Una" }, { "value": "2", "label": "Dos" } ],
+      "default": "1"
+    },
+
+    { "type": "range", "id": "grid_gap", "label": "Espacio entre tarjetas (desktop)", "min": 8, "max": 48, "step": 4, "unit": "px", "default": 16 },
+    { "type": "range", "id": "grid_gap_mobile", "label": "Espacio entre tarjetas (móvil)", "min": 4, "max": 24, "step": 4, "unit": "px", "default": 8 },
+    { "type": "range", "id": "container_width", "label": "Ancho máximo contenedor", "min": 600, "max": 1600, "step": 100, "unit": "px", "default": 1000 },
+
+    { "type": "range", "id": "section_padding_top", "label": "Padding superior (desktop)", "min": 0, "max": 100, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "section_padding_bottom", "label": "Padding inferior (desktop)", "min": 0, "max": 100, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "section_padding_top_mobile", "label": "Padding superior (móvil)", "min": 0, "max": 80, "step": 4, "unit": "px", "default": 24 },
+    { "type": "range", "id": "section_padding_bottom_mobile", "label": "Padding inferior (móvil)", "min": 0, "max": 80, "step": 4, "unit": "px", "default": 24 },
+    { "type": "color", "id": "background_color", "label": "Fondo", "default": "#ffffff" },
+
+    { "type": "header", "content": "Tarjetas" },
+    { "type": "color", "id": "card_background", "label": "Fondo tarjeta", "default": "#f9f9f9" },
+    { "type": "range", "id": "card_padding", "label": "Padding tarjeta (desktop)", "min": 12, "max": 48, "step": 4, "unit": "px", "default": 20 },
+    { "type": "range", "id": "card_padding_mobile", "label": "Padding tarjeta (móvil)", "min": 8, "max": 32, "step": 4, "unit": "px", "default": 12 },
+    { "type": "range", "id": "card_border_radius", "label": "Radio borde", "min": 0, "max": 40, "step": 2, "unit": "px", "default": 8 },
+    { "type": "range", "id": "card_border_width", "label": "Borde (px)", "min": 0, "max": 4, "step": 1, "unit": "px", "default": 0 },
+    { "type": "color", "id": "card_border_color", "label": "Color borde", "default": "#e0e0e0" },
+    { "type": "range", "id": "card_shadow_horizontal", "label": "Sombra X", "min": -20, "max": 20, "step": 2, "unit": "px", "default": 0 },
+    { "type": "range", "id": "card_shadow_vertical", "label": "Sombra Y", "min": -20, "max": 20, "step": 2, "unit": "px", "default": 2 },
+    { "type": "range", "id": "card_shadow_blur", "label": "Blur sombra", "min": 0, "max": 40, "step": 4, "unit": "px", "default": 8 },
+    { "type": "range", "id": "card_shadow_opacity", "label": "Opacidad sombra", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 10 },
+    { "type": "select", "id": "content_alignment", "label": "Alineación contenido",
+      "options": [ { "value": "left", "label": "Izquierda" }, { "value": "center", "label": "Centro" }, { "value": "right", "label": "Derecha" } ],
+      "default": "center"
+    },
+
+    { "type": "header", "content": "Imágenes" },
+    { "type": "select", "id": "image_shape", "label": "Forma imagen", "options": [ { "value": "circle", "label": "Circular" }, { "value": "square", "label": "Cuadrada" } ], "default": "circle" },
+    { "type": "range", "id": "image_size", "label": "Tamaño imagen (desktop)", "min": 40, "max": 120, "step": 10, "unit": "px", "default": 60 },
+    { "type": "range", "id": "image_size_mobile", "label": "Tamaño imagen (móvil)", "min": 30, "max": 80, "step": 5, "unit": "px", "default": 50 },
+    { "type": "range", "id": "image_border_radius", "label": "Radio (cuadrada)", "min": 0, "max": 20, "step": 2, "unit": "px", "default": 8 },
+    { "type": "range", "id": "image_border_width", "label": "Borde imagen", "min": 0, "max": 4, "step": 1, "unit": "px", "default": 2 },
+    { "type": "color", "id": "image_border_color", "label": "Color borde", "default": "#e0e0e0" },
+
+    { "type": "header", "content": "Calificaciones" },
+    { "type": "checkbox", "id": "show_rating", "label": "Mostrar calificación", "default": true },
+    { "type": "range", "id": "star_size", "label": "Tamaño estrellas", "min": 12, "max": 32, "step": 2, "unit": "px", "default": 16 },
+    { "type": "color", "id": "star_color", "label": "Color llenas", "default": "#FFD700" },
+    { "type": "color", "id": "star_empty_color", "label": "Color vacías", "default": "#e0e0e0" },
+
+    { "type": "header", "content": "Lectura / UX" },
+    { "type": "range", "id": "clamp_lines", "label": "Máx. líneas (0 = sin límite)", "min": 0, "max": 10, "step": 1, "default": 0 },
+
+    { "type": "header", "content": "Carrusel" },
+    { "type": "checkbox", "id": "show_carousel_controls", "label": "Mostrar controles", "default": true },
+    { "type": "checkbox", "id": "carousel_autoplay", "label": "Autoplay", "default": false },
+    { "type": "range", "id": "carousel_autoplay_speed", "label": "Velocidad (s)", "min": 2, "max": 10, "step": 1, "unit": "s", "default": 5 },
+    { "type": "color", "id": "button_background", "label": "Fondo botones", "default": "#121212" },
+    { "type": "color", "id": "button_color", "label": "Color botones", "default": "#ffffff" }
+  ],
+  "presets": [
+    { "name": "Reseñas" }
+  ]
+}
+{% endschema %}

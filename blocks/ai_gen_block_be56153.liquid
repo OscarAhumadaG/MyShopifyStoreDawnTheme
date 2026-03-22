@@ -1,0 +1,406 @@
+{% doc %}
+  @prompt
+    quiero añadir un reporductor de video  que me permita montar un video mp4, no quiero con url, lo que quiero montar el video el archivo
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-video-player-{{ ai_gen_id }} {
+    width: 100%;
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+    padding: {{ block.settings.padding }}px;
+  }
+
+  .ai-video-player__wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+  }
+
+  .ai-video-player__video-{{ ai_gen_id }} {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-video-player__placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-video-player__placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 200px;
+    max-height: 200px;
+    opacity: 0.3;
+  }
+
+  .ai-video-player__empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .ai-video-player__controls-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+    padding: 20px 15px 15px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .ai-video-player__wrapper-{{ ai_gen_id }}:hover .ai-video-player__controls-{{ ai_gen_id }} {
+    opacity: 1;
+  }
+
+  .ai-video-player__progress-bar-{{ ai_gen_id }} {
+    width: 100%;
+    height: 5px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    position: relative;
+  }
+
+  .ai-video-player__progress-filled-{{ ai_gen_id }} {
+    height: 100%;
+    background-color: {{ block.settings.controls_color }};
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+
+  .ai-video-player__buttons-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .ai-video-player__button-{{ ai_gen_id }} {
+    background: none;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+  }
+
+  .ai-video-player__button-{{ ai_gen_id }}:hover {
+    opacity: 0.7;
+  }
+
+  .ai-video-player__button-{{ ai_gen_id }} svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .ai-video-player__time-{{ ai_gen_id }} {
+    color: #ffffff;
+    font-size: 14px;
+    margin-left: auto;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-video-player-{{ ai_gen_id }} {
+      padding: {{ block.settings.padding | times: 0.5 }}px;
+    }
+
+    .ai-video-player__button-{{ ai_gen_id }} svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .ai-video-player__time-{{ ai_gen_id }} {
+      font-size: 12px;
+    }
+  }
+{% endstyle %}
+
+<video-player-{{ ai_gen_id }} class="ai-video-player-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-video-player__wrapper-{{ ai_gen_id }}">
+    {% if block.settings.video_file != blank %}
+      <video
+        class="ai-video-player__video-{{ ai_gen_id }}"
+        {% if block.settings.autoplay %}autoplay{% endif %}
+        {% if block.settings.loop %}loop{% endif %}
+        {% if block.settings.muted %}muted{% endif %}
+        playsinline
+        preload="metadata"
+      >
+        <source src="{{ block.settings.video_file }}" type="video/mp4">
+        Tu navegador no soporta la reproducción de video.
+      </video>
+
+      {% if block.settings.show_controls %}
+        <div class="ai-video-player__controls-{{ ai_gen_id }}">
+          <div class="ai-video-player__progress-bar-{{ ai_gen_id }}">
+            <div class="ai-video-player__progress-filled-{{ ai_gen_id }}"></div>
+          </div>
+          <div class="ai-video-player__buttons-{{ ai_gen_id }}">
+            <button class="ai-video-player__button-{{ ai_gen_id }} ai-video-player__play-pause-{{ ai_gen_id }}" aria-label="Reproducir/Pausar">
+              <svg class="ai-video-player__play-icon-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              <svg class="ai-video-player__pause-icon-{{ ai_gen_id }}" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+              </svg>
+            </button>
+            <button class="ai-video-player__button-{{ ai_gen_id }} ai-video-player__mute-{{ ai_gen_id }}" aria-label="Silenciar/Activar sonido">
+              <svg class="ai-video-player__volume-icon-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+              </svg>
+              <svg class="ai-video-player__mute-icon-{{ ai_gen_id }}" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+              </svg>
+            </button>
+            <span class="ai-video-player__time-{{ ai_gen_id }}">
+              <span class="ai-video-player__current-time-{{ ai_gen_id }}">0:00</span> / 
+              <span class="ai-video-player__duration-{{ ai_gen_id }}">0:00</span>
+            </span>
+          </div>
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="ai-video-player__placeholder-{{ ai_gen_id }}">
+        {{ 'image' | placeholder_svg_tag }}
+        <div class="ai-video-player__empty-state-{{ ai_gen_id }}">
+          Sube tu archivo de video MP4
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</video-player-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class VideoPlayer{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.video = this.querySelector('.ai-video-player__video-{{ ai_gen_id }}');
+        if (!this.video) return;
+
+        this.playPauseBtn = this.querySelector('.ai-video-player__play-pause-{{ ai_gen_id }}');
+        this.muteBtn = this.querySelector('.ai-video-player__mute-{{ ai_gen_id }}');
+        this.progressBar = this.querySelector('.ai-video-player__progress-bar-{{ ai_gen_id }}');
+        this.progressFilled = this.querySelector('.ai-video-player__progress-filled-{{ ai_gen_id }}');
+        this.currentTimeEl = this.querySelector('.ai-video-player__current-time-{{ ai_gen_id }}');
+        this.durationEl = this.querySelector('.ai-video-player__duration-{{ ai_gen_id }}');
+        this.playIcon = this.querySelector('.ai-video-player__play-icon-{{ ai_gen_id }}');
+        this.pauseIcon = this.querySelector('.ai-video-player__pause-icon-{{ ai_gen_id }}');
+        this.volumeIcon = this.querySelector('.ai-video-player__volume-icon-{{ ai_gen_id }}');
+        this.muteIcon = this.querySelector('.ai-video-player__mute-icon-{{ ai_gen_id }}');
+      }
+
+      connectedCallback() {
+        if (!this.video) return;
+
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        if (this.playPauseBtn) {
+          this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+        }
+
+        if (this.muteBtn) {
+          this.muteBtn.addEventListener('click', () => this.toggleMute());
+        }
+
+        if (this.progressBar) {
+          this.progressBar.addEventListener('click', (e) => this.seek(e));
+        }
+
+        this.video.addEventListener('timeupdate', () => this.updateProgress());
+        this.video.addEventListener('loadedmetadata', () => this.updateDuration());
+        this.video.addEventListener('play', () => this.updatePlayPauseIcon());
+        this.video.addEventListener('pause', () => this.updatePlayPauseIcon());
+      }
+
+      togglePlayPause() {
+        if (this.video.paused) {
+          this.video.play();
+        } else {
+          this.video.pause();
+        }
+      }
+
+      toggleMute() {
+        this.video.muted = !this.video.muted;
+        this.updateMuteIcon();
+      }
+
+      seek(e) {
+        const rect = this.progressBar.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        this.video.currentTime = pos * this.video.duration;
+      }
+
+      updateProgress() {
+        const percent = (this.video.currentTime / this.video.duration) * 100;
+        if (this.progressFilled) {
+          this.progressFilled.style.width = percent + '%';
+        }
+        if (this.currentTimeEl) {
+          this.currentTimeEl.textContent = this.formatTime(this.video.currentTime);
+        }
+      }
+
+      updateDuration() {
+        if (this.durationEl) {
+          this.durationEl.textContent = this.formatTime(this.video.duration);
+        }
+      }
+
+      updatePlayPauseIcon() {
+        if (!this.playIcon || !this.pauseIcon) return;
+        
+        if (this.video.paused) {
+          this.playIcon.style.display = 'block';
+          this.pauseIcon.style.display = 'none';
+        } else {
+          this.playIcon.style.display = 'none';
+          this.pauseIcon.style.display = 'block';
+        }
+      }
+
+      updateMuteIcon() {
+        if (!this.volumeIcon || !this.muteIcon) return;
+        
+        if (this.video.muted) {
+          this.volumeIcon.style.display = 'none';
+          this.muteIcon.style.display = 'block';
+        } else {
+          this.volumeIcon.style.display = 'block';
+          this.muteIcon.style.display = 'none';
+        }
+      }
+
+      formatTime(seconds) {
+        if (isNaN(seconds)) return '0:00';
+        
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return mins + ':' + (secs < 10 ? '0' : '') + secs;
+      }
+    }
+
+    customElements.define('video-player-{{ ai_gen_id }}', VideoPlayer{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Reproductor de video MP4",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Video"
+    },
+    {
+      "type": "video",
+      "id": "video_file",
+      "label": "Archivo de video"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Reproducción automática",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "loop",
+      "label": "Repetir video",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "muted",
+      "label": "Silenciado por defecto",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_controls",
+      "label": "Mostrar controles",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Estilo"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 400,
+      "max": 1600,
+      "step": 100,
+      "unit": "px",
+      "label": "Ancho máximo",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "label": "Espaciado",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Radio de borde",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Color de fondo",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "controls_color",
+      "label": "Color de controles",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Reproductor de video MP4"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,728 @@
+{% doc %}
+  @prompt
+    Crea para mi tema de Shopify una sección llamada announcement-marquee que muestre una barra de anuncios tipo marquesina con varios mensajes desplazándose en bucle infinito.
+    Requisitos funcionales:
+    
+    Los mensajes deben desplazarse de forma continua y sin saltos, repitiéndose en loop infinito.
+    Debe permitir agregar múltiples mensajes como bloques (texto simple y enlace opcional).
+    Al pasar el mouse o cuando el componente reciba foco con el teclado, la animación debe pausarse (accesibilidad).
+    Implementación sin dependencias externas, usando Liquid + CSS (keyframes) + HTML.
+    Duplicar el contenido internamente para lograr un desplazamiento continuo.
+    
+    Accesibilidad:
+    
+    Envolver la sección con role="region" y un aria-label configurable.
+    El carril de mensajes debe tener aria-live="polite".
+    Los enlaces deben aceptar aria-label por bloque.
+    
+    Controles editables desde el Editor del tema (settings):
+    
+    Altura (desktop y móvil).
+    Tamaño y peso de tipografía (desktop y móvil).
+    Color de fondo, color de texto, color de enlaces.
+    Espaciado entre mensajes (gap).
+    Padding horizontal.
+    Mayúsculas opcional (toggle).
+    Sombra de texto opcional (toggle).
+    Borde: estilo (none/solid/dashed), color, grosor y radio.
+    Icono opcional al inicio de cada mensaje (por ejemplo, emoji) y tamaño del icono.
+    Velocidad de la animación definida como duración del ciclo en segundos (menor = más rápido).
+    Dirección del desplazamiento (izquierda/derecha).
+    Opción para ocultar en móvil.
+    
+    Bloques (blocks):
+    
+    Tipo: message.
+    Campos por bloque:
+    
+    text (texto del mensaje)
+    link_label (opcional)
+    link_url (opcional)
+    link_aria (opcional, para accesibilidad)
+    
+    
+    
+    Responsivo:
+    
+    Permite configurar altura y tamaño de fuente para móvil.
+    Mantén buen contraste por defecto (fondo oscuro, texto claro).
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-marquee-container-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    background-color: {{ block.settings.background_color }};
+    position: relative;
+    {% if block.settings.border_style != 'none' %}
+      border: {{ block.settings.border_thickness }}px {{ block.settings.border_style }} {{ block.settings.border_color }};
+    {% endif %}
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-marquee-wrapper-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    height: {{ block.settings.height_desktop }}px;
+    padding: 0 {{ block.settings.padding_horizontal }}px;
+  }
+
+  .ai-marquee-track-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: {{ block.settings.message_gap }}px;
+    animation: ai-marquee-scroll-{{ ai_gen_id }} {{ block.settings.animation_duration }}s linear infinite;
+    {% if block.settings.scroll_direction == 'right' %}
+      animation-direction: reverse;
+    {% endif %}
+  }
+
+  .ai-marquee-container-{{ ai_gen_id }}:hover .ai-marquee-track-{{ ai_gen_id }},
+  .ai-marquee-container-{{ ai_gen_id }}:focus-within .ai-marquee-track-{{ ai_gen_id }} {
+    animation-play-state: paused;
+  }
+
+  @keyframes ai-marquee-scroll-{{ ai_gen_id }} {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .ai-marquee-message-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: {{ block.settings.icon_size }}px;
+    white-space: nowrap;
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.font_size_desktop }}px;
+    font-weight: {{ block.settings.font_weight }};
+    {% if block.settings.text_uppercase %}
+      text-transform: uppercase;
+    {% endif %}
+    {% if block.settings.text_shadow %}
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    {% endif %}
+  }
+
+  .ai-marquee-icon-{{ ai_gen_id }} {
+    font-size: {{ block.settings.icon_size }}px;
+    line-height: 1;
+  }
+
+  .ai-marquee-link-{{ ai_gen_id }} {
+    color: {{ block.settings.link_color }};
+    text-decoration: underline;
+  }
+
+  .ai-marquee-link-{{ ai_gen_id }}:hover {
+    opacity: 0.8;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-marquee-wrapper-{{ ai_gen_id }} {
+      height: {{ block.settings.height_mobile }}px;
+    }
+
+    .ai-marquee-message-{{ ai_gen_id }} {
+      font-size: {{ block.settings.font_size_mobile }}px;
+    }
+
+    {% if block.settings.hide_on_mobile %}
+      .ai-marquee-container-{{ ai_gen_id }} {
+        display: none;
+      }
+    {% endif %}
+  }
+{% endstyle %}
+
+<announcement-marquee-{{ ai_gen_id }}
+  class="ai-marquee-container-{{ ai_gen_id }}"
+  role="region"
+  aria-label="{{ block.settings.aria_label }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-marquee-wrapper-{{ ai_gen_id }}">
+    <div class="ai-marquee-track-{{ ai_gen_id }}" aria-live="polite">
+      {% liquid
+        assign message_1 = block.settings.message_1
+        assign link_label_1 = block.settings.link_label_1
+        assign link_url_1 = block.settings.link_url_1
+        assign link_aria_1 = block.settings.link_aria_1
+
+        assign message_2 = block.settings.message_2
+        assign link_label_2 = block.settings.link_label_2
+        assign link_url_2 = block.settings.link_url_2
+        assign link_aria_2 = block.settings.link_aria_2
+
+        assign message_3 = block.settings.message_3
+        assign link_label_3 = block.settings.link_label_3
+        assign link_url_3 = block.settings.link_url_3
+        assign link_aria_3 = block.settings.link_aria_3
+
+        assign message_4 = block.settings.message_4
+        assign link_label_4 = block.settings.link_label_4
+        assign link_url_4 = block.settings.link_url_4
+        assign link_aria_4 = block.settings.link_aria_4
+
+        assign message_5 = block.settings.message_5
+        assign link_label_5 = block.settings.link_label_5
+        assign link_url_5 = block.settings.link_url_5
+        assign link_aria_5 = block.settings.link_aria_5
+      %}
+
+      {% for i in (1..2) %}
+        {% if message_1 != blank %}
+          <div class="ai-marquee-message-{{ ai_gen_id }}">
+            {% if block.settings.icon != blank %}
+              <span class="ai-marquee-icon-{{ ai_gen_id }}" aria-hidden="true">{{ block.settings.icon }}</span>
+            {% endif %}
+            {% if link_url_1 != blank %}
+              <a
+                href="{{ link_url_1 }}"
+                class="ai-marquee-link-{{ ai_gen_id }}"
+                {% if link_aria_1 != blank %}
+                  aria-label="{{ link_aria_1 }}"
+                {% endif %}
+              >
+                {% if link_label_1 != blank %}
+                  {{ link_label_1 }}
+                {% else %}
+                  {{ message_1 }}
+                {% endif %}
+              </a>
+            {% else %}
+              <span>{{ message_1 }}</span>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% if message_2 != blank %}
+          <div class="ai-marquee-message-{{ ai_gen_id }}">
+            {% if block.settings.icon != blank %}
+              <span class="ai-marquee-icon-{{ ai_gen_id }}" aria-hidden="true">{{ block.settings.icon }}</span>
+            {% endif %}
+            {% if link_url_2 != blank %}
+              <a
+                href="{{ link_url_2 }}"
+                class="ai-marquee-link-{{ ai_gen_id }}"
+                {% if link_aria_2 != blank %}
+                  aria-label="{{ link_aria_2 }}"
+                {% endif %}
+              >
+                {% if link_label_2 != blank %}
+                  {{ link_label_2 }}
+                {% else %}
+                  {{ message_2 }}
+                {% endif %}
+              </a>
+            {% else %}
+              <span>{{ message_2 }}</span>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% if message_3 != blank %}
+          <div class="ai-marquee-message-{{ ai_gen_id }}">
+            {% if block.settings.icon != blank %}
+              <span class="ai-marquee-icon-{{ ai_gen_id }}" aria-hidden="true">{{ block.settings.icon }}</span>
+            {% endif %}
+            {% if link_url_3 != blank %}
+              <a
+                href="{{ link_url_3 }}"
+                class="ai-marquee-link-{{ ai_gen_id }}"
+                {% if link_aria_3 != blank %}
+                  aria-label="{{ link_aria_3 }}"
+                {% endif %}
+              >
+                {% if link_label_3 != blank %}
+                  {{ link_label_3 }}
+                {% else %}
+                  {{ message_3 }}
+                {% endif %}
+              </a>
+            {% else %}
+              <span>{{ message_3 }}</span>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% if message_4 != blank %}
+          <div class="ai-marquee-message-{{ ai_gen_id }}">
+            {% if block.settings.icon != blank %}
+              <span class="ai-marquee-icon-{{ ai_gen_id }}" aria-hidden="true">{{ block.settings.icon }}</span>
+            {% endif %}
+            {% if link_url_4 != blank %}
+              <a
+                href="{{ link_url_4 }}"
+                class="ai-marquee-link-{{ ai_gen_id }}"
+                {% if link_aria_4 != blank %}
+                  aria-label="{{ link_aria_4 }}"
+                {% endif %}
+              >
+                {% if link_label_4 != blank %}
+                  {{ link_label_4 }}
+                {% else %}
+                  {{ message_4 }}
+                {% endif %}
+              </a>
+            {% else %}
+              <span>{{ message_4 }}</span>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% if message_5 != blank %}
+          <div class="ai-marquee-message-{{ ai_gen_id }}">
+            {% if block.settings.icon != blank %}
+              <span class="ai-marquee-icon-{{ ai_gen_id }}" aria-hidden="true">{{ block.settings.icon }}</span>
+            {% endif %}
+            {% if link_url_5 != blank %}
+              <a
+                href="{{ link_url_5 }}"
+                class="ai-marquee-link-{{ ai_gen_id }}"
+                {% if link_aria_5 != blank %}
+                  aria-label="{{ link_aria_5 }}"
+                {% endif %}
+              >
+                {% if link_label_5 != blank %}
+                  {{ link_label_5 }}
+                {% else %}
+                  {{ message_5 }}
+                {% endif %}
+              </a>
+            {% else %}
+              <span>{{ message_5 }}</span>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</announcement-marquee-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class AnnouncementMarquee{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.track = this.querySelector('.ai-marquee-track-{{ ai_gen_id }}');
+        this.setupAccessibility();
+      }
+
+      setupAccessibility() {
+        this.addEventListener('keydown', (e) => {
+          if (e.key === 'Tab') {
+            this.track.style.animationPlayState = 'paused';
+          }
+        });
+
+        this.addEventListener('blur', (e) => {
+          if (!this.contains(e.relatedTarget)) {
+            this.track.style.animationPlayState = 'running';
+          }
+        });
+      }
+    }
+
+    customElements.define('announcement-marquee-{{ ai_gen_id }}', AnnouncementMarquee{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Announcement marquee",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Accesibilidad"
+    },
+    {
+      "type": "text",
+      "id": "aria_label",
+      "label": "Etiqueta ARIA",
+      "default": "Barra de anuncios"
+    },
+    {
+      "type": "header",
+      "content": "Dimensiones"
+    },
+    {
+      "type": "range",
+      "id": "height_desktop",
+      "label": "Altura (escritorio)",
+      "min": 30,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "height_mobile",
+      "label": "Altura (móvil)",
+      "min": 30,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "label": "Padding horizontal",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Tipografía"
+    },
+    {
+      "type": "range",
+      "id": "font_size_desktop",
+      "label": "Tamaño de fuente (escritorio)",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "font_size_mobile",
+      "label": "Tamaño de fuente (móvil)",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Peso de fuente",
+      "options": [
+        {
+          "value": "300",
+          "label": "Ligera"
+        },
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Media"
+        },
+        {
+          "value": "600",
+          "label": "Semi-negrita"
+        },
+        {
+          "value": "700",
+          "label": "Negrita"
+        }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_uppercase",
+      "label": "Texto en mayúsculas",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "text_shadow",
+      "label": "Sombra de texto",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Colores"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Fondo",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Texto",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Enlaces",
+      "default": "#f6d480"
+    },
+    {
+      "type": "header",
+      "content": "Borde"
+    },
+    {
+      "type": "select",
+      "id": "border_style",
+      "label": "Estilo de borde",
+      "options": [
+        {
+          "value": "none",
+          "label": "Ninguno"
+        },
+        {
+          "value": "solid",
+          "label": "Sólido"
+        },
+        {
+          "value": "dashed",
+          "label": "Discontinuo"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "range",
+      "id": "border_thickness",
+      "label": "Grosor de borde",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Color de borde",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Radio de borde",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Icono"
+    },
+    {
+      "type": "text",
+      "id": "icon",
+      "label": "Icono (emoji o símbolo)",
+      "default": "✨"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Tamaño de icono",
+      "min": 12,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Espaciado"
+    },
+    {
+      "type": "range",
+      "id": "message_gap",
+      "label": "Espacio entre mensajes",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Animación"
+    },
+    {
+      "type": "range",
+      "id": "animation_duration",
+      "label": "Duración del ciclo",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "s",
+      "default": 30
+    },
+    {
+      "type": "select",
+      "id": "scroll_direction",
+      "label": "Dirección de desplazamiento",
+      "options": [
+        {
+          "value": "left",
+          "label": "Izquierda"
+        },
+        {
+          "value": "right",
+          "label": "Derecha"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Responsivo"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_on_mobile",
+      "label": "Ocultar en móvil",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Mensaje 1"
+    },
+    {
+      "type": "text",
+      "id": "message_1",
+      "label": "Texto",
+      "default": "Envío gratis en compras superiores a $100.000"
+    },
+    {
+      "type": "text",
+      "id": "link_label_1",
+      "label": "Texto del enlace (opcional)"
+    },
+    {
+      "type": "url",
+      "id": "link_url_1",
+      "label": "URL del enlace"
+    },
+    {
+      "type": "text",
+      "id": "link_aria_1",
+      "label": "Etiqueta ARIA del enlace"
+    },
+    {
+      "type": "header",
+      "content": "Mensaje 2"
+    },
+    {
+      "type": "text",
+      "id": "message_2",
+      "label": "Texto",
+      "default": "20% de descuento en toda la tienda"
+    },
+    {
+      "type": "text",
+      "id": "link_label_2",
+      "label": "Texto del enlace (opcional)"
+    },
+    {
+      "type": "url",
+      "id": "link_url_2",
+      "label": "URL del enlace"
+    },
+    {
+      "type": "text",
+      "id": "link_aria_2",
+      "label": "Etiqueta ARIA del enlace"
+    },
+    {
+      "type": "header",
+      "content": "Mensaje 3"
+    },
+    {
+      "type": "text",
+      "id": "message_3",
+      "label": "Texto",
+      "default": "Nuevos productos cada semana"
+    },
+    {
+      "type": "text",
+      "id": "link_label_3",
+      "label": "Texto del enlace (opcional)"
+    },
+    {
+      "type": "url",
+      "id": "link_url_3",
+      "label": "URL del enlace"
+    },
+    {
+      "type": "text",
+      "id": "link_aria_3",
+      "label": "Etiqueta ARIA del enlace"
+    },
+    {
+      "type": "header",
+      "content": "Mensaje 4"
+    },
+    {
+      "type": "text",
+      "id": "message_4",
+      "label": "Texto"
+    },
+    {
+      "type": "text",
+      "id": "link_label_4",
+      "label": "Texto del enlace (opcional)"
+    },
+    {
+      "type": "url",
+      "id": "link_url_4",
+      "label": "URL del enlace"
+    },
+    {
+      "type": "text",
+      "id": "link_aria_4",
+      "label": "Etiqueta ARIA del enlace"
+    },
+    {
+      "type": "header",
+      "content": "Mensaje 5"
+    },
+    {
+      "type": "text",
+      "id": "message_5",
+      "label": "Texto"
+    },
+    {
+      "type": "text",
+      "id": "link_label_5",
+      "label": "Texto del enlace (opcional)"
+    },
+    {
+      "type": "url",
+      "id": "link_url_5",
+      "label": "URL del enlace"
+    },
+    {
+      "type": "text",
+      "id": "link_aria_5",
+      "label": "Etiqueta ARIA del enlace"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Announcement marquee"
+    }
+  ]
+}
+{% endschema %}

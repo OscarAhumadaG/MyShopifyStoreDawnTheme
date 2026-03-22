@@ -1,0 +1,488 @@
+{% doc %}
+  @prompt
+    quiero que esta seccion me permita subir una imagen para el titulo delas colleciones la imagen debe ocupar todo el ancho de la página pero de alto que no sea tan grande y que me permita ajustar tanto para mobile como para desktop y que me permita hacer varios tipos de modificaciones , en el ajute del mboile quda muy mal 
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-collection-banner-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .ai-collection-banner__image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: {{ block.settings.banner_height_desktop }}px;
+    overflow: hidden;
+  }
+
+  .ai-collection-banner__image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: {{ block.settings.image_fit }};
+    object-position: {{ block.settings.image_position }};
+  }
+
+  .ai-collection-banner__placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-collection-banner__placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 400px;
+    max-height: 400px;
+  }
+
+  .ai-collection-banner__empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .ai-collection-banner__overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: {{ block.settings.overlay_color }};
+    opacity: {{ block.settings.overlay_opacity | divided_by: 100.0 }};
+    pointer-events: none;
+  }
+
+  .ai-collection-banner__content-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: {{ block.settings.content_vertical_alignment }};
+    align-items: {{ block.settings.content_horizontal_alignment }};
+    padding: {{ block.settings.content_padding_desktop }}px;
+    text-align: {{ block.settings.text_alignment }};
+    z-index: 2;
+  }
+
+  .ai-collection-banner__title-{{ ai_gen_id }} {
+    margin: 0 0 {{ block.settings.title_spacing }}px;
+    color: {{ block.settings.title_color }};
+    font-size: {{ block.settings.title_size_desktop }}px;
+    font-weight: {{ block.settings.title_weight }};
+    line-height: 1.2;
+    max-width: {{ block.settings.content_max_width }}px;
+    word-wrap: break-word;
+  }
+
+  .ai-collection-banner__subtitle-{{ ai_gen_id }} {
+    margin: 0;
+    color: {{ block.settings.subtitle_color }};
+    font-size: {{ block.settings.subtitle_size_desktop }}px;
+    line-height: 1.4;
+    max-width: {{ block.settings.content_max_width }}px;
+    word-wrap: break-word;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-collection-banner__image-wrapper-{{ ai_gen_id }} {
+      height: {{ block.settings.banner_height_mobile }}px;
+    }
+
+    .ai-collection-banner__content-{{ ai_gen_id }} {
+      padding: {{ block.settings.content_padding_mobile }}px;
+    }
+
+    .ai-collection-banner__title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_size_mobile }}px;
+      max-width: 100%;
+      line-height: 1.1;
+    }
+
+    .ai-collection-banner__subtitle-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subtitle_size_mobile }}px;
+      max-width: 100%;
+    }
+
+    .ai-collection-banner__placeholder-{{ ai_gen_id }} svg {
+      max-width: 250px;
+      max-height: 250px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-collection-banner-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-collection-banner__image-wrapper-{{ ai_gen_id }}">
+    {% if block.settings.banner_image %}
+      <img
+        src="{{ block.settings.banner_image | image_url: width: 2000 }}"
+        alt="{{ block.settings.banner_image.alt | escape }}"
+        loading="lazy"
+        width="{{ block.settings.banner_image.width }}"
+        height="{{ block.settings.banner_image.height }}"
+        class="ai-collection-banner__image-{{ ai_gen_id }}"
+      >
+    {% else %}
+      <div class="ai-collection-banner__placeholder-{{ ai_gen_id }}">
+        {{ 'collection-apparel-1' | placeholder_svg_tag }}
+        <div class="ai-collection-banner__empty-state-{{ ai_gen_id }}">
+          Agrega una imagen de banner
+        </div>
+      </div>
+    {% endif %}
+
+    {% if block.settings.show_overlay %}
+      <div class="ai-collection-banner__overlay-{{ ai_gen_id }}"></div>
+    {% endif %}
+
+    <div class="ai-collection-banner__content-{{ ai_gen_id }}">
+      {% if block.settings.title != blank %}
+        <h1 class="ai-collection-banner__title-{{ ai_gen_id }}">
+          {{ block.settings.title }}
+        </h1>
+      {% endif %}
+
+      {% if block.settings.subtitle != blank %}
+        <div class="ai-collection-banner__subtitle-{{ ai_gen_id }}">
+          {{ block.settings.subtitle }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Banner de colección",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Imagen"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_image",
+      "label": "Imagen del banner"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Ajuste de imagen",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cubrir"
+        },
+        {
+          "value": "contain",
+          "label": "Contener"
+        },
+        {
+          "value": "fill",
+          "label": "Rellenar"
+        }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Posición de imagen",
+      "options": [
+        {
+          "value": "center center",
+          "label": "Centro"
+        },
+        {
+          "value": "top center",
+          "label": "Arriba centro"
+        },
+        {
+          "value": "bottom center",
+          "label": "Abajo centro"
+        },
+        {
+          "value": "center left",
+          "label": "Centro izquierda"
+        },
+        {
+          "value": "center right",
+          "label": "Centro derecha"
+        }
+      ],
+      "default": "center center"
+    },
+    {
+      "type": "header",
+      "content": "Altura del banner"
+    },
+    {
+      "type": "range",
+      "id": "banner_height_desktop",
+      "min": 100,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "label": "Altura en escritorio",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "banner_height_mobile",
+      "min": 100,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "label": "Altura en móvil",
+      "default": 180
+    },
+    {
+      "type": "header",
+      "content": "Superposición"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay",
+      "label": "Mostrar superposición",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Color de superposición",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Opacidad de superposición",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Contenido"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título",
+      "default": "Nuestras Colecciones"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtítulo",
+      "default": "Descubre nuestra selección exclusiva"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Alineación de texto",
+      "options": [
+        {
+          "value": "left",
+          "label": "Izquierda"
+        },
+        {
+          "value": "center",
+          "label": "Centro"
+        },
+        {
+          "value": "right",
+          "label": "Derecha"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "content_vertical_alignment",
+      "label": "Alineación vertical",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Arriba"
+        },
+        {
+          "value": "center",
+          "label": "Centro"
+        },
+        {
+          "value": "flex-end",
+          "label": "Abajo"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "content_horizontal_alignment",
+      "label": "Alineación horizontal",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Izquierda"
+        },
+        {
+          "value": "center",
+          "label": "Centro"
+        },
+        {
+          "value": "flex-end",
+          "label": "Derecha"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "min": 300,
+      "max": 1200,
+      "step": 50,
+      "unit": "px",
+      "label": "Ancho máximo del contenido",
+      "default": 800
+    },
+    {
+      "type": "range",
+      "id": "content_padding_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Espaciado en escritorio",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "content_padding_mobile",
+      "min": 0,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Espaciado en móvil",
+      "default": 15
+    },
+    {
+      "type": "header",
+      "content": "Estilo del título"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Color del título",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "title_size_desktop",
+      "min": 20,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Tamaño en escritorio",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "title_size_mobile",
+      "min": 16,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Tamaño en móvil",
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "title_weight",
+      "label": "Peso de fuente",
+      "options": [
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medio"
+        },
+        {
+          "value": "600",
+          "label": "Semi negrita"
+        },
+        {
+          "value": "700",
+          "label": "Negrita"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "range",
+      "id": "title_spacing",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Espaciado inferior",
+      "default": 10
+    },
+    {
+      "type": "header",
+      "content": "Estilo del subtítulo"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Color del subtítulo",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size_desktop",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Tamaño en escritorio",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size_mobile",
+      "min": 12,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Tamaño en móvil",
+      "default": 14
+    }
+  ],
+  "presets": [
+    {
+      "name": "Banner de colección"
+    }
+  ]
+}
+{% endschema %}

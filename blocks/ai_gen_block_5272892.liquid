@@ -1,0 +1,220 @@
+{% comment %}
+  AI Announcement Bar - Profesional (editable fondo y tipografía)
+  Archivo: sections/ai-announcement-bar.liquid
+{% endcomment %}
+
+{% assign ai_gen_id = '001' %}
+
+<style>
+  .ai-announcement-bar-{{ ai_gen_id }} {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0;
+
+    background-color: {{ block.settings.background_color | default: '#000000' }};
+    
+    font-family: {{ block.settings.font_family | default: "'Poppins', sans-serif" }};
+    font-size: {{ block.settings.font_size | default: 16 }}px;
+    font-weight: {{ block.settings.font_weight | default: 500 }};
+    text-transform: {{ block.settings.text_transform | default: 'none' }};
+    letter-spacing: {{ block.settings.letter_spacing | default: 0 }}px;
+    color: {{ block.settings.text_color | default: '#ffffff' }};
+  }
+
+  .ai-announcement-bar-slider-{{ ai_gen_id }} {
+    display: flex;
+    transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+    will-change: transform;
+    width: 100%;
+  }
+
+  .ai-announcement-bar-slide-{{ ai_gen_id }} {
+    min-width: 100%;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    padding: 0 20px;
+  }
+
+  .ai-announcement-bar-text-{{ ai_gen_id }} {
+    display: inline-block;
+  }
+
+  .ai-announcement-bar-controls-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+
+  .ai-announcement-bar-prev-{{ ai_gen_id }},
+  .ai-announcement-bar-next-{{ ai_gen_id }} {
+    background: none;
+    border: none;
+    color: {{ block.settings.text_color | default: '#ffffff' }};
+    font-size: 20px;
+    cursor: pointer;
+    pointer-events: all;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+  }
+
+  .ai-announcement-bar-prev-{{ ai_gen_id }}:hover,
+  .ai-announcement-bar-next-{{ ai_gen_id }}:hover {
+    opacity: 1;
+  }
+</style>
+
+<div class="ai-announcement-bar-{{ ai_gen_id }}">
+  <div class="ai-announcement-bar-slider-{{ ai_gen_id }}">
+    {% assign slides = '' %}
+
+    {% for i in (1..3) %}
+      {% assign field = 'announcement_text_' | append: i %}
+      {% if block.settings[field] != blank %}
+        {% assign slides = slides | append: block.settings[field] | append: '||' %}
+      {% endif %}
+    {% endfor %}
+
+    {% assign slides = slides | split: '||' %}
+    {% for slide in slides %}
+      {% if slide != '' %}
+        <div class="ai-announcement-bar-slide-{{ ai_gen_id }}">
+          <div class="ai-announcement-bar-text-{{ ai_gen_id }}">{{ slide }}</div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="ai-announcement-bar-controls-{{ ai_gen_id }}">
+    <button class="ai-announcement-bar-prev-{{ ai_gen_id }}" aria-label="Previous">‹</button>
+    <button class="ai-announcement-bar-next-{{ ai_gen_id }}" aria-label="Next">›</button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    class AnnouncementBar{{ ai_gen_id }} {
+      constructor(element) {
+        this.el = element;
+        this.slider = this.el.querySelector('.ai-announcement-bar-slider-{{ ai_gen_id }}');
+        this.slides = this.el.querySelectorAll('.ai-announcement-bar-slide-{{ ai_gen_id }}');
+        this.prevButton = this.el.querySelector('.ai-announcement-bar-prev-{{ ai_gen_id }}');
+        this.nextButton = this.el.querySelector('.ai-announcement-bar-next-{{ ai_gen_id }}');
+        this.currentSlide = 0;
+        this.autoplay = {{ block.settings.autoplay | default: true }};
+        this.interval = parseInt({{ block.settings.autoplay_interval | default: 5 }}) * 1000;
+        this.timer = null;
+
+        if (this.slides.length > 0) this.setup();
+      }
+
+      setup() {
+        // 👉 CLONAMOS EL PRIMER SLIDE PARA EL LOOP CONTINUO
+        const firstClone = this.slides[0].cloneNode(true);
+        this.slider.appendChild(firstClone);
+
+        this.slides = this.el.querySelectorAll('.ai-announcement-bar-slide-{{ ai_gen_id }}');
+
+        this.updateSlider();
+        this.attachEvents();
+        if (this.autoplay && this.slides.length > 1) this.startAutoplay();
+      }
+
+      attachEvents() {
+        this.prevButton?.addEventListener("click", () => this.prevSlide());
+        this.nextButton?.addEventListener("click", () => this.nextSlide());
+        this.el.addEventListener("mouseenter", () => this.stopAutoplay());
+        this.el.addEventListener("mouseleave", () => this.startAutoplay());
+      }
+
+      updateSlider(transition = true) {
+        const offset = -this.currentSlide * 100;
+        this.slider.style.transition = transition ? "transform 0.6s ease" : "none";
+        this.slider.style.transform = `translateX(${offset}%)`;
+      }
+
+      nextSlide() {
+        this.currentSlide++;
+        this.updateSlider();
+
+        // 👉 Si llega al clon → salto invisible al primer slide real
+        if (this.currentSlide === this.slides.length - 1) {
+          setTimeout(() => {
+            this.currentSlide = 0;
+            this.updateSlider(false);
+          }, 600);
+        }
+      }
+
+      prevSlide() {
+        this.currentSlide--;
+
+        if (this.currentSlide < 0) {
+          this.currentSlide = this.slides.length - 2;
+          this.updateSlider(false);
+        }
+
+        setTimeout(() => this.updateSlider(), 20);
+      }
+
+      startAutoplay() {
+        this.stopAutoplay();
+        this.timer = setInterval(() => this.nextSlide(), this.interval);
+      }
+
+      stopAutoplay() {
+        if (this.timer) clearInterval(this.timer);
+      }
+    }
+
+    document
+      .querySelectorAll('.ai-announcement-bar-{{ ai_gen_id }}')
+      .forEach(el => new AnnouncementBar{{ ai_gen_id }}(el));
+  });
+</script>
+
+{% schema %}
+{
+  "name": "AI Announcement Bar",
+  "settings": [
+    { "type": "text", "id": "announcement_text_1", "label": "Announcement 1", "default": "Free shipping on orders over $50" },
+    { "type": "text", "id": "announcement_text_2", "label": "Announcement 2", "default": "New arrivals every week" },
+    { "type": "text", "id": "announcement_text_3", "label": "Announcement 3", "default": "Shop now and save 20%" },
+    { "type": "checkbox", "id": "autoplay", "label": "Enable autoplay", "default": true },
+    { "type": "range", "id": "autoplay_interval", "label": "Autoplay interval (seconds)", "min": 2, "max": 10, "default": 5 },
+    { "type": "color", "id": "background_color", "label": "Background color", "default": "#000000" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#ffffff" },
+    { "type": "select", "id": "font_family", "label": "Font family", "options": [
+        { "value": "'Poppins', sans-serif", "label": "Poppins" },
+        { "value": "'Montserrat', sans-serif", "label": "Montserrat" },
+        { "value": "Arial, sans-serif", "label": "Arial" },
+        { "value": "'Times New Roman', serif", "label": "Times New Roman" },
+        { "value": "'Courier New', monospace", "label": "Courier New" }
+      ], "default": "'Poppins', sans-serif"
+    },
+    { "type": "range", "id": "font_size", "label": "Font size (px)", "min": 12, "max": 48, "default": 16 },
+    { "type": "select", "id": "font_weight", "label": "Font weight", "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-Bold" },
+        { "value": "700", "label": "Bold" }
+      ], "default": "500"
+    },
+    { "type": "select", "id": "text_transform", "label": "Text transform", "options": [
+        { "value": "none", "label": "None" },
+        { "value": "uppercase", "label": "Uppercase" },
+        { "value": "capitalize", "label": "Capitalize" }
+      ], "default": "none"
+    },
+    { "type": "range", "id": "letter_spacing", "label": "Letter spacing (px)", "min": 0, "max": 5, "step": 0.1, "default": 0 }
+  ]
+}
+{% endschema %}
+

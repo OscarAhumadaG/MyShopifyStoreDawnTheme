@@ -1,0 +1,504 @@
+{% doc %}
+  @prompt
+    crear una seccion para reproucir un video a traves de una url de shopify  y que me permita hacer cambios en el diseño de la vista del video, dame la opcion de quitar los controles de que solo se vea el video no franjas negras o algo en la parte superiror o inferior , dame opcion de reproduccion automatica 
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-video-player-{{ ai_gen_id }} {
+    width: 100%;
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+    padding: {{ block.settings.padding }}px;
+  }
+
+  .ai-video-container-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    {% if block.settings.fit_mode == 'cover' %}
+      height: {{ block.settings.video_height }}px;
+    {% else %}
+      padding-bottom: {{ block.settings.aspect_ratio }}%;
+    {% endif %}
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+    box-shadow: 0 {{ block.settings.shadow_vertical }}px {{ block.settings.shadow_blur }}px rgba(0, 0, 0, {{ block.settings.shadow_opacity | divided_by: 100.0 }});
+  }
+
+  .ai-video-iframe-{{ ai_gen_id }} {
+    position: absolute;
+    {% if block.settings.fit_mode == 'cover' %}
+      top: 50%;
+      left: 50%;
+      width: 100%;
+      height: 100%;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+    {% else %}
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    {% endif %}
+    border: {{ block.settings.border_thickness }}px solid {{ block.settings.border_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-video-placeholder-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f4f4f4;
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-video-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 200px;
+    max-height: 200px;
+  }
+
+  .ai-video-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  {% if block.settings.show_title %}
+    .ai-video-title-{{ ai_gen_id }} {
+      text-align: {{ block.settings.title_alignment }};
+      color: {{ block.settings.title_color }};
+      font-size: {{ block.settings.title_size }}px;
+      margin-bottom: {{ block.settings.title_spacing }}px;
+    }
+  {% endif %}
+
+  {% if block.settings.show_description %}
+    .ai-video-description-{{ ai_gen_id }} {
+      text-align: {{ block.settings.description_alignment }};
+      color: {{ block.settings.description_color }};
+      font-size: {{ block.settings.description_size }}px;
+      margin-top: {{ block.settings.description_spacing }}px;
+    }
+  {% endif %}
+
+  @media screen and (max-width: 749px) {
+    .ai-video-player-{{ ai_gen_id }} {
+      padding: {{ block.settings.padding | times: 0.5 }}px;
+    }
+
+    {% if block.settings.fit_mode == 'cover' %}
+      .ai-video-container-{{ ai_gen_id }} {
+        height: {{ block.settings.video_height | times: 0.7 }}px;
+      }
+    {% endif %}
+
+    {% if block.settings.show_title %}
+      .ai-video-title-{{ ai_gen_id }} {
+        font-size: {{ block.settings.title_size | times: 0.9 }}px;
+      }
+    {% endif %}
+
+    {% if block.settings.show_description %}
+      .ai-video-description-{{ ai_gen_id }} {
+        font-size: {{ block.settings.description_size | times: 0.9 }}px;
+      }
+    {% endif %}
+  }
+{% endstyle %}
+
+<div class="ai-video-player-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% if block.settings.show_title and block.settings.title != blank %}
+    <h2 class="ai-video-title-{{ ai_gen_id }}">{{ block.settings.title }}</h2>
+  {% endif %}
+
+  <div class="ai-video-container-{{ ai_gen_id }}">
+    {% if block.settings.video_url != blank %}
+      {% assign video_url = block.settings.video_url %}
+      {% assign url_params = '' %}
+      
+      {% if block.settings.autoplay %}
+        {% assign url_params = url_params | append: 'autoplay=1' %}
+      {% endif %}
+      
+      {% if block.settings.mute_video %}
+        {% if url_params != blank %}
+          {% assign url_params = url_params | append: '&mute=1' %}
+        {% else %}
+          {% assign url_params = url_params | append: 'mute=1' %}
+        {% endif %}
+      {% endif %}
+      
+      {% if block.settings.loop_video %}
+        {% if url_params != blank %}
+          {% assign url_params = url_params | append: '&loop=1' %}
+        {% else %}
+          {% assign url_params = url_params | append: 'loop=1' %}
+        {% endif %}
+      {% endif %}
+      
+      {% if block.settings.hide_controls %}
+        {% if url_params != blank %}
+          {% assign url_params = url_params | append: '&controls=0' %}
+        {% else %}
+          {% assign url_params = url_params | append: 'controls=0' %}
+        {% endif %}
+      {% endif %}
+      
+      {% if url_params != blank %}
+        {% if video_url contains '?' %}
+          {% assign video_url = video_url | append: '&' | append: url_params %}
+        {% else %}
+          {% assign video_url = video_url | append: '?' | append: url_params %}
+        {% endif %}
+      {% endif %}
+      
+      <iframe
+        class="ai-video-iframe-{{ ai_gen_id }}"
+        src="{{ video_url }}"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        loading="lazy"
+      ></iframe>
+    {% else %}
+      <div class="ai-video-placeholder-{{ ai_gen_id }}">
+        {{ 'image' | placeholder_svg_tag }}
+        <div class="ai-video-empty-state-{{ ai_gen_id }}">
+          Agrega una URL de video
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if block.settings.show_description and block.settings.description != blank %}
+    <div class="ai-video-description-{{ ai_gen_id }}">{{ block.settings.description }}</div>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Reproductor de video",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Video"
+    },
+    {
+      "type": "url",
+      "id": "video_url",
+      "label": "URL del video"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Reproducción automática",
+      "default": false,
+      "info": "El video se reproducirá automáticamente al cargar la página"
+    },
+    {
+      "type": "checkbox",
+      "id": "mute_video",
+      "label": "Silenciar video",
+      "default": false,
+      "info": "Recomendado activar si usas reproducción automática"
+    },
+    {
+      "type": "checkbox",
+      "id": "loop_video",
+      "label": "Reproducir en bucle",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_controls",
+      "label": "Ocultar controles del video",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "fit_mode",
+      "label": "Modo de ajuste",
+      "options": [
+        {
+          "value": "contain",
+          "label": "Contener (con franjas)"
+        },
+        {
+          "value": "cover",
+          "label": "Cubrir (sin franjas)"
+        }
+      ],
+      "default": "contain"
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "Relación de aspecto",
+      "options": [
+        {
+          "value": "56.25",
+          "label": "16:9"
+        },
+        {
+          "value": "75",
+          "label": "4:3"
+        },
+        {
+          "value": "100",
+          "label": "1:1"
+        },
+        {
+          "value": "177.78",
+          "label": "9:16"
+        }
+      ],
+      "default": "56.25",
+      "info": "Solo aplica en modo 'Contener'"
+    },
+    {
+      "type": "range",
+      "id": "video_height",
+      "min": 200,
+      "max": 800,
+      "step": 50,
+      "unit": "px",
+      "label": "Altura del video",
+      "default": 500,
+      "info": "Solo aplica en modo 'Cubrir'"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 400,
+      "max": 1600,
+      "step": 100,
+      "unit": "px",
+      "label": "Ancho máximo",
+      "default": 1200
+    },
+    {
+      "type": "header",
+      "content": "Título"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_title",
+      "label": "Mostrar título",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "Título",
+      "default": "Video destacado"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Tamaño del título",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Color del título",
+      "default": "#121212"
+    },
+    {
+      "type": "select",
+      "id": "title_alignment",
+      "label": "Alineación del título",
+      "options": [
+        {
+          "value": "left",
+          "label": "Izquierda"
+        },
+        {
+          "value": "center",
+          "label": "Centro"
+        },
+        {
+          "value": "right",
+          "label": "Derecha"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "title_spacing",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Espaciado inferior",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Descripción"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Mostrar descripción",
+      "default": false
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Descripción"
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamaño de la descripción",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Color de la descripción",
+      "default": "#121212"
+    },
+    {
+      "type": "select",
+      "id": "description_alignment",
+      "label": "Alineación de la descripción",
+      "options": [
+        {
+          "value": "left",
+          "label": "Izquierda"
+        },
+        {
+          "value": "center",
+          "label": "Centro"
+        },
+        {
+          "value": "right",
+          "label": "Derecha"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "description_spacing",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Espaciado superior",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Estilo"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Color de fondo",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Radio del borde",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "border_thickness",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Grosor del borde",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Color del borde",
+      "default": "#121212"
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "label": "Espaciado",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Sombra"
+    },
+    {
+      "type": "range",
+      "id": "shadow_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Opacidad",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "shadow_vertical",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Desplazamiento vertical",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "shadow_blur",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Desenfoque",
+      "default": 10
+    }
+  ],
+  "presets": [
+    {
+      "name": "Reproductor de video"
+    }
+  ]
+}
+{% endschema %}

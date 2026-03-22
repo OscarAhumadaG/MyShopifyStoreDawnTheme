@@ -1,0 +1,812 @@
+{% doc %}
+  @prompt
+    Quiero crear un announcement bar que pueda editar la letra, el color, el size, tanto de la letra como del bar, también las formas como quiero que se desplacen los anuncios , también los bordes del bar, en la parte lateral una flechas de desplazamiento, quiero algo minimalista que sea vea bien pro, esta muy bien pero solo quiero que pueda elegir además el sentido del anuncio y que permita añadir emojis, yo ahora veo que la manera como se mueve es que se devuelve , osea yo quiero cambiar la manera como se mueve porque si empeiza de la manera que quiero pero lueso se duelve y no quiero eso quiero que aprezca que sigue y siguen en el mismo sentido y reaprece el mensaje anteior, Puedes pedirle a la IA de Shopify que muestre tus anuncios con efectos como:
+    - Deslizamiento horizontal (tipo “marquee”)
+    - Fade in / fade out entre mensajes
+    - Slide up / slide down (como un carrusel vertical)
+    - Rotación automática con temporizador
+    - Transición tipo carrusel con puntos o flechas
+    - Cambio aleatorio de mensajes
+    - Animación tipo “typing effect” (texto que se escribe solo)
+    - Zoom in / zoom out suave entre mensajes
+    , tiene errores, esta muy bien solo een el desplazamiento horizontal quisiera en los dos sentidos , solo falta lo del color del borde 
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-announcement-bar-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    background-color: {{ block.settings.bar_background_color }};
+    border-radius: {{ block.settings.bar_border_radius }}px;
+    border: {{ block.settings.bar_border_thickness }}px solid {{ block.settings.bar_border_color }};
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ai-announcement-bar-wrapper-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: {{ block.settings.bar_padding }}px 60px;
+    min-height: {{ block.settings.bar_height }}px;
+  }
+
+  .ai-announcement-bar-content-{{ ai_gen_id }} {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    min-height: 30px;
+  }
+
+  .ai-announcement-bar-slider-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    min-height: 30px;
+  }
+
+  .ai-announcement-bar-slide-{{ ai_gen_id }} {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  .ai-announcement-bar-slide-{{ ai_gen_id }}.active {
+    display: flex;
+  }
+
+  .ai-announcement-bar-text-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.text_size }}px;
+    font-weight: {{ block.settings.text_weight }};
+    margin: 0;
+    padding: 0 20px;
+  }
+
+  .ai-announcement-bar-nav-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: {{ block.settings.arrow_background_color }};
+    border: none;
+    width: {{ block.settings.arrow_size }}px;
+    height: {{ block.settings.arrow_size }}px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    transition: opacity 0.3s ease, background-color 0.3s ease;
+    opacity: {{ block.settings.arrow_opacity }};
+  }
+
+  .ai-announcement-bar-nav-{{ ai_gen_id }}:hover {
+    opacity: 1;
+    background-color: {{ block.settings.arrow_hover_background_color }};
+  }
+
+  .ai-announcement-bar-nav-{{ ai_gen_id }}:focus {
+    outline: 2px solid {{ block.settings.text_color }};
+    outline-offset: 2px;
+  }
+
+  .ai-announcement-bar-nav-prev-{{ ai_gen_id }} {
+    left: 10px;
+  }
+
+  .ai-announcement-bar-nav-next-{{ ai_gen_id }} {
+    right: 10px;
+  }
+
+  .ai-announcement-bar-nav-{{ ai_gen_id }} svg {
+    width: calc({{ block.settings.arrow_size }}px * 0.5);
+    height: calc({{ block.settings.arrow_size }}px * 0.5);
+    fill: {{ block.settings.arrow_color }};
+  }
+
+  .ai-announcement-bar-nav-{{ ai_gen_id }}:hover svg {
+    fill: {{ block.settings.arrow_hover_color }};
+  }
+
+  @keyframes ai-fade-in-{{ ai_gen_id }} {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes ai-fade-out-{{ ai_gen_id }} {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes ai-slide-in-left-{{ ai_gen_id }} {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes ai-slide-out-left-{{ ai_gen_id }} {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+  }
+
+  @keyframes ai-slide-in-right-{{ ai_gen_id }} {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes ai-slide-out-right-{{ ai_gen_id }} {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+
+  @keyframes ai-slide-in-up-{{ ai_gen_id }} {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes ai-slide-out-up-{{ ai_gen_id }} {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+  }
+
+  @keyframes ai-slide-in-down-{{ ai_gen_id }} {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes ai-slide-out-down-{{ ai_gen_id }} {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+  }
+
+  @keyframes ai-zoom-in-{{ ai_gen_id }} {
+    from {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes ai-zoom-out-{{ ai_gen_id }} {
+    from {
+      transform: scale(1);
+      opacity: 1;
+    }
+    to {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-announcement-bar-wrapper-{{ ai_gen_id }} {
+      padding: {{ block.settings.bar_padding }}px 50px;
+    }
+
+    .ai-announcement-bar-text-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.text_size }}px * 0.9);
+    }
+
+    .ai-announcement-bar-nav-{{ ai_gen_id }} {
+      width: calc({{ block.settings.arrow_size }}px * 0.8);
+      height: calc({{ block.settings.arrow_size }}px * 0.8);
+    }
+  }
+{% endstyle %}
+
+<announcement-bar-{{ ai_gen_id }}
+  class="ai-announcement-bar-{{ ai_gen_id }}"
+  data-autoplay="{{ block.settings.autoplay }}"
+  data-autoplay-speed="{{ block.settings.autoplay_speed }}"
+  data-animation="{{ block.settings.animation_type }}"
+  data-slide-direction="{{ block.settings.slide_direction }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-announcement-bar-wrapper-{{ ai_gen_id }}">
+    {% assign announcements_count = 0 %}
+    {% for i in (1..5) %}
+      {% assign announcement_key = 'announcement_' | append: i %}
+      {% if block.settings[announcement_key] != blank %}
+        {% assign announcements_count = announcements_count | plus: 1 %}
+      {% endif %}
+    {% endfor %}
+
+    {% if announcements_count > 1 %}
+      <button
+        class="ai-announcement-bar-nav-{{ ai_gen_id }} ai-announcement-bar-nav-prev-{{ ai_gen_id }}"
+        aria-label="Anuncio anterior"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+        </svg>
+      </button>
+    {% endif %}
+
+    <div class="ai-announcement-bar-content-{{ ai_gen_id }}">
+      <div class="ai-announcement-bar-slider-{{ ai_gen_id }}">
+        {% for i in (1..5) %}
+          {% assign announcement_key = 'announcement_' | append: i %}
+          {% if block.settings[announcement_key] != blank %}
+            <div class="ai-announcement-bar-slide-{{ ai_gen_id }} {% if forloop.first %}active{% endif %}">
+              <p class="ai-announcement-bar-text-{{ ai_gen_id }}">
+                {{ block.settings[announcement_key] }}
+              </p>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if announcements_count > 1 %}
+      <button
+        class="ai-announcement-bar-nav-{{ ai_gen_id }} ai-announcement-bar-nav-next-{{ ai_gen_id }}"
+        aria-label="Siguiente anuncio"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+        </svg>
+      </button>
+    {% endif %}
+  </div>
+</announcement-bar-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class AnnouncementBar{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.currentSlide = 0;
+        this.autoplayInterval = null;
+        this.isTransitioning = false;
+      }
+
+      connectedCallback() {
+        this.slider = this.querySelector('.ai-announcement-bar-slider-{{ ai_gen_id }}');
+        this.slides = this.querySelectorAll('.ai-announcement-bar-slide-{{ ai_gen_id }}');
+        this.prevButton = this.querySelector('.ai-announcement-bar-nav-prev-{{ ai_gen_id }}');
+        this.nextButton = this.querySelector('.ai-announcement-bar-nav-next-{{ ai_gen_id }}');
+        this.autoplay = this.dataset.autoplay === 'true';
+        this.autoplaySpeed = parseInt(this.dataset.autoplaySpeed) * 1000;
+        this.animationType = this.dataset.animation;
+        this.slideDirection = this.dataset.slideDirection;
+
+        if (this.slides.length <= 1) return;
+
+        this.setupEventListeners();
+        
+        if (this.autoplay) {
+          this.startAutoplay();
+        }
+      }
+
+      setupEventListeners() {
+        if (this.prevButton) {
+          this.prevButton.addEventListener('click', () => {
+            if (!this.isTransitioning) {
+              this.goToPrevSlide();
+              if (this.autoplay) {
+                this.resetAutoplay();
+              }
+            }
+          });
+        }
+
+        if (this.nextButton) {
+          this.nextButton.addEventListener('click', () => {
+            if (!this.isTransitioning) {
+              this.goToNextSlide();
+              if (this.autoplay) {
+                this.resetAutoplay();
+              }
+            }
+          });
+        }
+      }
+
+      goToNextSlide() {
+        if (this.isTransitioning) return;
+        this.isTransitioning = true;
+
+        const currentSlideElement = this.slides[this.currentSlide];
+        const nextSlideIndex = (this.currentSlide + 1) % this.slides.length;
+        const nextSlideElement = this.slides[nextSlideIndex];
+
+        this.animateTransition(currentSlideElement, nextSlideElement, 'next');
+
+        setTimeout(() => {
+          this.currentSlide = nextSlideIndex;
+          this.isTransitioning = false;
+        }, 600);
+      }
+
+      goToPrevSlide() {
+        if (this.isTransitioning) return;
+        this.isTransitioning = true;
+
+        const currentSlideElement = this.slides[this.currentSlide];
+        const prevSlideIndex = (this.currentSlide - 1 + this.slides.length) % this.slides.length;
+        const prevSlideElement = this.slides[prevSlideIndex];
+
+        this.animateTransition(currentSlideElement, prevSlideElement, 'prev');
+
+        setTimeout(() => {
+          this.currentSlide = prevSlideIndex;
+          this.isTransitioning = false;
+        }, 600);
+      }
+
+      animateTransition(currentSlide, nextSlide, direction) {
+        const animationDuration = 500;
+
+        if (this.animationType === 'fade') {
+          currentSlide.style.animation = `ai-fade-out-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+          
+          setTimeout(() => {
+            currentSlide.classList.remove('active');
+            currentSlide.style.animation = '';
+            nextSlide.classList.add('active');
+            nextSlide.style.animation = `ai-fade-in-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+            
+            setTimeout(() => {
+              nextSlide.style.animation = '';
+            }, animationDuration);
+          }, animationDuration);
+
+        } else if (this.animationType === 'slide_horizontal') {
+          if (this.slideDirection === 'left_to_right') {
+            if (direction === 'next') {
+              currentSlide.style.animation = `ai-slide-out-right-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+              
+              setTimeout(() => {
+                currentSlide.classList.remove('active');
+                currentSlide.style.animation = '';
+                nextSlide.classList.add('active');
+                nextSlide.style.animation = `ai-slide-in-left-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+                
+                setTimeout(() => {
+                  nextSlide.style.animation = '';
+                }, animationDuration);
+              }, animationDuration);
+            } else {
+              currentSlide.style.animation = `ai-slide-out-left-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+              
+              setTimeout(() => {
+                currentSlide.classList.remove('active');
+                currentSlide.style.animation = '';
+                nextSlide.classList.add('active');
+                nextSlide.style.animation = `ai-slide-in-right-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+                
+                setTimeout(() => {
+                  nextSlide.style.animation = '';
+                }, animationDuration);
+              }, animationDuration);
+            }
+          } else {
+            if (direction === 'next') {
+              currentSlide.style.animation = `ai-slide-out-left-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+              
+              setTimeout(() => {
+                currentSlide.classList.remove('active');
+                currentSlide.style.animation = '';
+                nextSlide.classList.add('active');
+                nextSlide.style.animation = `ai-slide-in-right-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+                
+                setTimeout(() => {
+                  nextSlide.style.animation = '';
+                }, animationDuration);
+              }, animationDuration);
+            } else {
+              currentSlide.style.animation = `ai-slide-out-right-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+              
+              setTimeout(() => {
+                currentSlide.classList.remove('active');
+                currentSlide.style.animation = '';
+                nextSlide.classList.add('active');
+                nextSlide.style.animation = `ai-slide-in-left-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+                
+                setTimeout(() => {
+                  nextSlide.style.animation = '';
+                }, animationDuration);
+              }, animationDuration);
+            }
+          }
+
+        } else if (this.animationType === 'slide_vertical') {
+          if (direction === 'next') {
+            currentSlide.style.animation = `ai-slide-out-up-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+            
+            setTimeout(() => {
+              currentSlide.classList.remove('active');
+              currentSlide.style.animation = '';
+              nextSlide.classList.add('active');
+              nextSlide.style.animation = `ai-slide-in-up-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+              
+              setTimeout(() => {
+                nextSlide.style.animation = '';
+              }, animationDuration);
+            }, animationDuration);
+          } else {
+            currentSlide.style.animation = `ai-slide-out-down-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+            
+            setTimeout(() => {
+              currentSlide.classList.remove('active');
+              currentSlide.style.animation = '';
+              nextSlide.classList.add('active');
+              nextSlide.style.animation = `ai-slide-in-down-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+              
+              setTimeout(() => {
+                nextSlide.style.animation = '';
+              }, animationDuration);
+            }, animationDuration);
+          }
+
+        } else if (this.animationType === 'zoom') {
+          currentSlide.style.animation = `ai-zoom-out-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+          
+          setTimeout(() => {
+            currentSlide.classList.remove('active');
+            currentSlide.style.animation = '';
+            nextSlide.classList.add('active');
+            nextSlide.style.animation = `ai-zoom-in-{{ ai_gen_id }} ${animationDuration}ms ease forwards`;
+            
+            setTimeout(() => {
+              nextSlide.style.animation = '';
+            }, animationDuration);
+          }, animationDuration);
+
+        } else {
+          currentSlide.classList.remove('active');
+          nextSlide.classList.add('active');
+        }
+      }
+
+      startAutoplay() {
+        this.autoplayInterval = setInterval(() => {
+          if (!this.isTransitioning) {
+            this.goToNextSlide();
+          }
+        }, this.autoplaySpeed);
+      }
+
+      resetAutoplay() {
+        clearInterval(this.autoplayInterval);
+        this.startAutoplay();
+      }
+
+      disconnectedCallback() {
+        if (this.autoplayInterval) {
+          clearInterval(this.autoplayInterval);
+        }
+      }
+    }
+
+    customElements.define('announcement-bar-{{ ai_gen_id }}', AnnouncementBar{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Barra de anuncios",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Anuncios"
+    },
+    {
+      "type": "paragraph",
+      "content": "Puedes usar emojis en tus anuncios. Ejemplo: 🎉 ✨ 🚚 💝 ⭐ 🔥 💯 ❤️"
+    },
+    {
+      "type": "text",
+      "id": "announcement_1",
+      "label": "Anuncio 1",
+      "default": "🚚 Envío gratis en pedidos superiores a $50.000"
+    },
+    {
+      "type": "text",
+      "id": "announcement_2",
+      "label": "Anuncio 2",
+      "default": "🎉 20% de descuento en toda la tienda"
+    },
+    {
+      "type": "text",
+      "id": "announcement_3",
+      "label": "Anuncio 3"
+    },
+    {
+      "type": "text",
+      "id": "announcement_4",
+      "label": "Anuncio 4"
+    },
+    {
+      "type": "text",
+      "id": "announcement_5",
+      "label": "Anuncio 5"
+    },
+    {
+      "type": "header",
+      "content": "Estilo de la barra"
+    },
+    {
+      "type": "color",
+      "id": "bar_background_color",
+      "label": "Color de fondo",
+      "default": "#121212"
+    },
+    {
+      "type": "range",
+      "id": "bar_height",
+      "label": "Altura mínima",
+      "min": 40,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "bar_padding",
+      "label": "Espaciado interno",
+      "min": 0,
+      "max": 30,
+      "step": 5,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "bar_border_radius",
+      "label": "Bordes redondeados",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "bar_border_thickness",
+      "label": "Grosor del borde",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "bar_border_color",
+      "label": "Color del borde",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Estilo del texto"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Color del texto",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Tamaño del texto",
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "text_weight",
+      "label": "Grosor del texto",
+      "options": [
+        {
+          "value": "300",
+          "label": "Ligero"
+        },
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medio"
+        },
+        {
+          "value": "600",
+          "label": "Semi-negrita"
+        },
+        {
+          "value": "700",
+          "label": "Negrita"
+        }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "header",
+      "content": "Flechas de navegación"
+    },
+    {
+      "type": "range",
+      "id": "arrow_size",
+      "label": "Tamaño de las flechas",
+      "min": 20,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "arrow_opacity",
+      "label": "Opacidad",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.7
+    },
+    {
+      "type": "color",
+      "id": "arrow_background_color",
+      "label": "Color de fondo",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "arrow_hover_background_color",
+      "label": "Color de fondo al pasar",
+      "default": "#f3f3f3"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Color del icono",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "arrow_hover_color",
+      "label": "Color del icono al pasar",
+      "default": "#121212"
+    },
+    {
+      "type": "header",
+      "content": "Animación"
+    },
+    {
+      "type": "select",
+      "id": "animation_type",
+      "label": "Tipo de animación",
+      "options": [
+        {
+          "value": "fade",
+          "label": "Desvanecimiento"
+        },
+        {
+          "value": "slide_horizontal",
+          "label": "Deslizamiento horizontal"
+        },
+        {
+          "value": "slide_vertical",
+          "label": "Deslizamiento vertical"
+        },
+        {
+          "value": "zoom",
+          "label": "Zoom"
+        },
+        {
+          "value": "none",
+          "label": "Sin animación"
+        }
+      ],
+      "default": "slide_horizontal",
+      "info": "Elige cómo se muestran los anuncios"
+    },
+    {
+      "type": "select",
+      "id": "slide_direction",
+      "label": "Dirección del deslizamiento",
+      "options": [
+        {
+          "value": "left_to_right",
+          "label": "Izquierda a derecha"
+        },
+        {
+          "value": "right_to_left",
+          "label": "Derecha a izquierda"
+        }
+      ],
+      "default": "right_to_left",
+      "info": "Solo aplica para deslizamiento horizontal"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Reproducción automática",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Velocidad de cambio",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    }
+  ],
+  "presets": [
+    {
+      "name": "Barra de anuncios"
+    }
+  ]
+}
+{% endschema %}

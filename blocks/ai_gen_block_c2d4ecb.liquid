@@ -1,0 +1,348 @@
+{% assign ai_base_id = block.id | default: section.id %}
+{% assign ai_gen_id = ai_base_id | replace: '_', '' | downcase %}
+
+{% style %}
+.ai-tabs-container-{{ ai_gen_id }} {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.ai-tabs-header-{{ ai_gen_id }} {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  border-bottom: 1px solid #d0d0d0;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.ai-tabs-button-{{ ai_gen_id }},
+.ai-tabs-link-{{ ai_gen_id }} {
+  padding: 18px 28px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  outline: none;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ai-tabs-header-{{ ai_gen_id }} .ai-tabs-button-{{ ai_gen_id }}:first-child {
+  font-weight: 700;
+}
+
+.ai-tabs-button-{{ ai_gen_id }}:hover,
+.ai-tabs-link-{{ ai_gen_id }}:hover {
+  color: #386898;
+}
+
+.ai-tabs-button-{{ ai_gen_id }}.active,
+.ai-tabs-link-{{ ai_gen_id }}.active {
+  color: #fff;
+  background: #386898;
+  border-bottom-color: #386898;
+}
+
+.ai-tabs-content-{{ ai_gen_id }} {
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 0 20px;
+}
+
+.ai-tabs-panel-{{ ai_gen_id }} {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.ai-tabs-panel-{{ ai_gen_id }}.active {
+  display: block;
+  opacity: 1;
+}
+
+.ai-tabs-panel-{{ ai_gen_id }} h2,
+.ai-tabs-panel-{{ ai_gen_id }} h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 25px 0 15px 0;
+  color: #333;
+  text-transform: uppercase;
+}
+
+.ai-tabs-panel-{{ ai_gen_id }} p,
+.ai-tabs-panel-{{ ai_gen_id }} li {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #555;
+  margin: 0 0 15px 0;
+}
+
+.ai-tabs-panel-{{ ai_gen_id }} a {
+  color: #0066cc;
+  text-decoration: underline;
+}
+
+.ai-tabs-panel-{{ ai_gen_id }} a:hover {
+  color: #0052a3;
+}
+
+@media screen and (max-width: 749px) {
+  .ai-tabs-header-{{ ai_gen_id }} {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: none;
+    background: #ffffff;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    position: relative;
+  }
+
+  .ai-tabs-header-{{ ai_gen_id }}::-webkit-scrollbar { display: none; }
+
+  .ai-tabs-header-{{ ai_gen_id }}::before,
+  .ai-tabs-header-{{ ai_gen_id }}::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 24px;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .ai-tabs-header-{{ ai_gen_id }}::before {
+    left: 0;
+    background: linear-gradient(to right, #ffffff 0%, rgba(255,255,255,0) 100%);
+  }
+
+  .ai-tabs-header-{{ ai_gen_id }}::after {
+    right: 0;
+    background: linear-gradient(to left, #ffffff 0%, rgba(255,255,255,0) 100%));
+  }
+
+  .ai-tabs-button-{{ ai_gen_id }},
+  .ai-tabs-link-{{ ai_gen_id }} {
+    font-size: 12px;
+    padding: 14px 16px;
+    flex: 0 0 auto;
+    scroll-snap-align: none;
+    position: relative;
+    z-index: 1;
+  }
+
+  .ai-tabs-panel-{{ ai_gen_id }} p,
+  .ai-tabs-panel-{{ ai_gen_id }} li {
+    font-size: 13px;
+  }
+}
+{% endstyle %}
+
+<tabs-component-{{ ai_gen_id }} class="ai-tabs-container-{{ ai_gen_id }}" id="policies-tabs-{{ ai_gen_id }}">
+  <div class="ai-tabs-header-{{ ai_gen_id }}" role="tablist" aria-label="Pestañas de políticas">
+    {% assign first_tab = false %}
+    {% assign tab_index = 1 %}
+
+    {% if shop.terms_of_service != blank %}
+      <button class="ai-tabs-button-{{ ai_gen_id }} {% if first_tab == false %}active{% endif %}" data-tab="{{ tab_index }}" data-tab-slug="terms" role="tab" aria-selected="{% if first_tab == false %}true{% else %}false{% endif %}">
+        {{ shop.terms_of_service.title | default: 'TÉRMINOS DEL SERVICIO' }}
+      </button>
+      {% assign first_tab = true %}
+      {% assign tab_index = tab_index | plus: 1 %}
+    {% endif %}
+
+    {% if shop.shipping_policy != blank %}
+      <button class="ai-tabs-button-{{ ai_gen_id }}" data-tab="{{ tab_index }}" data-tab-slug="shipping" role="tab" aria-selected="false">
+        {{ shop.shipping_policy.title | default: 'POLÍTICA DE ENVÍO' }}
+      </button>
+      {% assign tab_index = tab_index | plus: 1 %}
+    {% endif %}
+
+    {% if shop.refund_policy != blank %}
+      <button class="ai-tabs-button-{{ ai_gen_id }}" data-tab="{{ tab_index }}" data-tab-slug="refund" role="tab" aria-selected="false">
+        {{ shop.refund_policy.title | default: 'POLÍTICA DE REEMBOLSO' }}
+      </button>
+      {% assign tab_index = tab_index | plus: 1 %}
+    {% endif %}
+
+    <button class="ai-tabs-button-{{ ai_gen_id }}" data-tab="pqrs" data-tab-slug="pqrs" role="tab" aria-selected="false">
+      ESCRÍBENOS TUS PQRS
+    </button>
+
+    {% if block.settings.faq_url %}
+      <a class="ai-tabs-link-{{ ai_gen_id }}" href="{{ block.settings.faq_url }}">PREGUNTAS FRECUENTES</a>
+    {% endif %}
+  </div>
+
+  <div class="ai-tabs-content-{{ ai_gen_id }}">
+    {% assign first_panel = false %}
+    {% assign tab_index = 1 %}
+
+    {% if shop.terms_of_service != blank %}
+      <div class="ai-tabs-panel-{{ ai_gen_id }} {% if first_panel == false %}active{% endif %}" data-panel="{{ tab_index }}" data-panel-slug="terms">
+        {{ shop.terms_of_service.body }}
+      </div>
+      {% assign first_panel = true %}
+      {% assign tab_index = tab_index | plus: 1 %}
+    {% endif %}
+
+    {% if shop.shipping_policy != blank %}
+      <div class="ai-tabs-panel-{{ ai_gen_id }}" data-panel="{{ tab_index }}" data-panel-slug="shipping">
+        {{ shop.shipping_policy.body }}
+      </div>
+      {% assign tab_index = tab_index | plus: 1 %}
+    {% endif %}
+
+    {% if shop.refund_policy != blank %}
+      <div class="ai-tabs-panel-{{ ai_gen_id }}" data-panel="{{ tab_index }}" data-panel-slug="refund">
+        {{ shop.refund_policy.body }}
+      </div>
+      {% assign tab_index = tab_index | plus: 1 %}
+    {% endif %}
+
+    <div class="ai-tabs-panel-{{ ai_gen_id }}" data-panel="pqrs" data-panel-slug="pqrs">
+      {{ block.settings.pqrs_content }}
+    </div>
+  </div>
+</tabs-component-{{ ai_gen_id }}>
+
+<script>
+(function() {
+  class TabsComponent{{ ai_gen_id }} extends HTMLElement {
+    connectedCallback() {
+      this.header  = this.querySelector('.ai-tabs-header-{{ ai_gen_id }}');
+      this.buttons = this.querySelectorAll('.ai-tabs-button-{{ ai_gen_id }}');
+      this.links   = this.querySelectorAll('.ai-tabs-link-{{ ai_gen_id }}');
+      this.panels  = this.querySelectorAll('.ai-tabs-panel-{{ ai_gen_id }}');
+
+      this.buttons.forEach(btn => btn.addEventListener('click', () => this.switchTab(btn.dataset.tab)));
+
+      this.addEventListener('keydown', (e) => {
+        const current = Array.from(this.buttons).findIndex(b => b.classList.contains('active'));
+        if (current === -1) return;
+        if (['ArrowRight','ArrowLeft'].includes(e.key)) {
+          e.preventDefault();
+          const dir = e.key === 'ArrowRight' ? 1 : -1;
+          const nextIndex = (current + dir + this.buttons.length) % this.buttons.length;
+          const nextBtn = this.buttons[nextIndex];
+          if (nextBtn) { nextBtn.focus(); this.switchTab(nextBtn.dataset.tab); }
+        }
+      });
+
+      this.enableDragScroll();
+      
+      // Detectar parámetro de URL del footer
+      this.handleUrlParameter();
+
+      // Mostrar identificadores en consola
+      this.displayTabIdentifiers();
+    }
+
+    displayTabIdentifiers() {
+      const identifiers = [];
+      this.buttons.forEach(btn => {
+        const slug = btn.dataset.tabSlug;
+        if (slug) {
+          identifiers.push(slug);
+        }
+      });
+      
+      console.log('%c✅ PESTAÑAS CARGADAS', 'color: green; font-weight: bold; font-size: 14px;');
+      console.log('📌 TAB IDENTIFIERS DISPONIBLES:', identifiers);
+      console.log('📌 USAR EN FOOTER URLS: /pages/ayuda?tab=IDENTIFICADOR');
+    }
+
+    handleUrlParameter() {
+      const params = new URLSearchParams(window.location.search);
+      const tabSlug = params.get('tab');
+      
+      if (tabSlug) {
+        const btn = this.querySelector(`[data-tab-slug="${tabSlug}"]`);
+        if (btn) {
+          this.switchTab(btn.dataset.tab);
+          // Scroll suave hacia la sección
+          setTimeout(() => {
+            this.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+          console.log(`✅ Pestaña activada: ${tabSlug}`);
+        } else {
+          console.warn(`⚠️ Pestaña no encontrada: ${tabSlug}`);
+        }
+      }
+    }
+
+    enableDragScroll() {
+      const el = this.header;
+      let isDown = false, startX = 0, scrollLeft = 0;
+
+      const start = (x) => { isDown = true; startX = x - el.offsetLeft; scrollLeft = el.scrollLeft; el.classList.add('dragging'); };
+      const move  = (x) => { if (!isDown) return; const walk = (x - el.offsetLeft - startX); el.scrollLeft = scrollLeft - walk; };
+      const end   = () => { isDown = false; el.classList.remove('dragging'); };
+
+      el.addEventListener('mousedown', (e)=>start(e.pageX));
+      el.addEventListener('mousemove', (e)=>move(e.pageX));
+      document.addEventListener('mouseup', end);
+
+      el.addEventListener('touchstart', (e)=>start(e.touches[0].pageX), {passive:true});
+      el.addEventListener('touchmove', (e)=>move(e.touches[0].pageX), {passive:true});
+      el.addEventListener('touchend', end);
+      el.addEventListener('touchcancel', end);
+    }
+
+    switchTab(tabId) {
+      this.buttons.forEach(btn => { btn.classList.remove('active'); btn.setAttribute('aria-selected','false'); });
+      this.links.forEach(link => link.classList.remove('active'));
+
+      const activeBtn = this.querySelector(`[data-tab="${tabId}"]`);
+      if (activeBtn) {
+        activeBtn.classList.add('active');
+        activeBtn.setAttribute('aria-selected','true');
+
+        if (window.innerWidth < 750) {
+          activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+      }
+
+      this.panels.forEach(panel => panel.classList.remove('active'));
+      const activePanel = this.querySelector(`[data-panel="${tabId}"]`);
+      if (activePanel) activePanel.classList.add('active');
+    }
+  }
+
+  customElements.define('tabs-component-{{ ai_gen_id }}', TabsComponent{{ ai_gen_id }});
+})();
+</script>
+
+{% schema %}
+{
+  "name": "tabs_dyn",
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "pqrs_content",
+      "label": "Contenido – PQRS",
+      "default": "<p>Cuéntanos tu Petición, Queja, Reclamo o Sugerencia. Escríbenos a <a href=\"mailto:tribuxco@gmail.com\">tribuxco@gmail.com</a> o utiliza el formulario de contacto.</p>"
+    },
+    {
+      "type": "url",
+      "id": "faq_url",
+      "label": "URL – Preguntas Frecuentes (opcional)"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Pestañas Policies Dinámicas"
+    }
+  ]
+}
+{% endschema %}

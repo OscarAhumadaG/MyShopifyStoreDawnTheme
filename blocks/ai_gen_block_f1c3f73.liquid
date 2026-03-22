@@ -1,0 +1,727 @@
+{% doc %}
+  @prompt
+    Necesito una barra de producto fija (sticky product bar) en las páginas de producto y, ACOPLADO a ella, un botón de “Volver arriba” (scroll-to-top). Ambos deben aparecer y ocultarse juntos al hacer scroll. Requisitos:
+    
+    PÁGINAS / ALCANCE
+    - Debe renderizarse solo en templates de producto (product.liquid/product.json) en Online Store 2.0.
+    - Debe funcionar en desktop y mobile, respetando safe-area en iOS (env(safe-area-inset-bottom)).
+    
+    COMPORTAMIENTO
+    - La barra aparece cuando el usuario ha hecho scroll > 200px y se oculta al volver cerca del top.
+    - El botón “Volver arriba” debe ir acoplado visualmente al extremo derecho de la barra, con una separación de 8–12px, moviéndose como una unidad con la barra.
+    - Al pulsarlo, debe hacer scroll suave (smooth) al principio de la página.
+    - Mantener la barra visible al cambiar variantes y actualizar precio/estado del botón según stock.
+    - Si el producto está “Agotado”, desactivar el CTA y mostrar el estado; el botón “Volver arriba” sigue activo.
+    
+    CONTENIDO DE LA BARRA
+    - Miniatura del producto (opcional), título del producto, precio dinámico, selector de variantes (si existen) y CTA principal (Agregar al carrito / Comprar / Agotado).
+    - En mobile, diseño compacto y legible; en desktop, en una sola fila.
+    
+    ESTILO (flat y moderno)
+    - Fondo sólido, bordes suaves, sombra sutil opcional, esquinas redondeadas.
+    - Usar variables CSS para personalización: 
+      --spb-bg, --spb-text, --spb-accent, --spb-btn-bg, --spb-btn-text, --spb-shadow.
+    - Altura sugerida: 64–72px desktop, 56–64px mobile.
+    - Z-index alto para quedar por encima del contenido sin tapar toasts/modales del tema.
+    
+    ACCESIBILIDAD
+    - Roles/ARIA adecuados. El botón debe tener aria-label="Volver arriba".
+    - Foco visible y navegable con teclado. Contraste mínimo AA.
+    
+    RENDIMIENTO
+    - JavaScript vanilla, sin dependencias externas. Throttling en scroll/resize para evitar repaints excesivos.
+    - Código ligero y claro.
+    
+    ENTREGABLES (código completo y listo para pegar):
+    1) Snippet Liquid: snippets/sticky-product-bar.liquid
+       - Markup de la barra y del botón “Volver arriba” (anidado/acoplado a la barra).
+       - Clases sugeridas: .spb, .spb__content, .spb__media, .spb__title, .spb__price, .spb__variants, .spb__cta, .spb__top-btn.
+    2) CSS (puede ir como asset .css o dentro del snippet con <style>):
+       - Position: fixed; bottom: calc(env(safe-area-inset-bottom) + 0px); left: 0; right: 0.
+       - Layout responsive, variables CSS definidas al inicio, modo reducido en mobile.
+       - Estilos del botón “Volver arriba” acoplado a la barra (círculo, ícono flecha ↑).
+    3) JavaScript (asset o <script> en el snippet):
+       - Detectar scroll > 200px para mostrar/ocultar barra + botón juntos.
+       - Smooth scroll al top (scrollTo({ top: 0, behavior: 'smooth' })).
+       - Actualizar precio/estado al cambiar variantes (escuchar cambios en select de variantes o eventos del tema).
+       - Recalcular safe-area en resize/orientationchange.
+    4) Instrucciones de instalación:
+       - Incluir el snippet en el template/section de producto o como app block OS 2.0.
+       - Señalar dónde ajustar variables CSS (colores, alturas, radios, sombras).
+       - Señalar ajustes opcionales: umbral de scroll, mostrar/ocultar miniatura, solo mobile/solo desktop.
+    
+    CONFIGURABLES (expuestos vía variables CSS o settings):
+    - Colores: --spb-bg: #ffffff; --spb-text: #111111; --spb-accent: #6b7280; --spb-btn-bg: #111111; --spb-btn-text: #ffffff.
+    - Altura, radio de borde, sombra.
+    - Umbral de scroll y breakpoint de mobile.
+    
+    Asegúrate de que:
+    - El botón “Volver arriba” esté visualmente unido a la barra y se mueva junto con ella.
+    - No interfiera con minicart, chat o toasts del tema (usar z-index y offsets).
+    - El componente cargue y funcione en navegadores modernos y en iOS/Android., quiero que el boton sea de comprar ahora y quiero que se le pueda ajustar la opacidad a la barra en general tambien y que el exto agotado salga solo cuando no hay realmente stock de dicho producto asegurate de eso, quiero que la flecha de regresar arriba este en ese mismo lugar pero arriba de la barra
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  :root {
+    --spb-bg-{{ ai_gen_id }}: {{ block.settings.bar_bg_color }};
+    --spb-text-{{ ai_gen_id }}: {{ block.settings.bar_text_color }};
+    --spb-accent-{{ ai_gen_id }}: {{ block.settings.bar_accent_color }};
+    --spb-btn-bg-{{ ai_gen_id }}: {{ block.settings.button_bg_color }};
+    --spb-btn-text-{{ ai_gen_id }}: {{ block.settings.button_text_color }};
+    --spb-shadow-{{ ai_gen_id }}: {{ block.settings.shadow_color }};
+    --spb-height-desktop-{{ ai_gen_id }}: {{ block.settings.bar_height_desktop }}px;
+    --spb-height-mobile-{{ ai_gen_id }}: {{ block.settings.bar_height_mobile }}px;
+    --spb-radius-{{ ai_gen_id }}: {{ block.settings.border_radius }}px;
+    --spb-scroll-threshold-{{ ai_gen_id }}: {{ block.settings.scroll_threshold }}px;
+    --spb-bar-opacity-{{ ai_gen_id }}: {{ block.settings.bar_opacity }};
+  }
+
+  .spb-container-{{ ai_gen_id }} {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    transform: translateY(100%);
+    transition: transform 0.3s ease-in-out;
+    display: block;
+    pointer-events: none;
+  }
+
+  .spb-container-{{ ai_gen_id }}.spb-visible-{{ ai_gen_id }} {
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .spb-{{ ai_gen_id }} {
+    background-color: var(--spb-bg-{{ ai_gen_id }});
+    color: var(--spb-text-{{ ai_gen_id }});
+    height: var(--spb-height-desktop-{{ ai_gen_id }});
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, {{ block.settings.shadow_opacity }});
+    padding-bottom: env(safe-area-inset-bottom);
+    opacity: var(--spb-bar-opacity-{{ ai_gen_id }});
+  }
+
+  .spb__wrapper-{{ ai_gen_id }} {
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    gap: 16px;
+    position: relative;
+  }
+
+  .spb__content-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .spb__media-{{ ai_gen_id }} {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: #f3f3f3;
+  }
+
+  .spb__media-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .spb__info-{{ ai_gen_id }} {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .spb__title-{{ ai_gen_id }} {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--spb-text-{{ ai_gen_id }});
+  }
+
+  .spb__price-{{ ai_gen_id }} {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--spb-accent-{{ ai_gen_id }});
+  }
+
+  .spb__actions-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .spb__variants-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .spb__variant-select-{{ ai_gen_id }} {
+    padding: 8px 12px;
+    border: 1px solid rgba(18, 18, 18, 0.2);
+    border-radius: 4px;
+    background-color: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
+    min-width: 120px;
+  }
+
+  .spb__cta-{{ ai_gen_id }} {
+    padding: 12px 24px;
+    background-color: var(--spb-btn-bg-{{ ai_gen_id }});
+    color: var(--spb-btn-text-{{ ai_gen_id }});
+    border: none;
+    border-radius: var(--spb-radius-{{ ai_gen_id }});
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s ease;
+  }
+
+  .spb__cta-{{ ai_gen_id }}:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+
+  .spb__cta-{{ ai_gen_id }}:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .spb__top-btn-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    right: 16px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--spb-btn-bg-{{ ai_gen_id }});
+    color: var(--spb-btn-text-{{ ai_gen_id }});
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .spb__top-btn-{{ ai_gen_id }}:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+  }
+
+  .spb__top-btn-{{ ai_gen_id }} svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .spb-{{ ai_gen_id }} {
+      height: var(--spb-height-mobile-{{ ai_gen_id }});
+    }
+
+    .spb__wrapper-{{ ai_gen_id }} {
+      padding: 0 12px;
+      gap: 8px;
+    }
+
+    .spb__content-{{ ai_gen_id }} {
+      gap: 12px;
+    }
+
+    {% if block.settings.hide_image_mobile %}
+      .spb__media-{{ ai_gen_id }} {
+        display: none;
+      }
+    {% else %}
+      .spb__media-{{ ai_gen_id }} {
+        width: 40px;
+        height: 40px;
+      }
+    {% endif %}
+
+    .spb__title-{{ ai_gen_id }} {
+      font-size: 12px;
+    }
+
+    .spb__price-{{ ai_gen_id }} {
+      font-size: 14px;
+    }
+
+    .spb__actions-{{ ai_gen_id }} {
+      gap: 8px;
+    }
+
+    {% if block.settings.hide_variants_mobile %}
+      .spb__variants-{{ ai_gen_id }} {
+        display: none;
+      }
+    {% endif %}
+
+    .spb__cta-{{ ai_gen_id }} {
+      padding: 10px 16px;
+      font-size: 13px;
+    }
+
+    .spb__top-btn-{{ ai_gen_id }} {
+      width: 40px;
+      height: 40px;
+      right: 12px;
+    }
+
+    .spb__top-btn-{{ ai_gen_id }} svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+{% endstyle %}
+
+<sticky-product-bar-{{ ai_gen_id }}
+  class="spb-container-{{ ai_gen_id }}"
+  data-product-id="{{ product.id }}"
+  data-scroll-threshold="{{ block.settings.scroll_threshold }}"
+  {{ block.shopify_attributes }}
+>
+  <button
+    class="spb__top-btn-{{ ai_gen_id }}"
+    data-spb-scroll-top
+    aria-label="Volver arriba"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+  </button>
+
+  <div class="spb-{{ ai_gen_id }}">
+    <div class="spb__wrapper-{{ ai_gen_id }}">
+      <div class="spb__content-{{ ai_gen_id }}">
+        {% if block.settings.show_image and product.featured_image %}
+          <div class="spb__media-{{ ai_gen_id }}">
+            <img
+              src="{{ product.featured_image | image_url: width: 100 }}"
+              alt="{{ product.featured_image.alt | escape }}"
+              width="48"
+              height="48"
+              loading="lazy"
+            >
+          </div>
+        {% endif %}
+
+        <div class="spb__info-{{ ai_gen_id }}">
+          <h3 class="spb__title-{{ ai_gen_id }}">{{ product.title }}</h3>
+          <div class="spb__price-{{ ai_gen_id }}" data-spb-price>
+            {{ product.selected_or_first_available_variant.price | money }}
+          </div>
+        </div>
+      </div>
+
+      <div class="spb__actions-{{ ai_gen_id }}">
+        {% if product.has_only_default_variant == false and block.settings.show_variants %}
+          <div class="spb__variants-{{ ai_gen_id }}">
+            <select
+              class="spb__variant-select-{{ ai_gen_id }}"
+              data-spb-variant-select
+              aria-label="Seleccionar variante"
+            >
+              {% for variant in product.variants %}
+                <option
+                  value="{{ variant.id }}"
+                  {% if variant == product.selected_or_first_available_variant %}selected{% endif %}
+                  {% unless variant.available %}disabled{% endunless %}
+                  data-available="{{ variant.available }}"
+                >
+                  {{ variant.title }}
+                  {% unless variant.available %} - Agotado{% endunless %}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        {% endif %}
+
+        <button
+          class="spb__cta-{{ ai_gen_id }}"
+          data-spb-buy-now
+          data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+          {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}
+        >
+          {% if product.selected_or_first_available_variant.available %}
+            {{ block.settings.button_text }}
+          {% else %}
+            {{ block.settings.sold_out_text }}
+          {% endif %}
+        </button>
+      </div>
+    </div>
+  </div>
+</sticky-product-bar-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class StickyProductBar{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.scrollThreshold = parseInt(this.dataset.scrollThreshold) || 200;
+        this.isVisible = false;
+        this.ticking = false;
+        this.productId = this.dataset.productId;
+      }
+
+      connectedCallback() {
+        this.priceElement = this.querySelector('[data-spb-price]');
+        this.variantSelect = this.querySelector('[data-spb-variant-select]');
+        this.buyNowButton = this.querySelector('[data-spb-buy-now]');
+        this.scrollTopButton = this.querySelector('[data-spb-scroll-top]');
+
+        this.setupEventListeners();
+        this.checkScroll();
+      }
+
+      setupEventListeners() {
+        window.addEventListener('scroll', this.handleScroll.bind(this), { passive: true });
+        window.addEventListener('resize', this.handleResize.bind(this), { passive: true });
+        window.addEventListener('orientationchange', this.handleResize.bind(this));
+
+        if (this.variantSelect) {
+          this.variantSelect.addEventListener('change', this.handleVariantChange.bind(this));
+        }
+
+        if (this.buyNowButton) {
+          this.buyNowButton.addEventListener('click', this.handleBuyNow.bind(this));
+        }
+
+        if (this.scrollTopButton) {
+          this.scrollTopButton.addEventListener('click', this.handleScrollTop.bind(this));
+        }
+      }
+
+      handleScroll() {
+        if (!this.ticking) {
+          window.requestAnimationFrame(() => {
+            this.checkScroll();
+            this.ticking = false;
+          });
+          this.ticking = true;
+        }
+      }
+
+      checkScroll() {
+        const scrollY = window.scrollY || window.pageYOffset;
+        const shouldShow = scrollY > this.scrollThreshold;
+
+        if (shouldShow !== this.isVisible) {
+          this.isVisible = shouldShow;
+          this.classList.toggle('spb-visible-{{ ai_gen_id }}', shouldShow);
+        }
+      }
+
+      handleResize() {
+        this.checkScroll();
+      }
+
+      handleVariantChange(event) {
+        const variantId = event.target.value;
+        const selectedOption = event.target.options[event.target.selectedIndex];
+        const isAvailable = selectedOption.dataset.available === 'true';
+        
+        this.updateVariant(variantId, isAvailable);
+      }
+
+      updateVariant(variantId, isAvailable) {
+        const variantData = this.getVariantData(variantId);
+
+        if (variantData) {
+          if (this.priceElement && variantData.price) {
+            this.priceElement.textContent = this.formatMoney(variantData.price);
+          }
+
+          if (this.buyNowButton) {
+            this.buyNowButton.dataset.variantId = variantId;
+            
+            if (variantData.available) {
+              this.buyNowButton.disabled = false;
+              this.buyNowButton.textContent = '{{ block.settings.button_text }}';
+            } else {
+              this.buyNowButton.disabled = true;
+              this.buyNowButton.textContent = '{{ block.settings.sold_out_text }}';
+            }
+          }
+        }
+      }
+
+      getVariantData(variantId) {
+        const scriptTag = document.querySelector('script[type="application/json"][data-product-json]');
+        if (scriptTag) {
+          try {
+            const productData = JSON.parse(scriptTag.textContent);
+            return productData.variants.find(v => v.id == variantId);
+          } catch (e) {
+            console.error('Error parsing product data:', e);
+          }
+        }
+
+        if (this.variantSelect) {
+          const variantOption = this.variantSelect.querySelector(`option[value="${variantId}"]`);
+          if (variantOption) {
+            return {
+              id: variantId,
+              available: variantOption.dataset.available === 'true',
+              price: null
+            };
+          }
+        }
+
+        return null;
+      }
+
+      formatMoney(cents) {
+        const amount = cents / 100;
+        return new Intl.NumberFormat('es-CO', {
+          style: 'currency',
+          currency: 'COP',
+          minimumFractionDigits: 0
+        }).format(amount);
+      }
+
+      handleBuyNow(event) {
+        event.preventDefault();
+
+        const variantId = this.buyNowButton.dataset.variantId;
+
+        if (!variantId) {
+          console.error('No variant ID found');
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('id', variantId);
+        formData.append('quantity', 1);
+
+        fetch('/cart/add.js', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          window.location.href = '/checkout';
+        })
+        .catch(error => {
+          console.error('Error during buy now:', error);
+        });
+      }
+
+      handleScrollTop(event) {
+        event.preventDefault();
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+    }
+
+    customElements.define('sticky-product-bar-{{ ai_gen_id }}', StickyProductBar{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Barra de producto sticky",
+  "tag": null,
+  "class": "spb-block",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Contenido"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_image",
+      "label": "Mostrar imagen del producto",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_variants",
+      "label": "Mostrar selector de variantes",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Texto del botón",
+      "default": "Comprar ahora"
+    },
+    {
+      "type": "text",
+      "id": "sold_out_text",
+      "label": "Texto agotado",
+      "default": "Agotado"
+    },
+    {
+      "type": "header",
+      "content": "Comportamiento"
+    },
+    {
+      "type": "range",
+      "id": "scroll_threshold",
+      "min": 100,
+      "max": 500,
+      "step": 50,
+      "unit": "px",
+      "label": "Umbral de scroll",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 1000,
+      "max": 1600,
+      "step": 100,
+      "unit": "px",
+      "label": "Ancho máximo",
+      "default": 1200
+    },
+    {
+      "type": "header",
+      "content": "Colores"
+    },
+    {
+      "type": "color",
+      "id": "bar_bg_color",
+      "label": "Fondo de la barra",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "bar_text_color",
+      "label": "Texto de la barra",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "bar_accent_color",
+      "label": "Color de acento",
+      "default": "#3f6a9c"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Fondo del botón",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Texto del botón",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "shadow_color",
+      "label": "Color de sombra",
+      "default": "#121212"
+    },
+    {
+      "type": "header",
+      "content": "Estilo"
+    },
+    {
+      "type": "range",
+      "id": "bar_opacity",
+      "min": 0.5,
+      "max": 1,
+      "step": 0.1,
+      "label": "Opacidad de la barra",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "bar_height_desktop",
+      "min": 60,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Altura en desktop",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "bar_height_mobile",
+      "min": 56,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Altura en mobile",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 12,
+      "step": 2,
+      "unit": "px",
+      "label": "Radio de borde",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "shadow_opacity",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.1,
+      "label": "Opacidad de sombra",
+      "default": 0.1
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_image_mobile",
+      "label": "Ocultar imagen en mobile",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_variants_mobile",
+      "label": "Ocultar variantes en mobile",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Barra de producto sticky"
+    }
+  ]
+}
+{% endschema %}

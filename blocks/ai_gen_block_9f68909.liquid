@@ -1,0 +1,485 @@
+{%- assign ai_gen_id = block.id | replace: '_' , '' | downcase -%}
+
+{% style %}
+/* =========== BASE =========== */
+.ai-testimonials{
+  display:block;
+  width:100%;
+  max-width:100%;
+  padding: var(--section-padding, 30px) 20px;
+  background-color: var(--bg, #F8FAFB);
+}
+
+/* Contenedor con ancho configurable */
+.ai-testimonials__container{
+  width:100%;
+  max-width: var(--container-max-desktop, 1200px);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--container-pad-x, 20px);
+  padding-right: var(--container-pad-x, 20px);
+  display:flex;               /* Para alinear el contenido del bloque */
+  flex-direction: column;
+  justify-content: var(--container-align, center);
+}
+
+/* ===== Encabezado ===== */
+.ai-testimonials__heading{
+  text-align: var(--heading-align, center);
+  font-size: var(--heading-size, 24px);
+  color: var(--heading-color, #121212);
+  margin: 0 0 var(--heading-spacing, 25px);
+}
+
+/* Parche por ID único (gana al RTE del tema) */
+#ai-head-{{ ai_gen_id }}{
+  text-align: var(--heading-align, center) !important;
+  font-size: var(--heading-size, 24px) !important;
+  color: var(--heading-color, #121212) !important;
+  margin: 0 0 var(--heading-spacing, 25px) !important;
+}
+#ai-head-{{ ai_gen_id }} *{
+  text-align: inherit !important;
+  font-size: inherit !important;
+  color: inherit !important;
+  margin: 0 !important;
+}
+
+/* Tamaño móvil del título */
+@media (max-width: 749px){
+  #ai-head-{{ ai_gen_id }}{
+    font-size: {{ block.settings.heading_size_mobile | default: block.settings.heading_size }}px !important;
+  }
+  {% if block.settings.heading_single_line_mobile %}
+  #ai-head-{{ ai_gen_id }}{
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  {% endif %}
+
+  /* Ancho máximo móvil del contenedor */
+  .ai-testimonials__container{
+    max-width: var(--container-max-mobile, 100%);
+  }
+}
+
+/* ===== Grid tarjetas ===== */
+.ai-testimonials__stats{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+  gap: var(--stats-gap, 20px);
+}
+
+.ai-testimonials__stat{
+  display:flex; align-items:center;
+  gap: var(--stat-gap, 15px);
+  padding: var(--stat-padding, 10px);
+  background: var(--stat-bg, #fff);
+  border-radius: var(--stat-radius, 8px);
+  border: var(--stat-border-width, 1px) solid var(--stat-border-color, #e0e0e0);
+}
+
+/* ===== Círculo ===== */
+.ai-testimonials__circleWrap{
+  position: relative;
+  width: var(--circle-size, 90px);
+  height: var(--circle-size, 90px);
+  flex-shrink: 0;
+}
+.ai-testimonials__svg{ width:100%; height:100%; transform: rotate(-90deg); }
+.ai-testimonials__circleBg{
+  fill:none;
+  stroke: var(--circle-bg, #e8f0f7);
+  stroke-width: var(--circle-stroke, 6);
+}
+.ai-testimonials__circleProgress{
+  fill:none;
+  stroke-width: var(--circle-stroke, 6);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.8s ease;
+}
+
+/* Porcentaje centrado */
+.ai-testimonials__percentage{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size: var(--pct-size, 22px);
+  font-weight:700;
+  color: var(--pct-color, #3f6a9c);
+}
+
+/* ===== Texto ===== */
+.ai-testimonials__text{
+  font-size: var(--text-size, 13px);
+  color: var(--text-color, #121212);
+  line-height: 1.4;
+}
+
+/* Alineación por clases en root */
+.ai-ta-align-left   .ai-testimonials__text{ text-align:left   !important; }
+.ai-ta-align-center .ai-testimonials__text{ text-align:center !important; }
+.ai-ta-align-right  .ai-testimonials__text{ text-align:right  !important; }
+.ai-ta-align-justify .ai-testimonials__text{
+  text-align:justify !important; text-justify:inter-word;
+  hyphens:auto; -webkit-hyphens:auto; -ms-hyphens:auto;
+}
+
+/* Densidad (no alinea) */
+.ai-testimonials--text-compact .ai-testimonials__text{ line-height:1.25; letter-spacing:0; }
+{% endstyle %}
+
+{%- comment -%} ===== Datos desde metaobject referenciado en el producto ===== {%- endcomment -%}
+{% assign insight_ns  = block.settings.insight_ns  | default: 'custom' %}
+{% assign insight_key = block.settings.insight_key | default: 'insight' %}
+{% assign insight_mf  = product.metafields[insight_ns][insight_key] %}
+
+{% assign insight_list = nil %}
+{% if insight_mf and insight_mf.value and insight_mf.type contains 'list.' %}
+  {% assign insight_list = insight_mf.value %}
+{% endif %}
+
+{%- assign list_data = insight_list -%}
+{%- assign limit_count = block.settings.insight_max_items | default: 3 -%}
+
+<customer-testimonials-{{ ai_gen_id }}
+  class="ai-testimonials ai-testimonials--text-{{ block.settings.text_style | default: 'compact' }} ai-ta-align-{{ block.settings.stat_text_alignment | default: 'left' }}"
+  style="
+    --section-padding: {{ block.settings.section_padding | default: 30 }}px;
+    --bg: {{ block.settings.background_color | default: '#F8FAFB' }};
+
+    /* ===== NUEVAS VARIABLES DE ANCHO DEL BLOQUE ===== */
+    {% if block.settings.container_full_bleed %}
+      --container-max-desktop: none;
+      --container-max-mobile: 100%;
+    {% else %}
+      --container-max-desktop: {{ block.settings.container_max_desktop | default: '1200px' }};
+      --container-max-mobile: {{ block.settings.container_max_mobile  | default: '100%' }};
+    {% endif %}
+    --container-pad-x: {{ block.settings.container_pad_x | default: 20 }}px;
+    --container-align: {{ block.settings.container_align | default: 'center' }};
+
+    --heading-align: {{ block.settings.heading_alignment | default: 'center' }};
+    --heading-size: {{ block.settings.heading_size | default: 24 }}px;
+    --heading-color: {{ block.settings.heading_color | default: '#121212' }};
+    --heading-spacing: {{ block.settings.heading_spacing | default: 25 }}px;
+
+    --stats-gap: {{ block.settings.stats_gap | default: 20 }}px;
+
+    --stat-gap: {{ block.settings.stat_gap | default: 15 }}px;
+    --stat-padding: {{ block.settings.stat_padding | default: 10 }}px;
+    --stat-bg: {{ block.settings.stat_background | default: '#ffffff' }};
+    --stat-radius: {{ block.settings.stat_border_radius | default: 8 }}px;
+    --stat-border-width: {{ block.settings.stat_border_width | default: 1 }}px;
+    --stat-border-color: {{ block.settings.stat_border_color | default: '#e0e0e0' }};
+
+    --circle-size: {{ block.settings.circle_size | default: 90 }}px;
+    --circle-stroke: {{ block.settings.circle_stroke_width | default: 6 }};
+    --circle-bg: {{ block.settings.circle_bg_color | default: '#e8f0f7' }};
+
+    --pct-size: {{ block.settings.percentage_size | default: 22 }}px;
+    --pct-color: {{ block.settings.percentage_color | default: '#3f6a9c' }};
+
+    --text-size: {{ block.settings.text_size | default: 13 }}px;
+    --text-color: {{ block.settings.text_color | default: '#121212' }};
+  "
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-testimonials__container">
+
+    {% if block.settings.heading != blank %}
+      <div id="ai-head-{{ ai_gen_id }}">
+        {{ block.settings.heading }}
+      </div>
+    {% endif %}
+
+    {% if list_data and list_data.size > 0 %}
+      <div class="ai-testimonials__stats">
+        {% assign fld_pct_plain = block.settings.field_pct_plain  | default: 'percentage' %}
+        {% assign fld_headline  = block.settings.field_headline   | default: 'headline' %}
+        {% assign fld_excerpt   = block.settings.field_excerpt    | default: 'excerpt1' %}
+
+        {% for r in list_data limit: limit_count %}
+          {%- comment -%} % y headline (robusto) {%- endcomment -%}
+          {% assign pct_obj = r[fld_pct_plain] %}
+          {% if pct_obj and pct_obj.value != nil %}
+            {% assign pct_plain = pct_obj.value | plus: 0 %}
+          {% else %}
+            {% assign pct_plain = pct_obj | default: 0 | plus: 0 %}
+          {% endif %}
+          {% assign pct_clamped = pct_plain | at_least: 0 | at_most: 100 %}
+
+          {% assign head_obj = r[fld_headline] %}
+          {% if head_obj and head_obj.value != nil %}
+            {% assign headline = head_obj.value %}
+          {% else %}
+            {% assign headline = head_obj %}
+          {% endif %}
+
+          {%- comment -%} Rich text del metaobject (drop) → HTML {%- endcomment -%}
+          {% assign ex_drop = r.excerpt1 | default: r[fld_excerpt] %}
+          {% capture ex_html %}{% if ex_drop %}{{ ex_drop | metafield_tag }}{% endif %}{% endcapture %}
+          {% assign ex_html = ex_html | strip %}
+
+          <div class="ai-testimonials__stat">
+            <div class="ai-testimonials__circleWrap">
+              <svg class="ai-testimonials__svg" viewBox="0 0 120 120" role="img"
+                   aria-labelledby="stat{{ forloop.index }}_title_{{ ai_gen_id }} stat{{ forloop.index }}_desc_{{ ai_gen_id }}">
+                <defs>
+                  <linearGradient id="grad-{{ ai_gen_id }}-{{ forloop.index }}"
+                                  gradientTransform="rotate({{ block.settings.circle_progress_grad_angle | default: 0 }})">
+                    <stop offset="0%"
+                          stop-color="{{ block.settings.circle_progress_grad_start | default: block.settings.circle_progress_color }}" />
+                    <stop offset="100%"
+                          stop-color="{{ block.settings.circle_progress_grad_end   | default: block.settings.circle_progress_color }}" />
+                  </linearGradient>
+                </defs>
+
+                <title id="stat{{ forloop.index }}_title_{{ ai_gen_id }}">{{ pct_clamped }}%</title>
+                <desc  id="stat{{ forloop.index }}_desc_{{ ai_gen_id }}">{{ ex_html | strip_html | strip }}</desc>
+
+                <circle class="ai-testimonials__circleBg" cx="60" cy="60" r="54"></circle>
+                <circle class="ai-testimonials__circleProgress"
+                        cx="60" cy="60" r="54"
+                        data-percentage="{{ pct_clamped }}"
+                        style="stroke: url(#grad-{{ ai_gen_id }}-{{ forloop.index }});"
+                        stroke-dasharray="339.292"
+                        stroke-dashoffset="339.292"></circle>
+              </svg>
+
+              <div class="ai-testimonials__percentage">
+                {% if headline != blank %}{{ headline }}{% else %}{{ pct_clamped }}%{% endif %}
+              </div>
+            </div>
+
+            <div class="ai-testimonials__text">
+              {{ ex_html }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      {%- comment -%} Fallback manual del bloque (si no hay metaobject) {%- endcomment -%}
+      {% assign stats = (1..3) %}
+      {% assign any_fallback = false %}
+      {% for i in stats %}
+        {% capture pct_plain_key %}stat_{{ i }}_percentage_plain{% endcapture %}
+        {% capture pct_visual_key %}stat_{{ i }}_percentage{% endcapture %}
+        {% capture txt_key %}stat_{{ i }}_text{% endcapture %}
+        {% assign f_pct_plain = block.settings[pct_plain_key] | default: 0 | plus: 0 %}
+        {% assign f_pct_visual = block.settings[pct_visual_key] %}
+        {% assign f_txt = block.settings[txt_key] %}
+        {% if f_pct_plain > 0 or f_pct_visual != blank or f_txt != blank %}
+          {% assign any_fallback = true %}
+        {% endif %}
+      {% endfor %}
+
+      {% if any_fallback %}
+        <div class="ai-testimonials__stats">
+          {% for i in stats %}
+            {% capture pct_plain_key %}stat_{{ i }}_percentage_plain{% endcapture %}
+            {% capture pct_visual_key %}stat_{{ i }}_percentage{% endcapture %}
+            {% capture txt_key %}stat_{{ i }}_text{% endcapture %}
+
+            {% assign f_pct_plain = block.settings[pct_plain_key] | default: 0 | plus: 0 %}
+            {% assign f_pct_visual = block.settings[pct_visual_key] %}
+            {% assign f_txt = block.settings[txt_key] %}
+            {% assign pct_clamped = f_pct_plain | at_least: 0 | at_most: 100 %}
+
+            {% if f_pct_plain > 0 or f_pct_visual != blank or f_txt != blank %}
+              <div class="ai-testimonials__stat">
+                <div class="ai-testimonials__circleWrap">
+                  <svg class="ai-testimonials__svg" viewBox="0 0 120 120">
+                    <defs>
+                      <linearGradient id="grad-{{ ai_gen_id }}-{{ i }}"
+                                      gradientTransform="rotate({{ block.settings.circle_progress_grad_angle | default: 0 }})">
+                        <stop offset="0%"
+                              stop-color="{{ block.settings.circle_progress_grad_start | default: block.settings.circle_progress_color }}" />
+                        <stop offset="100%"
+                              stop-color="{{ block.settings.circle_progress_grad_end   | default: block.settings.circle_progress_color }}" />
+                      </linearGradient>
+                    </defs>
+                    <circle class="ai-testimonials__circleBg" cx="60" cy="60" r="54"></circle>
+                    <circle class="ai-testimonials__circleProgress"
+                            cx="60" cy="60" r="54"
+                            data-percentage="{{ pct_clamped }}"
+                            style="stroke: url(#grad-{{ ai_gen_id }}-{{ i }});"
+                            stroke-dasharray="339.292"
+                            stroke-dashoffset="339.292"></circle>
+                  </svg>
+                  <div class="ai-testimonials__percentage">
+                    {% if f_pct_visual != blank %}{{ f_pct_visual }}{% else %}{{ pct_clamped }}%{% endif %}
+                  </div>
+                </div>
+                <div class="ai-testimonials__text">
+                  {{ f_txt }}
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% else %}
+        {% if block.settings.hide_when_empty %}{% comment %}Nada que mostrar{% endcomment %}{% endif %}
+      {% endif %}
+    {% endif %}
+  </div>
+</customer-testimonials-{{ ai_gen_id }}>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const CIRC = 2 * Math.PI * 54; // 339.292…
+  const DURATION = 1800; // ms
+  const EASING = 'ease';
+  const roots = document.querySelectorAll('customer-testimonials-{{ ai_gen_id }}');
+  const prefersReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function initEmpty(root){
+    root.classList.remove('is-nojs');
+    root.querySelectorAll('.ai-testimonials__circleProgress').forEach(circle=>{
+      circle.style.transition = 'none';
+      circle.style.strokeDasharray = `${CIRC}`;
+      circle.style.strokeDashoffset = `${CIRC}`;
+    });
+  }
+  function paintImmediate(root){
+    root.classList.remove('is-nojs');
+    root.querySelectorAll('.ai-testimonials__circleProgress').forEach(circle=>{
+      const pct = Math.max(0, Math.min(100, parseFloat(circle.dataset.percentage||'0')));
+      const offset = CIRC * (1 - pct/100);
+      circle.style.transition = 'none';
+      circle.style.strokeDasharray = `${CIRC}`;
+      circle.style.strokeDashoffset = `${offset}`;
+    });
+  }
+  function animateFill(root){
+    root.classList.remove('is-nojs');
+    root.querySelectorAll('.ai-testimonials__circleProgress').forEach(circle=>{
+      const pct = Math.max(0, Math.min(100, parseFloat(circle.dataset.percentage||'0')));
+      const offset = CIRC * (1 - pct/100);
+      circle.style.transition = 'none';
+      circle.style.strokeDasharray = `${CIRC}`;
+      circle.style.strokeDashoffset = `${CIRC}`;
+      void circle.offsetWidth;
+      circle.style.transition = `stroke-dashoffset ${DURATION}ms ${EASING}`;
+      requestAnimationFrame(()=>{ circle.style.strokeDashoffset = `${offset}`; });
+    });
+  }
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if (!e.isIntersecting) return;
+        if (prefersReduce) { paintImmediate(e.target); } else { animateFill(e.target); }
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.35 });
+    roots.forEach(r => { initEmpty(r); io.observe(r); });
+  } else {
+    roots.forEach(r => { if (prefersReduce) { paintImmediate(r); } else { animateFill(r); }});
+  }
+});
+</script>
+
+{% schema %}
+{
+  "name": "Insights",
+  "settings": [
+    { "type": "header", "content": "Encabezado" },
+    { "type": "richtext", "id": "heading", "label": "Título", "default": "<p>VERDADES QUE NO CABEN EN UN ENVASE</p>" },
+    { "type": "range", "id": "heading_size", "min": 16, "max": 40, "step": 2, "unit": "px", "label": "Tamaño del título", "default": 24 },
+    { "type": "range", "id": "heading_size_mobile", "min": 10, "max": 40, "step": 1, "unit": "px", "label": "Tamaño del título (móvil)", "default": 18 },
+    { "type": "checkbox", "id": "heading_single_line_mobile", "label": "Forzar una sola línea en móvil", "default": false },
+    { "type": "color", "id": "heading_color", "label": "Color del título", "default": "#121212" },
+    { "type": "select", "id": "heading_alignment", "label": "Alineación del título", "options": [
+      { "value": "left", "label": "Izquierda" },
+      { "value": "center", "label": "Centro" },
+      { "value": "right", "label": "Derecha" }
+    ], "default": "center" },
+    { "type": "range", "id": "heading_spacing", "min": 10, "max": 40, "step": 5, "unit": "px", "label": "Espacio debajo del título", "default": 25 },
+
+    { "type": "header", "content": "Datos (Metaobject Insight en producto)" },
+    { "type": "text", "id": "insight_ns", "label": "Namespace", "default": "custom" },
+    { "type": "text", "id": "insight_key", "label": "Key", "default": "insight" },
+    { "type": "range", "id": "insight_max_items", "label": "Máximo de items", "min": 1, "max": 12, "step": 1, "default": 3 },
+
+    { "type": "header", "content": "Handles de campos en Insight" },
+    { "type": "text", "id": "field_pct_plain", "label": "Porcentaje (numérico, 0–100)", "default": "percentage" },
+    { "type": "text", "id": "field_headline", "label": "Headline (porcentaje con %)", "default": "headline" },
+    { "type": "text", "id": "field_excerpt", "label": "Excerpt (Rich text)", "default": "excerpt1" },
+
+    { "type": "header", "content": "Texto y layout" },
+    { "type": "range", "id": "text_size", "label": "Tamaño del texto", "min": 11, "max": 18, "step": 1, "unit": "px", "default": 13 },
+    { "type": "color", "id": "text_color", "label": "Color del texto", "default": "#121212" },
+    { "type": "select", "id": "text_style", "label": "Estilo del texto de la tarjeta", "options": [
+      { "value": "normal", "label": "Normal" },
+      { "value": "compact", "label": "Compacto" }
+    ], "default": "compact" },
+    { "type": "select", "id": "stat_text_alignment", "label": "Alineación del texto", "options": [
+      { "value": "left", "label": "Izquierda" },
+      { "value": "center", "label": "Centro" },
+      { "value": "right", "label": "Derecha" },
+      { "value": "justify", "label": "Justificado" }
+    ], "default": "left" },
+
+    { "type": "header", "content": "Círculos" },
+    { "type": "range", "id": "circle_size", "min": 60, "max": 140, "step": 10, "unit": "px", "label": "Tamaño del círculo", "default": 90 },
+    { "type": "range", "id": "circle_stroke_width", "min": 4, "max": 12, "step": 2, "unit": "px", "label": "Grosor del borde", "default": 6 },
+    { "type": "color", "id": "circle_bg_color", "label": "Color de fondo del círculo", "default": "#e8f0f7" },
+
+    { "type": "header", "content": "Progreso (gradiente)" },
+    { "type": "color", "id": "circle_progress_grad_start", "label": "Gradiente inicio", "default": "#3f6a9c" },
+    { "type": "color", "id": "circle_progress_grad_end", "label": "Gradiente fin", "default": "#3f6a9c" },
+    { "type": "range", "id": "circle_progress_grad_angle", "label": "Ángulo del gradiente", "min": 0, "max": 360, "step": 5, "unit": "°", "default": 0 },
+
+    { "type": "header", "content": "Tarjetas (borde / fondo)" },
+    { "type": "range", "id": "stat_border_width", "label": "Grosor del borde", "min": 0, "max": 6, "step": 1, "unit": "px", "default": 1 },
+    { "type": "color", "id": "stat_border_color", "label": "Color del borde", "default": "#e0e0e0" },
+    { "type": "range", "id": "stat_border_radius", "label": "Radio del borde", "min": 0, "max": 24, "step": 1, "unit": "px", "default": 8 },
+    { "type": "color", "id": "stat_background", "label": "Fondo de la tarjeta", "default": "#ffffff" },
+
+    { "type": "header", "content": "Sección" },
+    { "type": "color", "id": "background_color", "label": "Color de fondo del bloque", "default": "#F8FAFB" },
+    { "type": "range", "id": "section_padding", "label": "Relleno vertical", "min": 0, "max": 80, "step": 5, "unit": "px", "default": 30 },
+
+    { "type": "header", "content": "Ancho del bloque" },
+    {
+      "type": "checkbox",
+      "id": "container_full_bleed",
+      "label": "Usar ancho completo (full-bleed)",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "container_max_desktop",
+      "label": "Ancho máximo (desktop)",
+      "default": "1200px",
+      "info": "Usa px, %, o 'none' para ancho completo. Si activas full-bleed, se ignora."
+    },
+    {
+      "type": "text",
+      "id": "container_max_mobile",
+      "label": "Ancho máximo (móvil)",
+      "default": "100%"
+    },
+    {
+      "type": "range",
+      "id": "container_pad_x",
+      "label": "Relleno lateral",
+      "min": 0, "max": 80, "step": 2, "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "select",
+      "id": "container_align",
+      "label": "Alineación del contenido",
+      "options": [
+        { "value": "flex-start", "label": "Izquierda" },
+        { "value": "center",     "label": "Centro" },
+        { "value": "flex-end",   "label": "Derecha" }
+      ],
+      "default": "center"
+    }
+  ],
+  "presets": [{ "name": "Insights" }]
+}
+{% endschema %}

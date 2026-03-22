@@ -1,0 +1,456 @@
+{% doc %}
+  @prompt
+    quiero una seccion de announcemente que me perimta cambiar  de letras  colocarle color y ademas que me permita hacer varios tipos de ediciones por otra parte quisiera que si esoy en el home page muestre un anuncio y si estoy en prducto otro, la quiero en forma de banner,  que me de la opcion de hacer que se meva automtica o que se pase un anuncio a otro en un rando de tiempo
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-announcement-bar-{{ ai_gen_id }} {
+    width: 100%;
+    background-color: {{ block.settings.background_color }};
+    color: {{ block.settings.text_color }};
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ai-announcement-bar__container-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: {{ block.settings.bar_height }}px;
+    padding: 12px 20px;
+  }
+
+  .ai-announcement-bar__content-{{ ai_gen_id }} {
+    width: 100%;
+    position: relative;
+  }
+
+  .ai-announcement-bar__slide-{{ ai_gen_id }} {
+    display: none;
+    text-align: {{ block.settings.text_alignment }};
+    font-size: {{ block.settings.font_size }}px;
+    font-weight: {{ block.settings.font_weight }};
+    letter-spacing: {{ block.settings.letter_spacing }}px;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+  }
+
+  .ai-announcement-bar__slide-{{ ai_gen_id }}.active {
+    display: block;
+    opacity: 1;
+  }
+
+  .ai-announcement-bar__slide-{{ ai_gen_id }} a {
+    color: {{ block.settings.link_color }};
+    text-decoration: {{ block.settings.link_style }};
+  }
+
+  .ai-announcement-bar__slide-{{ ai_gen_id }} a:hover {
+    color: {{ block.settings.link_hover_color }};
+  }
+
+  .ai-announcement-bar__controls-{{ ai_gen_id }} {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .ai-announcement-bar__dot-{{ ai_gen_id }} {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: {{ block.settings.text_color }};
+    opacity: 0.3;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .ai-announcement-bar__dot-{{ ai_gen_id }}.active {
+    opacity: 1;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-announcement-bar__slide-{{ ai_gen_id }} {
+      font-size: {{ block.settings.font_size | times: 0.9 }}px;
+    }
+  }
+{% endstyle %}
+
+<announcement-bar-{{ ai_gen_id }} class="ai-announcement-bar-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-announcement-bar__container-{{ ai_gen_id }}">
+    <div class="ai-announcement-bar__content-{{ ai_gen_id }}">
+      {% liquid
+        assign home_announcement = block.settings.home_announcement
+        assign product_announcement = block.settings.product_announcement
+        assign announcement_2 = block.settings.announcement_2
+        assign announcement_3 = block.settings.announcement_3
+        assign announcement_4 = block.settings.announcement_4
+        
+        assign is_home = false
+        assign is_product = false
+        
+        if template.name == 'index'
+          assign is_home = true
+        elsif template.name == 'product'
+          assign is_product = true
+        endif
+      %}
+
+      {% if is_home and home_announcement != blank %}
+        <div class="ai-announcement-bar__slide-{{ ai_gen_id }} active" data-slide="0">
+          {{ home_announcement }}
+        </div>
+      {% elsif is_product and product_announcement != blank %}
+        <div class="ai-announcement-bar__slide-{{ ai_gen_id }} active" data-slide="0">
+          {{ product_announcement }}
+        </div>
+      {% else %}
+        {% if announcement_2 != blank %}
+          <div class="ai-announcement-bar__slide-{{ ai_gen_id }} active" data-slide="0">
+            {{ announcement_2 }}
+          </div>
+        {% endif %}
+        
+        {% if announcement_3 != blank %}
+          <div class="ai-announcement-bar__slide-{{ ai_gen_id }}" data-slide="1">
+            {{ announcement_3 }}
+          </div>
+        {% endif %}
+        
+        {% if announcement_4 != blank %}
+          <div class="ai-announcement-bar__slide-{{ ai_gen_id }}" data-slide="2">
+            {{ announcement_4 }}
+          </div>
+        {% endif %}
+      {% endif %}
+
+      {% if block.settings.show_dots %}
+        {% assign total_slides = 0 %}
+        {% if is_home and home_announcement != blank %}
+          {% assign total_slides = 1 %}
+        {% elsif is_product and product_announcement != blank %}
+          {% assign total_slides = 1 %}
+        {% else %}
+          {% if announcement_2 != blank %}
+            {% assign total_slides = total_slides | plus: 1 %}
+          {% endif %}
+          {% if announcement_3 != blank %}
+            {% assign total_slides = total_slides | plus: 1 %}
+          {% endif %}
+          {% if announcement_4 != blank %}
+            {% assign total_slides = total_slides | plus: 1 %}
+          {% endif %}
+        {% endif %}
+
+        {% if total_slides > 1 %}
+          <div class="ai-announcement-bar__controls-{{ ai_gen_id }}">
+            {% for i in (1..total_slides) %}
+              {% assign index = forloop.index0 %}
+              <button 
+                class="ai-announcement-bar__dot-{{ ai_gen_id }} {% if index == 0 %}active{% endif %}" 
+                data-index="{{ index }}"
+                aria-label="Ir al anuncio {{ forloop.index }}"
+              ></button>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</announcement-bar-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class AnnouncementBar{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.currentSlide = 0;
+        this.slides = [];
+        this.dots = [];
+        this.autoplayInterval = null;
+      }
+
+      connectedCallback() {
+        this.slides = Array.from(this.querySelectorAll('.ai-announcement-bar__slide-{{ ai_gen_id }}'));
+        this.dots = Array.from(this.querySelectorAll('.ai-announcement-bar__dot-{{ ai_gen_id }}'));
+        
+        if (this.slides.length <= 1) return;
+
+        this.setupDots();
+        
+        const autoplay = {{ block.settings.autoplay }};
+        const interval = {{ block.settings.autoplay_interval }} * 1000;
+        
+        if (autoplay && interval > 0) {
+          this.startAutoplay(interval);
+        }
+      }
+
+      setupDots() {
+        this.dots.forEach((dot, index) => {
+          dot.addEventListener('click', () => {
+            this.goToSlide(index);
+            if (this.autoplayInterval) {
+              this.stopAutoplay();
+              this.startAutoplay({{ block.settings.autoplay_interval }} * 1000);
+            }
+          });
+        });
+      }
+
+      goToSlide(index) {
+        this.slides[this.currentSlide].classList.remove('active');
+        if (this.dots.length > 0) {
+          this.dots[this.currentSlide].classList.remove('active');
+        }
+        
+        this.currentSlide = index;
+        
+        this.slides[this.currentSlide].classList.add('active');
+        if (this.dots.length > 0) {
+          this.dots[this.currentSlide].classList.add('active');
+        }
+      }
+
+      nextSlide() {
+        const next = (this.currentSlide + 1) % this.slides.length;
+        this.goToSlide(next);
+      }
+
+      startAutoplay(interval) {
+        this.autoplayInterval = setInterval(() => {
+          this.nextSlide();
+        }, interval);
+      }
+
+      stopAutoplay() {
+        if (this.autoplayInterval) {
+          clearInterval(this.autoplayInterval);
+          this.autoplayInterval = null;
+        }
+      }
+
+      disconnectedCallback() {
+        this.stopAutoplay();
+      }
+    }
+
+    customElements.define('announcement-bar-{{ ai_gen_id }}', AnnouncementBar{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Barra de anuncios",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Anuncios por página"
+    },
+    {
+      "type": "richtext",
+      "id": "home_announcement",
+      "label": "Anuncio para página de inicio",
+      "default": "<p>¡Bienvenido! Envío gratis en pedidos superiores a $50</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "product_announcement",
+      "label": "Anuncio para páginas de producto",
+      "default": "<p>¡Oferta especial! 20% de descuento en este producto</p>"
+    },
+    {
+      "type": "header",
+      "content": "Anuncios generales"
+    },
+    {
+      "type": "paragraph",
+      "content": "Estos anuncios se mostrarán en otras páginas y rotarán automáticamente si hay más de uno"
+    },
+    {
+      "type": "richtext",
+      "id": "announcement_2",
+      "label": "Anuncio 1",
+      "default": "<p>Nuevas colecciones disponibles ahora</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "announcement_3",
+      "label": "Anuncio 2",
+      "default": "<p>Suscríbete y obtén 10% de descuento</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "announcement_4",
+      "label": "Anuncio 3",
+      "default": "<p>Envío gratis en todos los pedidos</p>"
+    },
+    {
+      "type": "header",
+      "content": "Configuración de rotación"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Rotación automática",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_interval",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "label": "Intervalo de rotación",
+      "default": 5
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "Mostrar indicadores",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Estilo del banner"
+    },
+    {
+      "type": "range",
+      "id": "bar_height",
+      "min": 30,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Altura mínima",
+      "default": 45
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Color de fondo",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Color de texto",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Tipografía"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamaño de fuente",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Peso de fuente",
+      "options": [
+        {
+          "value": "300",
+          "label": "Ligera"
+        },
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Media"
+        },
+        {
+          "value": "600",
+          "label": "Semi-negrita"
+        },
+        {
+          "value": "700",
+          "label": "Negrita"
+        }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "min": 0,
+      "max": 3,
+      "step": 0.5,
+      "unit": "px",
+      "label": "Espaciado entre letras",
+      "default": 0.5
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Alineación de texto",
+      "options": [
+        {
+          "value": "left",
+          "label": "Izquierda"
+        },
+        {
+          "value": "center",
+          "label": "Centro"
+        },
+        {
+          "value": "right",
+          "label": "Derecha"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Enlaces"
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Color de enlace",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "link_hover_color",
+      "label": "Color de enlace al pasar el cursor",
+      "default": "#cccccc"
+    },
+    {
+      "type": "select",
+      "id": "link_style",
+      "label": "Estilo de enlace",
+      "options": [
+        {
+          "value": "none",
+          "label": "Sin subrayado"
+        },
+        {
+          "value": "underline",
+          "label": "Subrayado"
+        }
+      ],
+      "default": "underline"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Barra de anuncios"
+    }
+  ]
+}
+{% endschema %}

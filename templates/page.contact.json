@@ -1,0 +1,152 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "1762612026d95178ea": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_7696ee6_LEMnAE": {
+          "type": "ai_gen_block_7696ee6",
+          "name": "Banner de colección",
+          "settings": {
+            "banner_image": "shopify://shop_images/Copia_de_BANER_PANIK_1000_x_200_mm_3.png",
+            "image_fit": "contain",
+            "image_position": "center center",
+            "banner_height_desktop": 100,
+            "banner_height_mobile": 100,
+            "show_overlay": true,
+            "overlay_color": "#000000",
+            "overlay_opacity": 30,
+            "title": "",
+            "subtitle": "",
+            "text_alignment": "center",
+            "content_vertical_alignment": "center",
+            "content_horizontal_alignment": "center",
+            "content_max_width": 800,
+            "content_padding_desktop": 40,
+            "content_padding_mobile": 15,
+            "title_color": "#ffffff",
+            "title_size_desktop": 48,
+            "title_size_mobile": 24,
+            "title_weight": "700",
+            "title_spacing": 10,
+            "subtitle_color": "#ffffff",
+            "subtitle_size_desktop": 18,
+            "subtitle_size_mobile": 14
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_b6bb627_CyBzHj": {
+          "type": "ai_gen_block_b6bb627",
+          "name": "Contact form",
+          "settings": {
+            "heading": "<p>Contáctanos</p>",
+            "subtext": "<p>Nos encantaría saber de ti. Completa el formulario y te responderemos pronto.</p>",
+            "button_label": "Enviar mensaje",
+            "success_message": "<p>¡Gracias por contactarnos! Te responderemos lo antes posible.</p>",
+            "show_name": true,
+            "name_label": "Nombre",
+            "name_required": true,
+            "show_email": true,
+            "email_label": "Email",
+            "show_phone": true,
+            "phone_label": "Teléfono",
+            "phone_required": false,
+            "show_subject": true,
+            "subject_label": "Asunto",
+            "subject_required": false,
+            "show_message": true,
+            "message_label": "Mensaje",
+            "message_required": true,
+            "heading_spacing": 0,
+            "header_spacing": 0,
+            "field_spacing": 8,
+            "button_spacing": 12,
+            "text_alignment": "center",
+            "label_alignment": "left",
+            "button_alignment": "center",
+            "max_width": 1200,
+            "padding_top": 8,
+            "padding_bottom": 36,
+            "padding_left": 40,
+            "padding_right": 40,
+            "border_radius": 8,
+            "background_color": "#eef0f9",
+            "heading_color": "#121212",
+            "text_color": "#121212",
+            "label_color": "#121212",
+            "input_background_color": "#ffffff",
+            "input_text_color": "#121212",
+            "input_border_color": "#cccccc",
+            "input_focus_color": "#121212",
+            "input_border_radius": 4,
+            "button_color": "#121212",
+            "button_text_color": "#ffffff",
+            "button_hover_color": "#000000",
+            "button_border_radius": 4,
+            "heading_size": 28,
+            "success_color": "#008060",
+            "error_color": "#d82c0d"
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_4e77adf_3MU9Ri": {
+          "type": "ai_gen_block_4e77adf",
+          "settings": {
+            "whatsapp_image": "shopify://shop_images/1_1ed5884d-2ff3-4613-bfa1-102789401f69.png",
+            "whatsapp_number": "573148771490",
+            "email_image": "shopify://shop_images/2_07b0cb29-5269-4831-b7db-ae11286f19ef.png",
+            "email_address": "tribuxco@gmail.com",
+            "schedule_image": "shopify://shop_images/Copia_de_BANER_PANIK_1000_x_200_mm_4.png",
+            "container_width": 1200,
+            "top_items_height": 300,
+            "schedule_height": 200,
+            "gap_between_items": 20,
+            "section_padding_top": 40,
+            "section_padding_bottom": 40,
+            "section_padding_horizontal": 15,
+            "container_width_mobile": 400,
+            "top_items_height_mobile": 150,
+            "schedule_height_mobile": 120,
+            "gap_between_items_mobile": 10,
+            "section_padding_top_mobile": 20,
+            "section_padding_bottom_mobile": 20,
+            "section_padding_horizontal_mobile": 15,
+            "image_fit": "contain",
+            "schedule_image_fit": "contain",
+            "border_radius": 8,
+            "border_thickness": 2,
+            "border_color": "#c5d2e3"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_7696ee6_LEMnAE",
+        "ai_gen_block_b6bb627_CyBzHj",
+        "ai_gen_block_4e77adf_3MU9Ri"
+      ],
+      "settings": {}
+    },
+    "main": {
+      "type": "main-page",
+      "disabled": true,
+      "custom_css": [],
+      "settings": {
+        "padding_top": 32,
+        "padding_bottom": 12
+      }
+    }
+  },
+  "order": [
+    "1762612026d95178ea",
+    "main"
+  ]
+}

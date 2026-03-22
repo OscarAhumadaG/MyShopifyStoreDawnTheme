@@ -1,0 +1,274 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "176260934133eff129": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_3d41b9a_d8jTj4": {
+          "type": "ai_gen_block_3d41b9a",
+          "name": "Banner responsive",
+          "settings": {
+            "desktop_image": "shopify://shop_images/BANER_PANIK_0532a332-4749-48b0-a6ee-8718743320ce.png",
+            "mobile_image": "shopify://shop_images/BANER_PANIK_0532a332-4749-48b0-a6ee-8718743320ce.png",
+            "show_content": true,
+            "heading": "",
+            "text": "",
+            "button_text": "",
+            "button_link": "",
+            "heading_color": "#ffffff",
+            "text_color": "#ffffff",
+            "button_bg_color": "#121212",
+            "button_text_color": "#ffffff",
+            "button_hover_bg_color": "#000000",
+            "button_hover_text_color": "#ffffff",
+            "content_position_x_desktop": 50,
+            "content_position_y_desktop": 50,
+            "text_alignment_desktop": "center",
+            "content_max_width_desktop": 50,
+            "heading_size_desktop": 48,
+            "text_size_desktop": 18,
+            "button_text_size_desktop": 16,
+            "button_padding_desktop": 14,
+            "spacing_desktop": 16,
+            "content_position_x_mobile": 50,
+            "content_position_y_mobile": 50,
+            "text_alignment_mobile": "center",
+            "content_max_width_mobile": 90,
+            "heading_size_mobile": 28,
+            "text_size_mobile": 14,
+            "button_text_size_mobile": 14,
+            "button_padding_mobile": 12,
+            "spacing_mobile": 12,
+            "button_border_radius": 4
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_c2f82be_T89Wrn": {
+          "type": "ai_gen_block_c2f82be",
+          "settings": {
+            "heading": "NEW IN",
+            "heading_size": 24,
+            "heading_color": "#121212",
+            "heading_left_margin": 6,
+            "show_overlay_title": true,
+            "overlay_title": "NEW IN",
+            "overlay_title_size": 10,
+            "overlay_title_text_color": "#121212",
+            "overlay_title_bg_color": "#ffffff",
+            "overlay_title_opacity": 25,
+            "overlay_title_padding": 4,
+            "overlay_title_radius": 4,
+            "overlay_title_top": 8,
+            "overlay_title_left": 4,
+            "image_ratio": "square",
+            "zoom_level": 15,
+            "title_left_margin": 0,
+            "product_1": "kahi-arrugas-multifuncional",
+            "product_2": "bqy89208-crema-facial-vita-c-bioaqua",
+            "product_3": "kahi-seoul-multi-balm-10ml",
+            "product_4": "kahi-arrugas-multifuncional",
+            "product_5": "shirt",
+            "product_6": "",
+            "product_7": "",
+            "product_8": "",
+            "text_color": "#121212",
+            "price_color": "#121212"
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_6807ca9_gFXJQH": {
+          "type": "ai_gen_block_6807ca9",
+          "settings": {
+            "banner_image": "shopify://shop_images/rooftopper-looking-down.jpg",
+            "banner_height": 500,
+            "banner_height_mobile": 200,
+            "show_overlay": true,
+            "overlay_color": "#000000",
+            "overlay_opacity": 30,
+            "content_vertical_alignment": "flex-end",
+            "content_horizontal_alignment": "center",
+            "text_alignment": "center",
+            "content_max_width": 300,
+            "heading": "",
+            "heading_font": "assistant_n4",
+            "heading_color": "#ffffff",
+            "heading_size": 80,
+            "heading_spacing": 0,
+            "subheading": "<strong>¡Descubre lo más reciente!</strong>",
+            "subheading_font": "fredoka_n4",
+            "subheading_color": "#ffffff",
+            "subheading_size": 18,
+            "subheading_spacing": 12,
+            "show_button": true,
+            "button_text": "VER CATALOGO",
+            "button_link": "shopify://collections",
+            "button_font": "inter_n4",
+            "button_background_color": "#ffffff",
+            "button_text_color": "#121212",
+            "button_hover_background_color": "#334fb4",
+            "button_hover_text_color": "#ffffff",
+            "button_font_size": 12,
+            "button_padding_vertical": 8,
+            "button_padding_horizontal": 16,
+            "button_border_radius": 12,
+            "button_border_width": 0,
+            "button_border_color": "#ffffff",
+            "button_hover_border_color": "#3f6a9c"
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_e62ea56_YKUTVy": {
+          "type": "ai_gen_block_e62ea56",
+          "settings": {
+            "video_url": "https://cdn.shopify.com/videos/c/o/v/67ae89a3bb684c07baf30b3cd24db657.mp4",
+            "autoplay": true,
+            "loop": true,
+            "muted": true,
+            "show_controls": true,
+            "object_fit": "cover",
+            "background_color": "#000000",
+            "border_color": "#000000",
+            "border_width": 0,
+            "shadow_opacity": 0
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_867a982_xpnPet": {
+          "type": "ai_gen_block_867a982",
+          "disabled": true,
+          "settings": {
+            "section_max_width": 1250,
+            "section_max_width_mobile": 620,
+            "section_title": "Productos más comprados",
+            "title_font": "inter_n4",
+            "title_font_size": 32,
+            "title_font_size_mobile": 24,
+            "title_font_style": "normal",
+            "title_text_transform": "none",
+            "title_text_decoration": "none",
+            "title_color": "#121212",
+            "title_padding_top": 0,
+            "title_padding_bottom": 0,
+            "title_margin_bottom": 32,
+            "title_padding_top_mobile": 0,
+            "title_padding_bottom_mobile": 0,
+            "title_margin_bottom_mobile": 20,
+            "product_1": "kahi-arrugas-multifuncional",
+            "product_2": "kahi-arrugas-multifuncional",
+            "product_3": "kahi-arrugas-multifuncional",
+            "product_4": "kahi-arrugas-multifuncional",
+            "product_5": "kahi-arrugas-multifuncional",
+            "product_6": "",
+            "product_7": "",
+            "product_8": "",
+            "product_9": "",
+            "product_10": "",
+            "product_11": "",
+            "product_12": "",
+            "product_width": 250,
+            "product_width_mobile": 180,
+            "product_gap": 20,
+            "product_gap_mobile": 12,
+            "image_border_thickness": 3,
+            "image_border_color": "#a2bada",
+            "image_border_radius": 8,
+            "image_margin_bottom": 12,
+            "image_margin_bottom_mobile": 8,
+            "name_font": "assistant_n4",
+            "name_font_size": 14,
+            "name_font_size_mobile": 12,
+            "name_font_style": "normal",
+            "name_text_transform": "none",
+            "name_text_decoration": "none",
+            "name_color": "#121212",
+            "price_font": "assistant_n4",
+            "price_font_size": 16,
+            "price_font_size_mobile": 14,
+            "price_font_style": "normal",
+            "price_text_transform": "none",
+            "price_text_decoration": "none",
+            "price_color": "#121212",
+            "name_price_gap": 8,
+            "name_price_gap_mobile": 6,
+            "section_padding_top": 40,
+            "section_padding_bottom": 40,
+            "section_horizontal_padding": 20,
+            "section_padding_top_mobile": 24,
+            "section_padding_bottom_mobile": 24,
+            "section_horizontal_padding_mobile": 16,
+            "background_color": "#ffffff",
+            "scrollbar_color": "#cccccc"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_3d41b9a_d8jTj4",
+        "ai_gen_block_c2f82be_T89Wrn",
+        "ai_gen_block_6807ca9_gFXJQH",
+        "ai_gen_block_e62ea56_YKUTVy",
+        "ai_gen_block_867a982_xpnPet"
+      ],
+      "settings": {}
+    },
+    "177047644963e1db70": {
+      "type": "_blocks",
+      "settings": {}
+    },
+    "177047791488dd0c17": {
+      "type": "_blocks",
+      "settings": {}
+    },
+    "slideshow_gfKmkJ": {
+      "type": "slideshow",
+      "blocks": {
+        "slide_pbwWyp": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/jabari-timothy-ykoOXI9njBA-unsplash.jpg",
+            "image_overlay_opacity": 0,
+            "heading": "Tribux Glam",
+            "heading_size": "h1",
+            "subheading": "Descubre nuestra nueva sección de maquillaje: colores que inspiran, estilo que vibra contigo. ¡Ven y eleva tu look!",
+            "button_label": "Ver más",
+            "link": "shopify://collections/tribu-glam-makeup",
+            "button_style_secondary": false,
+            "show_text_box": true,
+            "box_align": "middle-center",
+            "text_alignment": "center",
+            "text_alignment_mobile": "center",
+            "color_scheme": "scheme-744a7efc-b461-44c2-a2f7-0ea89f5e6a2d"
+          }
+        }
+      },
+      "block_order": [
+        "slide_pbwWyp"
+      ],
+      "name": "t:sections.slideshow.presets.name",
+      "settings": {
+        "layout": "full_bleed",
+        "slide_height": "medium",
+        "slider_visual": "counter",
+        "auto_rotate": false,
+        "change_slides_speed": 3,
+        "image_behavior": "ambient",
+        "show_text_below": true,
+        "accessibility_info": "Presentación de diapositivas sobre tu marca"
+      }
+    }
+  },
+  "order": [
+    "176260934133eff129",
+    "177047644963e1db70",
+    "177047791488dd0c17",
+    "slideshow_gfKmkJ"
+  ]
+}

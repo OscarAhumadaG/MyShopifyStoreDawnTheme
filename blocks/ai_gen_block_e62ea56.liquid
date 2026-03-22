@@ -1,0 +1,260 @@
+{% doc %}
+  @prompt
+    Genera una sección de video a pantalla completa para Shopify 2.0 que reproduzca un MP4 desde una URL de Shopify (HTTPS) y permita controlar el diseño: opción de autoplay, loop (repetición) y muted (requerido para autoplay móvil); posibilidad de ocultar los controles para que solo se vea el video; ajuste de object-fit con valores cover, contain y fill (por defecto cover para evitar franjas negras y ocupar toda la pantalla); el video debe mostrarse en full-screen (usar width:100vw y height:100vh) y playsinline para móviles; incluir ajustes de fondo del contenedor, borde (color y ancho) y sombra (editable) con opción por defecto sin borde ni sombra; el editor debe ofrecer campos: video_url (URL MP4), autoplay, loop, muted, show_controls, object_fit, background, border_color, border_width, shadow; implementar CSS/JS mínimo sin dependencias externas y carga diferida, garantizando que al activar show_controls=false el video no muestre controles y se vea limpio ocupando toda la pantalla sin franjas superiores o inferiores. ahorita te pedi lo mismo pero los controles si se ven por favor asegurate que no aparezcan en la pantalla
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-fullscreen-video-{{ ai_gen_id }} {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-color: {{ block.settings.background_color }};
+    {% if block.settings.border_width > 0 %}
+      border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
+    {% endif %}
+    {% if block.settings.shadow_opacity > 0 %}
+      box-shadow: 0 4px 20px rgba(0, 0, 0, {{ block.settings.shadow_opacity | divided_by: 100.0 }});
+    {% endif %}
+  }
+
+  .ai-fullscreen-video-{{ ai_gen_id }}__video {
+    width: 100%;
+    height: 100%;
+    object-fit: {{ block.settings.object_fit }};
+    display: block;
+  }
+
+  .ai-fullscreen-video-{{ ai_gen_id }}__video::-webkit-media-controls {
+    {% unless block.settings.show_controls %}
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+    {% endunless %}
+  }
+
+  .ai-fullscreen-video-{{ ai_gen_id }}__video::-webkit-media-controls-enclosure {
+    {% unless block.settings.show_controls %}
+      display: none !important;
+    {% endunless %}
+  }
+
+  .ai-fullscreen-video-{{ ai_gen_id }}__video::-webkit-media-controls-panel {
+    {% unless block.settings.show_controls %}
+      display: none !important;
+    {% endunless %}
+  }
+
+  .ai-fullscreen-video-{{ ai_gen_id }}__video::-webkit-media-controls-play-button {
+    {% unless block.settings.show_controls %}
+      display: none !important;
+    {% endunless %}
+  }
+
+  .ai-fullscreen-video-{{ ai_gen_id }}__video::-webkit-media-controls-start-playback-button {
+    {% unless block.settings.show_controls %}
+      display: none !important;
+    {% endunless %}
+  }
+
+  .ai-fullscreen-video-{{ ai_gen_id }}__placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-fullscreen-video-{{ ai_gen_id }}__placeholder svg {
+    width: 100%;
+    height: 100%;
+    max-width: 500px;
+    max-height: 500px;
+  }
+
+  .ai-fullscreen-video-{{ ai_gen_id }}__empty-state {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+  }
+{% endstyle %}
+
+<fullscreen-video-{{ ai_gen_id }}
+  class="ai-fullscreen-video-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  {% if block.settings.video_url != blank %}
+    <video
+      class="ai-fullscreen-video-{{ ai_gen_id }}__video"
+      {% if block.settings.autoplay %}autoplay{% endif %}
+      {% if block.settings.loop %}loop{% endif %}
+      {% if block.settings.muted %}muted{% endif %}
+      {% unless block.settings.show_controls %}controls="false"{% endunless %}
+      playsinline
+      preload="metadata"
+      data-video-url="{{ block.settings.video_url }}"
+    >
+      <source src="{{ block.settings.video_url }}" type="video/mp4">
+    </video>
+  {% else %}
+    <div class="ai-fullscreen-video-{{ ai_gen_id }}__placeholder">
+      {{ 'image' | placeholder_svg_tag }}
+      <div class="ai-fullscreen-video-{{ ai_gen_id }}__empty-state">
+        Next, add a video URL
+      </div>
+    </div>
+  {% endif %}
+</fullscreen-video-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class FullscreenVideo{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.video = this.querySelector('video');
+      }
+
+      connectedCallback() {
+        if (!this.video) return;
+
+        this.video.removeAttribute('controls');
+
+        this.video.addEventListener('loadedmetadata', () => {
+          if (this.video.autoplay) {
+            this.video.play().catch(() => {});
+          }
+        });
+
+        this.video.addEventListener('contextmenu', (e) => {
+          {% unless block.settings.show_controls %}
+            e.preventDefault();
+          {% endunless %}
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting && this.video.autoplay) {
+              this.video.play().catch(() => {});
+            }
+          });
+        }, { threshold: 0.5 });
+
+        observer.observe(this);
+      }
+    }
+
+    customElements.define('fullscreen-video-{{ ai_gen_id }}', FullscreenVideo{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Fullscreen video",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Video"
+    },
+    {
+      "type": "url",
+      "id": "video_url",
+      "label": "Video URL"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "loop",
+      "label": "Loop",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "muted",
+      "label": "Muted",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_controls",
+      "label": "Show controls",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "object_fit",
+      "label": "Video fit",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cover"
+        },
+        {
+          "value": "contain",
+          "label": "Contain"
+        },
+        {
+          "value": "fill",
+          "label": "Fill"
+        }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Border width",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "shadow_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Shadow opacity",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Fullscreen video"
+    }
+  ]
+}
+{% endschema %}

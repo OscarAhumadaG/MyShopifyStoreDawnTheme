@@ -1,0 +1,619 @@
+{% doc %}
+  @prompt
+    Genera una sección de barra de anuncio sencilla para Shopify 2.0 con un máximo de tres anuncios; cada anuncio debe permitir elegir tipografía (varios tipos de letra del tema o sistema, con opciones de peso y tamaño), fondo (color sólido) y estilo del texto (mayúsculas, espaciado, subrayado/opcional); la barra debe permitir modificar ancho y altura numéricamente (px/rem), ajustar la distancia entre anuncios con un control que acepte desde 0 para que queden pegados si se desea, y cambiar la forma de movimiento entre static, carousel (fade) y marquee (desplazamiento suave) con controles de velocidad y dirección; incluir campos por anuncio: headline (obligatorio), subtext ; todo con CSS/JS ligero sin dependencias, carga diferida, y un esquema de configuración simple y claro en el editor para que el comerciante pueda activar/ocultar, reordenar los tres anuncios y ajustar sus estilos rápidamente.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-announcement-bar-{{ ai_gen_id }} {
+    width: {{ block.settings.bar_width }}{{ block.settings.bar_width_unit }};
+    height: {{ block.settings.bar_height }}{{ block.settings.bar_height_unit }};
+    background-color: {{ block.settings.background_color }};
+    overflow: hidden;
+    position: relative;
+    margin: 0 auto;
+  }
+
+  .ai-announcement-bar-container-{{ ai_gen_id }} {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-announcement-bar-track-{{ ai_gen_id }} {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    gap: {{ block.settings.announcement_spacing }}px;
+  }
+
+  .ai-announcement-item-{{ ai_gen_id }} {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 20px;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .ai-announcement-item-{{ ai_gen_id }}.active {
+    opacity: 1;
+  }
+
+  .ai-announcement-headline-{{ ai_gen_id }} {
+    font-family: {{ block.settings.font_family }};
+    font-weight: {{ block.settings.font_weight }};
+    font-size: {{ block.settings.font_size }}px;
+    color: {{ block.settings.text_color }};
+    margin: 0;
+    {% if block.settings.text_transform == 'uppercase' %}
+      text-transform: uppercase;
+    {% elsif block.settings.text_transform == 'lowercase' %}
+      text-transform: lowercase;
+    {% elsif block.settings.text_transform == 'capitalize' %}
+      text-transform: capitalize;
+    {% endif %}
+    letter-spacing: {{ block.settings.letter_spacing }}px;
+    {% if block.settings.text_decoration == 'underline' %}
+      text-decoration: underline;
+    {% endif %}
+  }
+
+  .ai-announcement-subtext-{{ ai_gen_id }} {
+    font-family: {{ block.settings.subtext_font_family }};
+    font-weight: {{ block.settings.subtext_font_weight }};
+    font-size: {{ block.settings.subtext_font_size }}px;
+    color: {{ block.settings.text_color }};
+    margin: 4px 0 0;
+    {% if block.settings.subtext_transform == 'uppercase' %}
+      text-transform: uppercase;
+    {% elsif block.settings.subtext_transform == 'lowercase' %}
+      text-transform: lowercase;
+    {% elsif block.settings.subtext_transform == 'capitalize' %}
+      text-transform: capitalize;
+    {% endif %}
+    letter-spacing: {{ block.settings.subtext_letter_spacing }}px;
+  }
+
+  .ai-announcement-bar-{{ ai_gen_id }}[data-animation="marquee"] .ai-announcement-bar-track-{{ ai_gen_id }} {
+    animation: ai-marquee-{{ ai_gen_id }} var(--marquee-duration) linear infinite;
+    animation-direction: var(--marquee-direction);
+  }
+
+  .ai-announcement-bar-{{ ai_gen_id }}[data-animation="marquee"]:hover .ai-announcement-bar-track-{{ ai_gen_id }} {
+    animation-play-state: paused;
+  }
+
+  .ai-announcement-bar-{{ ai_gen_id }}[data-animation="marquee"] .ai-announcement-item-{{ ai_gen_id }} {
+    opacity: 1;
+  }
+
+  @keyframes ai-marquee-{{ ai_gen_id }} {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+{% endstyle %}
+
+<announcement-bar-{{ ai_gen_id }}
+  class="ai-announcement-bar-{{ ai_gen_id }}"
+  data-animation="{{ block.settings.animation_type }}"
+  data-speed="{{ block.settings.animation_speed }}"
+  data-direction="{{ block.settings.animation_direction }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-announcement-bar-container-{{ ai_gen_id }}">
+    <div class="ai-announcement-bar-track-{{ ai_gen_id }}">
+      {% if block.settings.announcement_1_enabled and block.settings.announcement_1_headline != blank %}
+        <div class="ai-announcement-item-{{ ai_gen_id }}" data-index="0">
+          <p class="ai-announcement-headline-{{ ai_gen_id }}">{{ block.settings.announcement_1_headline }}</p>
+          {% if block.settings.announcement_1_subtext != blank %}
+            <p class="ai-announcement-subtext-{{ ai_gen_id }}">{{ block.settings.announcement_1_subtext }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {% if block.settings.announcement_2_enabled and block.settings.announcement_2_headline != blank %}
+        <div class="ai-announcement-item-{{ ai_gen_id }}" data-index="1">
+          <p class="ai-announcement-headline-{{ ai_gen_id }}">{{ block.settings.announcement_2_headline }}</p>
+          {% if block.settings.announcement_2_subtext != blank %}
+            <p class="ai-announcement-subtext-{{ ai_gen_id }}">{{ block.settings.announcement_2_subtext }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {% if block.settings.announcement_3_enabled and block.settings.announcement_3_headline != blank %}
+        <div class="ai-announcement-item-{{ ai_gen_id }}" data-index="2">
+          <p class="ai-announcement-headline-{{ ai_gen_id }}">{{ block.settings.announcement_3_headline }}</p>
+          {% if block.settings.announcement_3_subtext != blank %}
+            <p class="ai-announcement-subtext-{{ ai_gen_id }}">{{ block.settings.announcement_3_subtext }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {% if block.settings.animation_type == 'marquee' %}
+        {% if block.settings.announcement_1_enabled and block.settings.announcement_1_headline != blank %}
+          <div class="ai-announcement-item-{{ ai_gen_id }}" data-index="0">
+            <p class="ai-announcement-headline-{{ ai_gen_id }}">{{ block.settings.announcement_1_headline }}</p>
+            {% if block.settings.announcement_1_subtext != blank %}
+              <p class="ai-announcement-subtext-{{ ai_gen_id }}">{{ block.settings.announcement_1_subtext }}</p>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% if block.settings.announcement_2_enabled and block.settings.announcement_2_headline != blank %}
+          <div class="ai-announcement-item-{{ ai_gen_id }}" data-index="1">
+            <p class="ai-announcement-headline-{{ ai_gen_id }}">{{ block.settings.announcement_2_headline }}</p>
+            {% if block.settings.announcement_2_subtext != blank %}
+              <p class="ai-announcement-subtext-{{ ai_gen_id }}">{{ block.settings.announcement_2_subtext }}</p>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% if block.settings.announcement_3_enabled and block.settings.announcement_3_headline != blank %}
+          <div class="ai-announcement-item-{{ ai_gen_id }}" data-index="2">
+            <p class="ai-announcement-headline-{{ ai_gen_id }}">{{ block.settings.announcement_3_headline }}</p>
+            {% if block.settings.announcement_3_subtext != blank %}
+              <p class="ai-announcement-subtext-{{ ai_gen_id }}">{{ block.settings.announcement_3_subtext }}</p>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</announcement-bar-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class AnnouncementBar{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.currentIndex = 0;
+        this.items = [];
+        this.intervalId = null;
+      }
+
+      connectedCallback() {
+        this.items = Array.from(this.querySelectorAll('.ai-announcement-item-{{ ai_gen_id }}'));
+        this.animationType = this.dataset.animation;
+        this.speed = parseInt(this.dataset.speed) || 5;
+        this.direction = this.dataset.direction;
+
+        if (this.animationType === 'static') {
+          this.showStatic();
+        } else if (this.animationType === 'carousel') {
+          this.startCarousel();
+        } else if (this.animationType === 'marquee') {
+          this.setupMarquee();
+        }
+      }
+
+      disconnectedCallback() {
+        if (this.intervalId) {
+          clearInterval(this.intervalId);
+        }
+      }
+
+      showStatic() {
+        if (this.items.length > 0) {
+          this.items[0].classList.add('active');
+        }
+      }
+
+      startCarousel() {
+        if (this.items.length === 0) return;
+
+        this.items[this.currentIndex].classList.add('active');
+
+        if (this.items.length > 1) {
+          this.intervalId = setInterval(() => {
+            this.items[this.currentIndex].classList.remove('active');
+            this.currentIndex = (this.currentIndex + 1) % this.items.length;
+            this.items[this.currentIndex].classList.add('active');
+          }, this.speed * 1000);
+        }
+      }
+
+      setupMarquee() {
+        const track = this.querySelector('.ai-announcement-bar-track-{{ ai_gen_id }}');
+        if (!track) return;
+
+        const duration = this.speed * 10;
+        track.style.setProperty('--marquee-duration', duration + 's');
+        track.style.setProperty('--marquee-direction', this.direction === 'left' ? 'normal' : 'reverse');
+      }
+    }
+
+    customElements.define('announcement-bar-{{ ai_gen_id }}', AnnouncementBar{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Announcement bar",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Bar dimensions"
+    },
+    {
+      "type": "range",
+      "id": "bar_width",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "default": 100,
+      "label": "Width"
+    },
+    {
+      "type": "select",
+      "id": "bar_width_unit",
+      "label": "Width unit",
+      "options": [
+        {
+          "value": "%",
+          "label": "Percentage"
+        },
+        {
+          "value": "px",
+          "label": "Pixels"
+        }
+      ],
+      "default": "%"
+    },
+    {
+      "type": "range",
+      "id": "bar_height",
+      "min": 20,
+      "max": 200,
+      "step": 5,
+      "default": 50,
+      "label": "Height"
+    },
+    {
+      "type": "select",
+      "id": "bar_height_unit",
+      "label": "Height unit",
+      "options": [
+        {
+          "value": "px",
+          "label": "Pixels"
+        },
+        {
+          "value": "rem",
+          "label": "Rem"
+        }
+      ],
+      "default": "px"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#121212"
+    },
+    {
+      "type": "range",
+      "id": "announcement_spacing",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Spacing between announcements",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Animation"
+    },
+    {
+      "type": "select",
+      "id": "animation_type",
+      "label": "Animation type",
+      "options": [
+        {
+          "value": "static",
+          "label": "Static"
+        },
+        {
+          "value": "carousel",
+          "label": "Carousel (fade)"
+        },
+        {
+          "value": "marquee",
+          "label": "Marquee (scroll)"
+        }
+      ],
+      "default": "carousel"
+    },
+    {
+      "type": "range",
+      "id": "animation_speed",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "label": "Animation speed",
+      "default": 5
+    },
+    {
+      "type": "select",
+      "id": "animation_direction",
+      "label": "Marquee direction",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Headline typography"
+    },
+    {
+      "type": "font_picker",
+      "id": "font_family",
+      "label": "Font",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font weight",
+      "options": [
+        {
+          "value": "300",
+          "label": "Light"
+        },
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semibold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "text_transform",
+      "label": "Text transform",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "uppercase",
+          "label": "Uppercase"
+        },
+        {
+          "value": "lowercase",
+          "label": "Lowercase"
+        },
+        {
+          "value": "capitalize",
+          "label": "Capitalize"
+        }
+      ],
+      "default": "uppercase"
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "min": 0,
+      "max": 5,
+      "step": 0.5,
+      "unit": "px",
+      "label": "Letter spacing",
+      "default": 1
+    },
+    {
+      "type": "select",
+      "id": "text_decoration",
+      "label": "Text decoration",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "underline",
+          "label": "Underline"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "header",
+      "content": "Subtext typography"
+    },
+    {
+      "type": "font_picker",
+      "id": "subtext_font_family",
+      "label": "Font",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "select",
+      "id": "subtext_font_weight",
+      "label": "Font weight",
+      "options": [
+        {
+          "value": "300",
+          "label": "Light"
+        },
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semibold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "subtext_font_size",
+      "min": 8,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 12
+    },
+    {
+      "type": "select",
+      "id": "subtext_transform",
+      "label": "Text transform",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "uppercase",
+          "label": "Uppercase"
+        },
+        {
+          "value": "lowercase",
+          "label": "Lowercase"
+        },
+        {
+          "value": "capitalize",
+          "label": "Capitalize"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "range",
+      "id": "subtext_letter_spacing",
+      "min": 0,
+      "max": 3,
+      "step": 0.5,
+      "unit": "px",
+      "label": "Letter spacing",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Announcement 1"
+    },
+    {
+      "type": "checkbox",
+      "id": "announcement_1_enabled",
+      "label": "Enable announcement 1",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "announcement_1_headline",
+      "label": "Headline",
+      "default": "Free shipping on orders over $50"
+    },
+    {
+      "type": "text",
+      "id": "announcement_1_subtext",
+      "label": "Subtext"
+    },
+    {
+      "type": "header",
+      "content": "Announcement 2"
+    },
+    {
+      "type": "checkbox",
+      "id": "announcement_2_enabled",
+      "label": "Enable announcement 2",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "announcement_2_headline",
+      "label": "Headline",
+      "default": "New arrivals just dropped"
+    },
+    {
+      "type": "text",
+      "id": "announcement_2_subtext",
+      "label": "Subtext"
+    },
+    {
+      "type": "header",
+      "content": "Announcement 3"
+    },
+    {
+      "type": "checkbox",
+      "id": "announcement_3_enabled",
+      "label": "Enable announcement 3",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "announcement_3_headline",
+      "label": "Headline",
+      "default": "Shop now and save 20%"
+    },
+    {
+      "type": "text",
+      "id": "announcement_3_subtext",
+      "label": "Subtext"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Announcement bar"
+    }
+  ]
+}
+{% endschema %}

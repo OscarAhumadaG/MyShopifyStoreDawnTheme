@@ -1,0 +1,131 @@
+{% comment %}
+  Footer estilo Mattelsa – Shopify OS 2.0
+  Versión animada premium
+{% endcomment %}
+
+<section class="matt-footer">
+  <div class="matt-footer__inner page-width">
+
+    {%- if section.settings.brand_title != blank -%}
+      <h3 class="matt-footer__brand">
+        {{ section.settings.brand_title }}
+      </h3>
+    {%- endif -%}
+
+    {%- if section.settings.show_social -%}
+      <div class="matt-footer__social">
+
+        {%- if section.settings.whatsapp_url != blank -%}
+          <a class="matt-social" href="{{ section.settings.whatsapp_url | escape }}" target="_blank" rel="noopener" aria-label="WhatsApp"></a>
+        {%- endif -%}
+
+        {%- if section.settings.facebook_url != blank -%}
+          <a class="matt-social" href="{{ section.settings.facebook_url | escape }}" target="_blank" rel="noopener" aria-label="Facebook"></a>
+        {%- endif -%}
+
+        {%- if section.settings.instagram_url != blank -%}
+          <a class="matt-social" href="{{ section.settings.instagram_url | escape }}" target="_blank" rel="noopener" aria-label="Instagram"></a>
+        {%- endif -%}
+
+        {%- if section.settings.twitter_url != blank -%}
+          <a class="matt-social" href="{{ section.settings.twitter_url | escape }}" target="_blank" rel="noopener" aria-label="X"></a>
+        {%- endif -%}
+
+        {%- if section.settings.spotify_url != blank -%}
+          <a class="matt-social" href="{{ section.settings.spotify_url | escape }}" target="_blank" rel="noopener" aria-label="Spotify"></a>
+        {%- endif -%}
+
+        {%- if section.settings.tiktok_url != blank -%}
+          <a class="matt-social" href="{{ section.settings.tiktok_url | escape }}" target="_blank" rel="noopener" aria-label="TikTok"></a>
+        {%- endif -%}
+
+      </div>
+    {%- endif -%}
+
+    <div class="matt-footer__grid">
+
+      <div class="matt-footer__col">
+        <h4 class="matt-footer__heading">{{ section.settings.col1_title }}</h4>
+        {%- if section.settings.menu_col1 != blank -%}
+          <ul class="matt-footer__links">
+            {%- for link in linklists[section.settings.menu_col1].links -%}
+              <li>
+                <a href="{{ link.url }}">
+                  {{ link.title }}
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+      </div>
+
+      <div class="matt-footer__col">
+        <h4 class="matt-footer__heading">{{ section.settings.col2_title }}</h4>
+        {%- if section.settings.menu_col2 != blank -%}
+          <ul class="matt-footer__links">
+            {%- for link in linklists[section.settings.menu_col2].links -%}
+              <li>
+                <a href="{{ link.url }}">
+                  {{ link.title }}
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+      </div>
+
+      <div class="matt-footer__col">
+        <h4 class="matt-footer__heading">{{ section.settings.col3_title }}</h4>
+        <div class="matt-footer__contact rte">
+          {{ section.settings.contact_html }}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="matt-footer__bottom">
+    <div class="page-width">
+      <p>
+        {%- if section.settings.bottom_text != blank -%}
+          {{ section.settings.bottom_text }}
+        {%- else -%}
+          © {{ 'now' | date: '%Y' }} {{ shop.name }}. Todos los derechos reservados.
+        {%- endif -%}
+      </p>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Footer Premium",
+  "settings": [
+    { "type": "text", "id": "brand_title", "label": "Título/Marca centrado", "default": "TU MARCA" },
+    { "type": "checkbox", "id": "show_social", "label": "Mostrar iconos sociales", "default": true },
+
+    { "type": "text", "id": "whatsapp_url", "label": "WhatsApp URL" },
+    { "type": "text", "id": "facebook_url", "label": "Facebook URL" },
+    { "type": "text", "id": "instagram_url", "label": "Instagram URL" },
+    { "type": "text", "id": "twitter_url", "label": "X/Twitter URL" },
+    { "type": "text", "id": "spotify_url", "label": "Spotify URL" },
+    { "type": "text", "id": "tiktok_url", "label": "TikTok URL" },
+
+    { "type": "text", "id": "col1_title", "label": "Título columna 1", "default": "SOBRE LA MARCA" },
+    { "type": "link_list", "id": "menu_col1", "label": "Menú columna 1" },
+
+    { "type": "text", "id": "col2_title", "label": "Título columna 2", "default": "AYUDA" },
+    { "type": "link_list", "id": "menu_col2", "label": "Menú columna 2" },
+
+    { "type": "text", "id": "col3_title", "label": "Título columna 3", "default": "CONTACTO" },
+    { "type": "richtext", "id": "contact_html", "label": "Contenido de contacto" },
+
+    { "type": "text", "id": "bottom_text", "label": "Texto inferior (opcional)" }
+  ],
+  "presets": [
+    { "name": "Footer estilo Mattelsa Premium" }
+  ]
+}
+{% endschema %}
+

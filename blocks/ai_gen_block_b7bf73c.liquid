@@ -1,0 +1,1486 @@
+{% assign ai_gen_id = block.id | replace: '_', '' | replace: '-', '' | downcase %}
+{% assign icon_opacity = block.settings.info_icon_opacity | divided_by: 100.0 %}
+{% assign desc_opacity = block.settings.description_bg_opacity | divided_by: 100.0 %}
+
+{% assign ns_cfg  = block.settings.meta_ns  | default:'custom' %}
+{% assign key_cfg = block.settings.meta_key | default:'feature_facts' %}
+{% assign mf = product.metafields[ns_cfg][key_cfg] %}
+
+{% if mf and mf.value and mf.type contains 'list.' %}
+  {% assign feature_items = mf.value %}
+{% endif %}
+
+{% style %}
+  .ai-media-strip-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: {{ block.settings.section_padding_top }}px 0 {{ block.settings.section_padding_bottom }}px;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-media-strip-header-{{ ai_gen_id }} {
+    margin-left: {{ block.settings.start_spacing }}px;
+    margin-right: {{ block.settings.item_spacing }}px;
+    margin-bottom: {{ block.settings.header_spacing }}px;
+  }
+
+  .ai-media-strip-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_font_size }}px;
+    font-weight: {{ block.settings.title_font_weight }};
+    line-height: 1.2;
+    margin: 0 0 {{ block.settings.subtitle_spacing }}px 0;
+    color: {{ block.settings.title_color }};
+    letter-spacing: {{ block.settings.title_letter_spacing }}px;
+  }
+
+  .ai-media-strip-subtitle-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subtitle_font_size }}px;
+    font-weight: {{ block.settings.subtitle_font_weight }};
+    line-height: 1.6;
+    margin: 0;
+    color: {{ block.settings.subtitle_color }};
+    letter-spacing: {{ block.settings.subtitle_letter_spacing }}px;
+    max-width: 600px;
+  }
+
+  .ai-media-strip-wrapper-{{ ai_gen_id }} {
+    margin-left: {{ block.settings.start_spacing }}px;
+    margin-right: {{ block.settings.item_spacing }}px;
+  }
+
+  .ai-media-strip-container-{{ ai_gen_id }} {
+    display: flex;
+    gap: {{ block.settings.item_spacing }}px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-snap-type: x mandatory;
+  }
+
+  .ai-media-strip-container-{{ ai_gen_id }}::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ai-media-strip-item-{{ ai_gen_id }} {
+    flex: 0 0 auto;
+    width: {{ block.settings.item_width_desktop }}px;
+    position: relative;
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+  }
+
+  .ai-media-strip-media-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: {{ block.settings.item_height_desktop }}px;
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+    background-color: #f4f4f4;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ::after pseudo-element overlay */
+  .ai-media-strip-media-wrapper-{{ ai_gen_id }}::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(to top, {{ block.settings.description_bg_color | color_modify: 'alpha', desc_opacity }}, transparent);
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .ai-media-strip-media-wrapper-{{ ai_gen_id }}.active::after {
+    opacity: 1;
+  }
+
+  .ai-media-strip-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
+
+  .ai-media-strip-media-wrapper-{{ ai_gen_id }}.active .ai-media-strip-image-{{ ai_gen_id }} {
+    transform: scale(1.02);
+  }
+
+  .ai-media-strip-video-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
+
+  .ai-media-strip-feature-content-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    padding: {{ block.settings.feature_title_offset }}px {{ block.settings.feature_title_offset }}px {{ block.settings.description_bg_padding }}px;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: none;
+    overflow: visible;
+    transform: translateY(0);
+  }
+
+  .ai-media-strip-feature-title-{{ ai_gen_id }} {
+    background-color: transparent;
+    color: {{ block.settings.feature_title_color }};
+    padding: 0;
+    font-size: {{ block.settings.feature_title_font_size }}px;
+    font-weight: {{ block.settings.feature_title_font_weight }};
+    letter-spacing: {{ block.settings.feature_title_letter_spacing }}px;
+    text-transform: uppercase;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0 0 {{ block.settings.title_description_spacing }}px 0;
+    line-height: 1.2;
+  }
+
+  .ai-media-strip-media-wrapper-{{ ai_gen_id }}.active .ai-media-strip-feature-content-{{ ai_gen_id }} {
+    transform: translateY(calc(-1 * ({{ block.settings.description_font_size }} + {{ block.settings.title_description_spacing }} + 40)px));
+  }
+
+  .ai-media-strip-info-icon-{{ ai_gen_id }} {
+    position: absolute;
+    top: {{ block.settings.info_icon_offset }}px;
+    right: {{ block.settings.info_icon_offset }}px;
+    width: {{ block.settings.info_icon_size }}px;
+    height: {{ block.settings.info_icon_size }}px;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    flex-shrink: 0;
+    opacity: {{ icon_opacity }};
+  }
+
+  .ai-media-strip-info-icon-{{ ai_gen_id }}:hover {
+    transform: scale(1.15) translateY(-3px);
+  }
+
+  .ai-media-strip-info-icon-{{ ai_gen_id }}:active {
+    transform: scale(0.98) translateY(0);
+  }
+
+  .ai-media-strip-info-icon-svg-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.15));
+    transition: filter 0.4s ease;
+  }
+
+  .ai-media-strip-info-icon-{{ ai_gen_id }}:hover .ai-media-strip-info-icon-svg-{{ ai_gen_id }} {
+    filter: drop-shadow(0 12px 40px rgba(0, 0, 0, 0.25));
+  }
+
+  .ai-media-strip-description-overlay-{{ ai_gen_id }} {
+    position: static;
+    height: auto;
+    background-color: transparent;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 4;
+    max-height: 0;
+  }
+
+  .ai-media-strip-description-overlay-{{ ai_gen_id }}.active {
+    max-height: 300px;
+    opacity: 1;
+  }
+
+  .ai-media-strip-description-content-{{ ai_gen_id }} {
+    animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .ai-media-strip-description-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.description_font_size }}px;
+    font-weight: {{ block.settings.description_font_weight }};
+    color: {{ block.settings.description_color }};
+    margin: 0;
+    line-height: 1.7;
+    letter-spacing: 0.3px;
+    position: relative;
+    z-index: 4;
+  }
+
+  .ai-media-strip-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f4f4f4;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
+
+  .ai-media-strip-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  @media (hover: hover) and (min-width: 750px) {
+    .ai-media-strip-info-icon-{{ ai_gen_id }} {
+      display: none;
+    }
+
+    .ai-media-strip-media-wrapper-{{ ai_gen_id }}:hover::after {
+      opacity: 1;
+    }
+
+    .ai-media-strip-media-wrapper-{{ ai_gen_id }}:hover .ai-media-strip-feature-content-{{ ai_gen_id }} {
+      transform: translateY(calc(-1 * ({{ block.settings.description_font_size }} + {{ block.settings.title_description_spacing }} + 40)px));
+    }
+
+    .ai-media-strip-media-wrapper-{{ ai_gen_id }}:hover .ai-media-strip-description-overlay-{{ ai_gen_id }} {
+      max-height: 300px;
+      opacity: 1;
+    }
+  }
+
+  @media (hover: none) or (max-width: 749px) {
+    .ai-media-strip-info-icon-{{ ai_gen_id }} {
+      display: flex;
+    }
+
+    .ai-media-strip-item-{{ ai_gen_id }} {
+      width: {{ block.settings.item_width_mobile }}px;
+    }
+
+    .ai-media-strip-media-wrapper-{{ ai_gen_id }} {
+      height: {{ block.settings.item_height_mobile }}px;
+    }
+
+    .ai-media-strip-wrapper-{{ ai_gen_id }} {
+      margin-left: {{ block.settings.start_spacing_mobile }}px;
+      margin-right: {{ block.settings.item_spacing }}px;
+    }
+
+    .ai-media-strip-header-{{ ai_gen_id }} {
+      margin-left: {{ block.settings.start_spacing_mobile }}px;
+      margin-right: {{ block.settings.item_spacing }}px;
+    }
+
+    .ai-media-strip-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_font_size_mobile }}px;
+    }
+
+    .ai-media-strip-subtitle-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subtitle_font_size_mobile }}px;
+    }
+  }
+{% endstyle %}
+
+<media-feature-strip-{{ ai_gen_id }}
+  class="ai-media-strip-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  {% if block.settings.section_title != blank or block.settings.section_subtitle != blank %}
+    <div class="ai-media-strip-header-{{ ai_gen_id }}">
+      {% if block.settings.section_title != blank %}
+        <h2 class="ai-media-strip-title-{{ ai_gen_id }}">{{ block.settings.section_title }}</h2>
+      {% endif %}
+      {% if block.settings.section_subtitle != blank %}
+        <p class="ai-media-strip-subtitle-{{ ai_gen_id }}">{{ block.settings.section_subtitle }}</p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="ai-media-strip-wrapper-{{ ai_gen_id }}">
+    <div class="ai-media-strip-container-{{ ai_gen_id }}">
+      {% if feature_items and feature_items.size > 0 %}
+        {% assign max_items_val = block.settings.max_items | default:6 %}
+        {% for feature in feature_items limit:max_items_val %}
+          {% assign f_title = feature.title %}
+          {% assign f_desc = feature.description %}
+          {% assign f_imgobj = feature.video_or_image %}
+
+          {% assign f_imgsrc = '' %}
+          {% assign f_is_video = false %}
+          
+          {% if f_imgobj != blank %}
+            {% assign file_url_str = f_imgobj | file_url %}
+            {% assign f_imgsrc = file_url_str %}
+            
+            {% if f_imgsrc contains '.mp4' or f_imgsrc contains '.webm' or f_imgsrc contains '.mov' or f_imgsrc contains '.avi' %}
+              {% assign f_is_video = true %}
+            {% endif %}
+          {% endif %}
+
+          {% if f_title != blank or f_imgsrc != blank %}
+            <div class="ai-media-strip-item-{{ ai_gen_id }}" data-item="{{ forloop.index }}">
+              <div class="ai-media-strip-media-wrapper-{{ ai_gen_id }}">
+                {% if f_imgsrc != blank %}
+                  {% if f_is_video %}
+                    <video class="ai-media-strip-video-{{ ai_gen_id }}" autoplay muted loop playsinline disablepictureinpicture controlsList="nodownload" preload="metadata">
+                      <source src="{{ f_imgsrc }}" type="video/mp4">
+                      Tu navegador no soporta HTML5 video.
+                    </video>
+                  {% else %}
+                    <img src="{{ f_imgsrc }}" alt="{{ f_title | escape }}" class="ai-media-strip-image-{{ ai_gen_id }}" loading="lazy">
+                  {% endif %}
+                {% else %}
+                  <div class="ai-media-strip-placeholder-{{ ai_gen_id }}">{{ 'image' | placeholder_svg_tag }}</div>
+                {% endif %}
+
+                <div class="ai-media-strip-feature-content-{{ ai_gen_id }}">
+                  {% if f_title != blank %}
+                    <div class="ai-media-strip-feature-title-{{ ai_gen_id }}">{{ f_title }}</div>
+                  {% endif %}
+
+                  {% if f_desc != blank %}
+                    <div class="ai-media-strip-description-overlay-{{ ai_gen_id }}" data-description="{{ forloop.index }}">
+                      <div class="ai-media-strip-description-content-{{ ai_gen_id }}">
+                        <div class="ai-media-strip-description-text-{{ ai_gen_id }}">{{ f_desc }}</div>
+                      </div>
+                    </div>
+                  {% endif %}
+                </div>
+
+                <button class="ai-media-strip-info-icon-{{ ai_gen_id }}" data-info="{{ forloop.index }}" type="button" aria-label="More information about {{ f_title }}" aria-expanded="false">
+                  <svg class="ai-media-strip-info-icon-svg-{{ ai_gen_id }}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <defs><mask id="knockout-{{ ai_gen_id }}-{{ forloop.index }}"><rect width="24" height="24" fill="white"/><circle cx="12" cy="6" r="1.5" fill="black"/><rect x="11" y="9" width="2" height="8" fill="black"/></mask></defs>
+                    <circle cx="12" cy="12" r="12" fill="{{ block.settings.info_icon_bg_color }}" mask="url(#knockout-{{ ai_gen_id }}-{{ forloop.index }})"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        {% if block.settings.media_type_1 != 'none' %}
+          <div class="ai-media-strip-item-{{ ai_gen_id }}" data-item="1">
+            <div class="ai-media-strip-media-wrapper-{{ ai_gen_id }}">
+              {% if block.settings.media_type_1 == 'image' %}
+                {% if block.settings.image_1 %}
+                  <img src="{{ block.settings.image_1 | image_url: width: 800 }}" alt="{{ block.settings.image_1.alt | escape }}" class="ai-media-strip-image-{{ ai_gen_id }}" loading="lazy" width="{{ block.settings.image_1.width }}" height="{{ block.settings.image_1.height }}">
+                {% else %}
+                  <div class="ai-media-strip-placeholder-{{ ai_gen_id }}">{{ 'image' | placeholder_svg_tag }}</div>
+                {% endif %}
+              {% elsif block.settings.media_type_1 == 'video' %}
+                {% if block.settings.video_1 %}
+                  <video class="ai-media-strip-video-{{ ai_gen_id }}" autoplay muted loop playsinline disablepictureinpicture controlsList="nodownload" preload="metadata">
+                    <source src="{{ block.settings.video_1 }}" type="video/mp4">
+                    Tu navegador no soporta HTML5 video.
+                  </video>
+                {% else %}
+                  <div class="ai-media-strip-placeholder-{{ ai_gen_id }}">{{ 'image' | placeholder_svg_tag }}</div>
+                {% endif %}
+              {% endif %}
+
+              <div class="ai-media-strip-feature-content-{{ ai_gen_id }}">
+                {% if block.settings.feature_title_1 != blank %}
+                  <div class="ai-media-strip-feature-title-{{ ai_gen_id }}">{{ block.settings.feature_title_1 }}</div>
+                {% endif %}
+
+                {% if block.settings.feature_description_1 != blank %}
+                  <div class="ai-media-strip-description-overlay-{{ ai_gen_id }}" data-description="1">
+                    <div class="ai-media-strip-description-content-{{ ai_gen_id }}">
+                      <div class="ai-media-strip-description-text-{{ ai_gen_id }}">{{ block.settings.feature_description_1 }}</div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+
+              <button class="ai-media-strip-info-icon-{{ ai_gen_id }}" data-info="1" type="button" aria-label="More information about {{ block.settings.feature_title_1 }}" aria-expanded="false">
+                <svg class="ai-media-strip-info-icon-svg-{{ ai_gen_id }}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <defs><mask id="knockout-{{ ai_gen_id }}-1"><rect width="24" height="24" fill="white"/><circle cx="12" cy="6" r="1.5" fill="black"/><rect x="11" y="9" width="2" height="8" fill="black"/></mask></defs>
+                  <circle cx="12" cy="12" r="12" fill="{{ block.settings.info_icon_bg_color }}" mask="url(#knockout-{{ ai_gen_id }}-1)"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        {% endif %}
+
+        {% if block.settings.media_type_2 != 'none' %}
+          <div class="ai-media-strip-item-{{ ai_gen_id }}" data-item="2">
+            <div class="ai-media-strip-media-wrapper-{{ ai_gen_id }}">
+              {% if block.settings.media_type_2 == 'image' %}
+                {% if block.settings.image_2 %}
+                  <img src="{{ block.settings.image_2 | image_url: width: 800 }}" alt="{{ block.settings.image_2.alt | escape }}" class="ai-media-strip-image-{{ ai_gen_id }}" loading="lazy" width="{{ block.settings.image_2.width }}" height="{{ block.settings.image_2.height }}">
+                {% else %}
+                  <div class="ai-media-strip-placeholder-{{ ai_gen_id }}">{{ 'image' | placeholder_svg_tag }}</div>
+                {% endif %}
+              {% elsif block.settings.media_type_2 == 'video' %}
+                {% if block.settings.video_2 %}
+                  <video class="ai-media-strip-video-{{ ai_gen_id }}" autoplay muted loop playsinline disablepictureinpicture controlsList="nodownload" preload="metadata">
+                    <source src="{{ block.settings.video_2 }}" type="video/mp4">
+                    Tu navegador no soporta HTML5 video.
+                  </video>
+                {% else %}
+                  <div class="ai-media-strip-placeholder-{{ ai_gen_id }}">{{ 'image' | placeholder_svg_tag }}</div>
+                {% endif %}
+              {% endif %}
+
+              <div class="ai-media-strip-feature-content-{{ ai_gen_id }}">
+                {% if block.settings.feature_title_2 != blank %}
+                  <div class="ai-media-strip-feature-title-{{ ai_gen_id }}">{{ block.settings.feature_title_2 }}</div>
+                {% endif %}
+
+                {% if block.settings.feature_description_2 != blank %}
+                  <div class="ai-media-strip-description-overlay-{{ ai_gen_id }}" data-description="2">
+                    <div class="ai-media-strip-description-content-{{ ai_gen_id }}">
+                      <div class="ai-media-strip-description-text-{{ ai_gen_id }}">{{ block.settings.feature_description_2 }}</div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+
+              <button class="ai-media-strip-info-icon-{{ ai_gen_id }}" data-info="2" type="button" aria-label="More information about {{ block.settings.feature_title_2 }}" aria-expanded="false">
+                <svg class="ai-media-strip-info-icon-svg-{{ ai_gen_id }}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <defs><mask id="knockout-{{ ai_gen_id }}-2"><rect width="24" height="24" fill="white"/><circle cx="12" cy="6" r="1.5" fill="black"/><rect x="11" y="9" width="2" height="8" fill="black"/></mask></defs>
+                  <circle cx="12" cy="12" r="12" fill="{{ block.settings.info_icon_bg_color }}" mask="url(#knockout-{{ ai_gen_id }}-2)"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        {% endif %}
+
+        {% if block.settings.media_type_3 != 'none' %}
+          <div class="ai-media-strip-item-{{ ai_gen_id }}" data-item="3">
+            <div class="ai-media-strip-media-wrapper-{{ ai_gen_id }}">
+              {% if block.settings.media_type_3 == 'image' %}
+                {% if block.settings.image_3 %}
+                  <img src="{{ block.settings.image_3 | image_url: width: 800 }}" alt="{{ block.settings.image_3.alt | escape }}" class="ai-media-strip-image-{{ ai_gen_id }}" loading="lazy" width="{{ block.settings.image_3.width }}" height="{{ block.settings.image_3.height }}">
+                {% else %}
+                  <div class="ai-media-strip-placeholder-{{ ai_gen_id }}">{{ 'image' | placeholder_svg_tag }}</div>
+                {% endif %}
+              {% elsif block.settings.media_type_3 == 'video' %}
+                {% if block.settings.video_3 %}
+                  <video class="ai-media-strip-video-{{ ai_gen_id }}" autoplay muted loop playsinline disablepictureinpicture controlsList="nodownload" preload="metadata">
+                    <source src="{{ block.settings.video_3 }}" type="video/mp4">
+                    Tu navegador no soporta HTML5 video.
+                  </video>
+                {% else %}
+                  <div class="ai-media-strip-placeholder-{{ ai_gen_id }}">{{ 'image' | placeholder_svg_tag }}</div>
+                {% endif %}
+              {% endif %}
+
+              <div class="ai-media-strip-feature-content-{{ ai_gen_id }}">
+                {% if block.settings.feature_title_3 != blank %}
+                  <div class="ai-media-strip-feature-title-{{ ai_gen_id }}">{{ block.settings.feature_title_3 }}</div>
+                {% endif %}
+
+                {% if block.settings.feature_description_3 != blank %}
+                  <div class="ai-media-strip-description-overlay-{{ ai_gen_id }}" data-description="3">
+                    <div class="ai-media-strip-description-content-{{ ai_gen_id }}">
+                      <div class="ai-media-strip-description-text-{{ ai_gen_id }}">{{ block.settings.feature_description_3 }}</div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+
+              <button class="ai-media-strip-info-icon-{{ ai_gen_id }}" data-info="3" type="button" aria-label="More information about {{ block.settings.feature_title_3 }}" aria-expanded="false">
+                <svg class="ai-media-strip-info-icon-svg-{{ ai_gen_id }}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <defs><mask id="knockout-{{ ai_gen_id }}-3"><rect width="24" height="24" fill="white"/><circle cx="12" cy="6" r="1.5" fill="black"/><rect x="11" y="9" width="2" height="8" fill="black"/></mask></defs>
+                  <circle cx="12" cy="12" r="12" fill="{{ block.settings.info_icon_bg_color }}" mask="url(#knockout-{{ ai_gen_id }}-3)"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        {% endif %}
+
+        {% if block.settings.media_type_4 != 'none' %}
+          <div class="ai-media-strip-item-{{ ai_gen_id }}" data-item="4">
+            <div class="ai-media-strip-media-wrapper-{{ ai_gen_id }}">
+              {% if block.settings.media_type_4 == 'image' %}
+                {% if block.settings.image_4 %}
+                  <img src="{{ block.settings.image_4 | image_url: width: 800 }}" alt="{{ block.settings.image_4.alt | escape }}" class="ai-media-strip-image-{{ ai_gen_id }}" loading="lazy" width="{{ block.settings.image_4.width }}" height="{{ block.settings.image_4.height }}">
+                {% else %}
+                  <div class="ai-media-strip-placeholder-{{ ai_gen_id }}">{{ 'image' | placeholder_svg_tag }}</div>
+                {% endif %}
+              {% elsif block.settings.media_type_4 == 'video' %}
+                {% if block.settings.video_4 %}
+                  <video class="ai-media-strip-video-{{ ai_gen_id }}" autoplay muted loop playsinline disablepictureinpicture controlsList="nodownload" preload="metadata">
+                    <source src="{{ block.settings.video_4 }}" type="video/mp4">
+                    Tu navegador no soporta HTML5 video.
+                  </video>
+                {% else %}
+                  <div class="ai-media-strip-placeholder-{{ ai_gen_id }}">{{ 'image' | placeholder_svg_tag }}</div>
+                {% endif %}
+              {% endif %}
+
+              <div class="ai-media-strip-feature-content-{{ ai_gen_id }}">
+                {% if block.settings.feature_title_4 != blank %}
+                  <div class="ai-media-strip-feature-title-{{ ai_gen_id }}">{{ block.settings.feature_title_4 }}</div>
+                {% endif %}
+
+                {% if block.settings.feature_description_4 != blank %}
+                  <div class="ai-media-strip-description-overlay-{{ ai_gen_id }}" data-description="4">
+                    <div class="ai-media-strip-description-content-{{ ai_gen_id }}">
+                      <div class="ai-media-strip-description-text-{{ ai_gen_id }}">{{ block.settings.feature_description_4 }}</div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+
+              <button class="ai-media-strip-info-icon-{{ ai_gen_id }}" data-info="4" type="button" aria-label="More information about {{ block.settings.feature_title_4 }}" aria-expanded="false">
+                <svg class="ai-media-strip-info-icon-svg-{{ ai_gen_id }}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <defs><mask id="knockout-{{ ai_gen_id }}-4"><rect width="24" height="24" fill="white"/><circle cx="12" cy="6" r="1.5" fill="black"/><rect x="11" y="9" width="2" height="8" fill="black"/></mask></defs>
+                  <circle cx="12" cy="12" r="12" fill="{{ block.settings.info_icon_bg_color }}" mask="url(#knockout-{{ ai_gen_id }}-4)"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        {% endif %}
+
+        {% if block.settings.media_type_5 != 'none' %}
+          <div class="ai-media-strip-item-{{ ai_gen_id }}" data-item="5">
+            <div class="ai-media-strip-media-wrapper-{{ ai_gen_id }}">
+              {% if block.settings.media_type_5 == 'image' %}
+                {% if block.settings.image_5 %}
+                  <img src="{{ block.settings.image_5 | image_url: width: 800 }}" alt="{{ block.settings.image_5.alt | escape }}" class="ai-media-strip-image-{{ ai_gen_id }}" loading="lazy" width="{{ block.settings.image_5.width }}" height="{{ block.settings.image_5.height }}">
+                {% else %}
+                  <div class="ai-media-strip-placeholder-{{ ai_gen_id }}">{{ 'image' | placeholder_svg_tag }}</div>
+                {% endif %}
+              {% elsif block.settings.media_type_5 == 'video' %}
+                {% if block.settings.video_5 %}
+                  <video class="ai-media-strip-video-{{ ai_gen_id }}" autoplay muted loop playsinline disablepictureinpicture controlsList="nodownload" preload="metadata">
+                    <source src="{{ block.settings.video_5 }}" type="video/mp4">
+                    Tu navegador no soporta HTML5 video.
+                  </video>
+                {% else %}
+                  <div class="ai-media-strip-placeholder-{{ ai_gen_id }}">{{ 'image' | placeholder_svg_tag }}</div>
+                {% endif %}
+              {% endif %}
+
+              <div class="ai-media-strip-feature-content-{{ ai_gen_id }}">
+                {% if block.settings.feature_title_5 != blank %}
+                  <div class="ai-media-strip-feature-title-{{ ai_gen_id }}">{{ block.settings.feature_title_5 }}</div>
+                {% endif %}
+
+                {% if block.settings.feature_description_5 != blank %}
+                  <div class="ai-media-strip-description-overlay-{{ ai_gen_id }}" data-description="5">
+                    <div class="ai-media-strip-description-content-{{ ai_gen_id }}">
+                      <div class="ai-media-strip-description-text-{{ ai_gen_id }}">{{ block.settings.feature_description_5 }}</div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+
+              <button class="ai-media-strip-info-icon-{{ ai_gen_id }}" data-info="5" type="button" aria-label="More information about {{ block.settings.feature_title_5 }}" aria-expanded="false">
+                <svg class="ai-media-strip-info-icon-svg-{{ ai_gen_id }}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <defs><mask id="knockout-{{ ai_gen_id }}-5"><rect width="24" height="24" fill="white"/><circle cx="12" cy="6" r="1.5" fill="black"/><rect x="11" y="9" width="2" height="8" fill="black"/></mask></defs>
+                  <circle cx="12" cy="12" r="12" fill="{{ block.settings.info_icon_bg_color }}" mask="url(#knockout-{{ ai_gen_id }}-5)"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        {% endif %}
+
+        {% if block.settings.media_type_6 != 'none' %}
+          <div class="ai-media-strip-item-{{ ai_gen_id }}" data-item="6">
+            <div class="ai-media-strip-media-wrapper-{{ ai_gen_id }}">
+              {% if block.settings.media_type_6 == 'image' %}
+                {% if block.settings.image_6 %}
+                  <img src="{{ block.settings.image_6 | image_url: width: 800 }}" alt="{{ block.settings.image_6.alt | escape }}" class="ai-media-strip-image-{{ ai_gen_id }}" loading="lazy" width="{{ block.settings.image_6.width }}" height="{{ block.settings.image_6.height }}">
+                {% else %}
+                  <div class="ai-media-strip-placeholder-{{ ai_gen_id }}">{{ 'image' | placeholder_svg_tag }}</div>
+                {% endif %}
+              {% elsif block.settings.media_type_6 == 'video' %}
+                {% if block.settings.video_6 %}
+                  <video class="ai-media-strip-video-{{ ai_gen_id }}" autoplay muted loop playsinline disablepictureinpicture controlsList="nodownload" preload="metadata">
+                    <source src="{{ block.settings.video_6 }}" type="video/mp4">
+                    Tu navegador no soporta HTML5 video.
+                  </video>
+                {% else %}
+                  <div class="ai-media-strip-placeholder-{{ ai_gen_id }}">{{ 'image' | placeholder_svg_tag }}</div>
+                {% endif %}
+              {% endif %}
+
+              <div class="ai-media-strip-feature-content-{{ ai_gen_id }}">
+                {% if block.settings.feature_title_6 != blank %}
+                  <div class="ai-media-strip-feature-title-{{ ai_gen_id }}">{{ block.settings.feature_title_6 }}</div>
+                {% endif %}
+
+                {% if block.settings.feature_description_6 != blank %}
+                  <div class="ai-media-strip-description-overlay-{{ ai_gen_id }}" data-description="6">
+                    <div class="ai-media-strip-description-content-{{ ai_gen_id }}">
+                      <div class="ai-media-strip-description-text-{{ ai_gen_id }}">{{ block.settings.feature_description_6 }}</div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+
+              <button class="ai-media-strip-info-icon-{{ ai_gen_id }}" data-info="6" type="button" aria-label="More information about {{ block.settings.feature_title_6 }}" aria-expanded="false">
+                <svg class="ai-media-strip-info-icon-svg-{{ ai_gen_id }}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <defs><mask id="knockout-{{ ai_gen_id }}-6"><rect width="24" height="24" fill="white"/><circle cx="12" cy="6" r="1.5" fill="black"/><rect x="11" y="9" width="2" height="8" fill="black"/></mask></defs>
+                  <circle cx="12" cy="12" r="12" fill="{{ block.settings.info_icon_bg_color }}" mask="url(#knockout-{{ ai_gen_id }}-6)"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</media-feature-strip-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class MediaFeatureStrip{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.container = this.querySelector('.ai-media-strip-container-{{ ai_gen_id }}');
+        this.id = '{{ ai_gen_id }}';
+      }
+
+      connectedCallback() {
+        this.setupScrollMomentum();
+        this.setupVideos();
+        this.setupTouchInteractions();
+      }
+
+      setupScrollMomentum() {
+        if (!this.container) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+        let velocity = 0;
+        let momentumID;
+
+        this.container.addEventListener('mousedown', (e) => {
+          isDown = true;
+          this.container.style.cursor = 'grabbing';
+          startX = e.pageX - this.container.offsetLeft;
+          scrollLeft = this.container.scrollLeft;
+          cancelMomentumTracking();
+        });
+
+        this.container.addEventListener('mouseleave', () => {
+          isDown = false;
+          this.container.style.cursor = 'grab';
+        });
+
+        this.container.addEventListener('mouseup', () => {
+          isDown = false;
+          this.container.style.cursor = 'grab';
+          beginMomentumTracking();
+        });
+
+        this.container.addEventListener('mousemove', (e) => {
+          if (!isDown) return;
+          e.preventDefault();
+          const x = e.pageX - this.container.offsetLeft;
+          const walk = (x - startX) * 1.5;
+          const prevScrollLeft = this.container.scrollLeft;
+          this.container.scrollLeft = scrollLeft - walk;
+          velocity = this.container.scrollLeft - prevScrollLeft;
+        });
+
+        const beginMomentumTracking = () => {
+          cancelMomentumTracking();
+          momentumID = requestAnimationFrame(momentumLoop);
+        };
+
+        const cancelMomentumTracking = () => {
+          cancelAnimationFrame(momentumID);
+        };
+
+        const momentumLoop = () => {
+          this.container.scrollLeft += velocity;
+          velocity *= 0.95;
+          if (Math.abs(velocity) > 0.5) {
+            momentumID = requestAnimationFrame(momentumLoop);
+          }
+        };
+
+        this.container.style.cursor = 'grab';
+      }
+
+      setupVideos() {
+        const videos = this.querySelectorAll('.ai-media-strip-video-{{ ai_gen_id }}');
+        
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            const video = entry.target;
+            if (entry.isIntersecting) {
+              video.muted = true;
+              const playPromise = video.play();
+              if (playPromise !== undefined) {
+                playPromise.catch(err => {
+                  console.log('Autoplay prevented:', err);
+                });
+              }
+            } else {
+              video.pause();
+            }
+          });
+        }, { threshold: 0.5 });
+
+        videos.forEach(video => {
+          observer.observe(video);
+        });
+      }
+
+      setupTouchInteractions() {
+        const buttons = this.querySelectorAll('[data-info]');
+        
+        buttons.forEach(button => {
+          button.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const itemNum = button.getAttribute('data-info');
+            const wrapper = button.closest('.ai-media-strip-media-wrapper-{{ ai_gen_id }}');
+            const overlay = wrapper.querySelector(`[data-description="${itemNum}"]`);
+            
+            if (!overlay) return;
+
+            const isActive = overlay.classList.contains('active');
+            
+            // Cerrar todos primero
+            this.querySelectorAll('.ai-media-strip-media-wrapper-{{ ai_gen_id }}.active')
+              .forEach(el => el.classList.remove('active'));
+            
+            this.querySelectorAll('.ai-media-strip-description-overlay-{{ ai_gen_id }}.active').forEach(el => {
+              el.classList.remove('active');
+            });
+
+            // Abrir actual si no estaba activo
+            if (!isActive) {
+              wrapper.classList.add('active');
+              overlay.classList.add('active');
+              button.setAttribute('aria-expanded', 'true');
+            } else {
+              button.setAttribute('aria-expanded', 'false');
+            }
+          });
+
+          button.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              button.click();
+            }
+          });
+        });
+
+        document.addEventListener('click', (e) => {
+          const strip = e.target.closest('media-feature-strip-{{ ai_gen_id }}');
+          if (!strip) {
+            this.querySelectorAll('.ai-media-strip-media-wrapper-{{ ai_gen_id }}.active').forEach(wrapper => {
+              wrapper.classList.remove('active');
+              const overlays = wrapper.querySelectorAll('.ai-media-strip-description-overlay-{{ ai_gen_id }}.active');
+              overlays.forEach(overlay => overlay.classList.remove('active'));
+              const button = wrapper.querySelector('[data-info]');
+              if (button) button.setAttribute('aria-expanded', 'false');
+            });
+          }
+        });
+      }
+    }
+
+    customElements.define('media-feature-strip-{{ ai_gen_id }}', MediaFeatureStrip{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Media feature strip",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Header"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section title",
+      "default": "Featured Collection"
+    },
+    {
+      "type": "text",
+      "id": "section_subtitle",
+      "label": "Section subtitle (optional)",
+      "default": "Discover our curated selection of premium products"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "min": 8,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Title font size (desktop)",
+      "default": 42
+    },
+    {
+      "type": "range",
+      "id": "title_font_size_mobile",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Title font size (mobile)",
+      "default": 28
+    },
+    {
+      "type": "select",
+      "id": "title_font_weight",
+      "label": "Title font weight",
+      "options": [
+        {"value": "300", "label": "Light"},
+        {"value": "400", "label": "Normal"},
+        {"value": "500", "label": "Medium"},
+        {"value": "600", "label": "Semibold"},
+        {"value": "700", "label": "Bold"}
+      ],
+      "default": "600"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "title_letter_spacing",
+      "min": -1,
+      "max": 2,
+      "step": 0.1,
+      "unit": "px",
+      "label": "Title letter spacing",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "subtitle_font_size",
+      "min": 8,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle font size (desktop)",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "subtitle_font_size_mobile",
+      "min": 8,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle font size (mobile)",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "subtitle_font_weight",
+      "label": "Subtitle font weight",
+      "options": [
+        {"value": "300", "label": "Light"},
+        {"value": "400", "label": "Normal"},
+        {"value": "500", "label": "Medium"}
+      ],
+      "default": "400"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle color",
+      "default": "#666666"
+    },
+    {
+      "type": "range",
+      "id": "subtitle_letter_spacing",
+      "min": -1,
+      "max": 1,
+      "step": 0.1,
+      "unit": "px",
+      "label": "Subtitle letter spacing",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "header_spacing",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Space below header",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "subtitle_spacing",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Space between title and subtitle",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "item_width_desktop",
+      "min": 200,
+      "max": 600,
+      "step": 20,
+      "unit": "px",
+      "label": "Item width (desktop)",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "item_height_desktop",
+      "min": 200,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "label": "Item height (desktop)",
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "item_width_mobile",
+      "min": 200,
+      "max": 400,
+      "step": 20,
+      "unit": "px",
+      "label": "Item width (mobile)",
+      "default": 280
+    },
+    {
+      "type": "range",
+      "id": "item_height_mobile",
+      "min": 200,
+      "max": 600,
+      "step": 20,
+      "unit": "px",
+      "label": "Item height (mobile)",
+      "default": 360
+    },
+    {
+      "type": "range",
+      "id": "item_spacing",
+      "min": 4,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Space between items",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "start_spacing",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Left margin (desktop)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "start_spacing_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Left margin (mobile)",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Section padding top",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Section padding bottom",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Media Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Media border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Feature Title & Description"
+    },
+    {
+      "type": "range",
+      "id": "feature_title_font_size",
+      "min": 10,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Title font size",
+      "default": 12
+    },
+    {
+      "type": "select",
+      "id": "feature_title_font_weight",
+      "label": "Title font weight",
+      "options": [
+        {"value": "500", "label": "Medium"},
+        {"value": "600", "label": "Semibold"},
+        {"value": "700", "label": "Bold"}
+      ],
+      "default": "600"
+    },
+    {
+      "type": "range",
+      "id": "feature_title_letter_spacing",
+      "min": 0,
+      "max": 2,
+      "step": 0.5,
+      "unit": "px",
+      "label": "Title letter spacing",
+      "default": 1
+    },
+    {
+      "type": "color",
+      "id": "feature_title_color",
+      "label": "Title text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "feature_title_offset",
+      "min": 8,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Title offset from edge",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "title_description_spacing",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Space between title and description",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "description_font_size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Description font size",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "description_font_weight",
+      "label": "Description font weight",
+      "options": [
+        {"value": "300", "label": "Light"},
+        {"value": "400", "label": "Normal"},
+        {"value": "500", "label": "Medium"}
+      ],
+      "default": "400"
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Description text color",
+      "default": "#e8e8e8"
+    },
+    {
+      "type": "header",
+      "content": "Description Background"
+    },
+    {
+      "type": "color",
+      "id": "description_bg_color",
+      "label": "Description background color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "description_bg_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Description background opacity",
+      "default": 70
+    },
+    {
+      "type": "range",
+      "id": "description_bg_padding",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Description background padding",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "description_bg_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Description background border radius",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Info Icon Style (Mobile & Touch)"
+    },
+    {
+      "type": "color",
+      "id": "info_icon_bg_color",
+      "label": "Icon background color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "info_icon_size",
+      "min": 32,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "label": "Icon size",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "info_icon_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Icon opacity",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "info_icon_offset",
+      "min": 8,
+      "max": 32,
+      "step": 4,
+      "unit": "px",
+      "label": "Icon offset from corner",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Datos (Metafield)"
+    },
+    {
+      "type": "range",
+      "id": "max_items",
+      "label": "Maximum items to display",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "text",
+      "id": "meta_ns",
+      "label": "Metafield Namespace",
+      "default": "custom"
+    },
+    {
+      "type": "text",
+      "id": "meta_key",
+      "label": "Metafield Key",
+      "default": "feature_facts"
+    },
+    {
+      "type": "header",
+      "content": "Media item 1 (Fallback)"
+    },
+    {
+      "type": "select",
+      "id": "media_type_1",
+      "label": "Type",
+      "options": [
+        {"value": "none", "label": "None"},
+        {"value": "image", "label": "Image"},
+        {"value": "video", "label": "Video"}
+      ],
+      "default": "image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_1",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "video_1",
+      "label": "Video URL"
+    },
+    {
+      "type": "text",
+      "id": "feature_title_1",
+      "label": "Feature title",
+      "default": "Premium Feature"
+    },
+    {
+      "type": "textarea",
+      "id": "feature_description_1",
+      "label": "Feature description"
+    },
+    {
+      "type": "header",
+      "content": "Media item 2 (Fallback)"
+    },
+    {
+      "type": "select",
+      "id": "media_type_2",
+      "label": "Type",
+      "options": [
+        {"value": "none", "label": "None"},
+        {"value": "image", "label": "Image"},
+        {"value": "video", "label": "Video"}
+      ],
+      "default": "image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_2",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "video_2",
+      "label": "Video URL"
+    },
+    {
+      "type": "text",
+      "id": "feature_title_2",
+      "label": "Feature title",
+      "default": "Exclusive Design"
+    },
+    {
+      "type": "textarea",
+      "id": "feature_description_2",
+      "label": "Feature description"
+    },
+    {
+      "type": "header",
+      "content": "Media item 3 (Fallback)"
+    },
+    {
+      "type": "select",
+      "id": "media_type_3",
+      "label": "Type",
+      "options": [
+        {"value": "none", "label": "None"},
+        {"value": "image", "label": "Image"},
+        {"value": "video", "label": "Video"}
+      ],
+      "default": "image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_3",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "video_3",
+      "label": "Video URL"
+    },
+    {
+      "type": "text",
+      "id": "feature_title_3",
+      "label": "Feature title",
+      "default": "Limited Edition"
+    },
+    {
+      "type": "textarea",
+      "id": "feature_description_3",
+      "label": "Feature description"
+    },
+    {
+      "type": "header",
+      "content": "Media item 4 (Fallback)"
+    },
+    {
+      "type": "select",
+      "id": "media_type_4",
+      "label": "Type",
+      "options": [
+        {"value": "none", "label": "None"},
+        {"value": "image", "label": "Image"},
+        {"value": "video", "label": "Video"}
+      ],
+      "default": "none"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_4",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "video_4",
+      "label": "Video URL"
+    },
+    {
+      "type": "text",
+      "id": "feature_title_4",
+      "label": "Feature title"
+    },
+    {
+      "type": "textarea",
+      "id": "feature_description_4",
+      "label": "Feature description"
+    },
+    {
+      "type": "header",
+      "content": "Media item 5 (Fallback)"
+    },
+    {
+      "type": "select",
+      "id": "media_type_5",
+      "label": "Type",
+      "options": [
+        {"value": "none", "label": "None"},
+        {"value": "image", "label": "Image"},
+        {"value": "video", "label": "Video"}
+      ],
+      "default": "none"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_5",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "video_5",
+      "label": "Video URL"
+    },
+    {
+      "type": "text",
+      "id": "feature_title_5",
+      "label": "Feature title"
+    },
+    {
+      "type": "textarea",
+      "id": "feature_description_5",
+      "label": "Feature description"
+    },
+    {
+      "type": "header",
+      "content": "Media item 6 (Fallback)"
+    },
+    {
+      "type": "select",
+      "id": "media_type_6",
+      "label": "Type",
+      "options": [
+        {"value": "none", "label": "None"},
+        {"value": "image", "label": "Image"},
+        {"value": "video", "label": "Video"}
+      ],
+      "default": "none"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_6",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "video_6",
+      "label": "Video URL"
+    },
+    {
+      "type": "text",
+      "id": "feature_title_6",
+      "label": "Feature title"
+    },
+    {
+      "type": "textarea",
+      "id": "feature_description_6",
+      "label": "Feature description"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Media feature strip"
+    }
+  ]
+}
+{% endschema %}

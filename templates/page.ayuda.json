@@ -1,0 +1,103 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "1764352682ca47804d": {
+      "type": "_blocks",
+      "settings": {}
+    },
+    "1763333436a4597bac": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_5b9bde2_3dBN3x": {
+          "type": "ai_gen_block_5b9bde2",
+          "name": "Banner carrusel 2",
+          "settings": {
+            "message_text_desktop": "INFORMACIÓN",
+            "message_position_desktop": 85,
+            "message_size_desktop": 72,
+            "message_color_desktop": "#ffffff",
+            "message_text_mobile": "INFORMACIÓN",
+            "message_position_mobile": 35,
+            "message_size_mobile": 30,
+            "message_color_mobile": "#ffffff",
+            "banner_height_desktop": 710,
+            "banner_height_mobile": 270,
+            "border_radius": 0,
+            "background_color": "#ffffff",
+            "image_1": "shopify://shop_images/pexels-tima-miroshnichenko-7046713.jpg",
+            "title_1": "",
+            "description_1": "",
+            "image_2": "shopify://shop_images/pexels-yankrukov-8199175.jpg",
+            "title_2": "",
+            "description_2": "",
+            "image_3": "shopify://shop_images/pexels-cottonbro-4880411.jpg",
+            "title_3": "",
+            "description_3": "",
+            "image_4": "shopify://shop_images/pexels-ron-lach-8142188.jpg",
+            "title_4": "",
+            "description_4": "",
+            "title_5": "",
+            "description_5": "",
+            "title_size": 48,
+            "description_size": 18,
+            "text_color": "#ffffff",
+            "overlay_opacity": 50,
+            "show_overlay": true,
+            "show_navigation": true,
+            "show_dots": true,
+            "autoplay": true,
+            "autoplay_interval": 5,
+            "nav_button_color": "#ffffff",
+            "nav_icon_color": "#121212",
+            "dot_color": "#ffffff"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_5b9bde2_3dBN3x"
+      ],
+      "settings": {}
+    },
+    "main": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "padding_top": 28,
+        "padding_bottom": 28
+      }
+    },
+    "177328267103c253de": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_c2d4ecb_xzAATz": {
+          "type": "ai_gen_block_c2d4ecb",
+          "settings": {
+            "contact_content": "",
+            "pqrs_content": "<p>Cuéntanos tu Petición, Queja, Reclamo o Sugerencia. Escríbenos a <a href=\"mailto:tribuxco@gmail.com\">tribuxco@gmail.com</a> o utiliza el formulario de contacto.</p>",
+            "faq_url": ""
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_c2d4ecb_xzAATz"
+      ],
+      "settings": {}
+    }
+  },
+  "order": [
+    "1764352682ca47804d",
+    "1763333436a4597bac",
+    "main",
+    "177328267103c253de"
+  ]
+}

@@ -1,0 +1,113 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "17643603896adcfb07": {
+      "type": "_blocks",
+      "settings": {}
+    },
+    "banner": {
+      "type": "main-collection-banner",
+      "disabled": true,
+      "settings": {
+        "show_collection_description": true,
+        "show_collection_image": false,
+        "color_scheme": "scheme-1"
+      }
+    },
+    "176436060034bfbba2": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_4e411ad_HGybeA": {
+          "type": "ai_gen_block_4e411ad",
+          "disabled": true,
+          "settings": {
+            "heading": "Nuestras colecciones",
+            "heading_alignment": "center",
+            "collection_1": "tribu-glam-makeup",
+            "collection_2": "tribux-fitness-1",
+            "collection_3": "tribux-skincare",
+            "collection_4": "tribux-tech-1",
+            "collection_5": "",
+            "collection_6": "",
+            "columns_desktop": 2,
+            "columns_tablet": 2,
+            "columns_mobile": "1",
+            "grid_gap": 20,
+            "card_background": "#ffffff",
+            "card_border_radius": 8,
+            "card_border_width": 0,
+            "card_border_color": "#e0e0e0",
+            "image_ratio": 100,
+            "image_zoom": 1.1,
+            "overlay_opacity": 0.4,
+            "content_padding": 20,
+            "title_color": "#ffffff",
+            "title_size": 24,
+            "show_description": false,
+            "description_color": "#f0f0f0",
+            "description_size": 14,
+            "show_product_count": true,
+            "count_color": "#f0f0f0",
+            "count_size": 13,
+            "show_button": false,
+            "button_text": "Ver colección",
+            "button_background": "#ffffff",
+            "button_hover_background": "#f0f0f0",
+            "button_text_color": "#121212",
+            "button_border_radius": 4,
+            "hover_lift": -5,
+            "shadow_vertical": 10,
+            "shadow_blur": 20,
+            "shadow_opacity": 0.2,
+            "section_padding_top": 50,
+            "section_padding_bottom": 50,
+            "background_color": "#ffffff",
+            "heading_color": "#121212",
+            "heading_size": 32,
+            "heading_spacing": 30,
+            "container_width": 1200
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_4e411ad_HGybeA"
+      ],
+      "settings": {}
+    },
+    "product-grid": {
+      "type": "main-collection-product-grid",
+      "settings": {
+        "products_per_page": 16,
+        "columns_desktop": 4,
+        "columns_mobile": "2",
+        "color_scheme": "scheme-1",
+        "image_ratio": "adapt",
+        "image_shape": "default",
+        "show_secondary_image": false,
+        "show_vendor": true,
+        "show_rating": false,
+        "quick_add": "none",
+        "enable_filtering": true,
+        "filter_type": "horizontal",
+        "enable_sorting": true,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    }
+  },
+  "order": [
+    "17643603896adcfb07",
+    "banner",
+    "176436060034bfbba2",
+    "product-grid"
+  ]
+}

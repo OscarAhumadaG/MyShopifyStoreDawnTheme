@@ -1,0 +1,462 @@
+{% doc %}
+  @prompt
+    QUIERO UNA SECCION QUE HORIZONTALMENTE ESTE DIVIDA EN DOS LA PARTE DE LA IZQUIERDA QUE SEA PARA UNA IMAGEN QUE CONECTA A WHATSAPP A UN NUMERO EN PARTICULAR Y LA SEGUNDA LA DE LA DERECHA ES PARA UNA IMAGEN QUE CONECTA CON UN CORREO ELECTRONICO, QUIERO QUE PUEDA EDITAR LA POSICION EL TAMAÑO, LOS BORDES ETC  Y ADEMAS QUE ME PERMITA COLOCAR UNA IMAEGN ABAJO LARGA DOND EPUEDA COLOCAR MIS HORARIOS DE ATENCION  QUIERO ADEMAS QUE ME PEMIRTA EDITAR COMO SE AJUSTA LA IMAGEN Y TAMBIEN EL TAMAÑO DE LOS CONTENEDORES DE LAS IMAGENES Y AL ACHO QUE OCUPA TODO EN LA PAGINA TANTO EN MOBILE COMO EN DESKTOP, NO SE ESTAN VIENDO LAS IMAGENES ADEMAS QUIERO QUE ES MOVIL SE VEA IGUAL DOS COLUMNAS UNA PARA WHATSAPP Y UNA PARA CORREO Y ABAJO LA DEL LOS HORARIOS QUIERO ADEMAS QUE PUEDA MANIPULAR EL ANCHO TOTAL DE TODO PARA QUE QUEDE ALINEADO CON LOS OTROS ITEMS DENTRO DEN LA PAGINA, POR OTRO LADO EL LINK PARA MANDAR EL MAIL EN LA PASADA SECCION NO CNECTABA CON NINGUN CORREO, TAMBIEN AGREGA BORDES Y GROSOR Y COLOR DE LOS MISMOS PARA DIFERENCIAR
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-contact-section-{{ ai_gen_id }} {
+    width: 100%;
+    padding: {{ block.settings.section_padding_top }}px {{ block.settings.section_padding_horizontal }}px {{ block.settings.section_padding_bottom }}px;
+    box-sizing: border-box;
+  }
+
+  .ai-contact-container-{{ ai_gen_id }} {
+    max-width: {{ block.settings.container_width }}px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .ai-contact-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: {{ block.settings.gap_between_items }}px;
+    margin-bottom: {{ block.settings.gap_between_items }}px;
+  }
+
+  .ai-contact-item-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: {{ block.settings.top_items_height }}px;
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+    display: block;
+    border: {{ block.settings.border_thickness }}px solid {{ block.settings.border_color }};
+    box-sizing: border-box;
+  }
+
+  .ai-contact-item-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: {{ block.settings.image_fit }};
+    display: block;
+  }
+
+  .ai-contact-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-contact-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    max-width: 200px;
+    max-height: 200px;
+  }
+
+  .ai-contact-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .ai-contact-schedule-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: {{ block.settings.schedule_height }}px;
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+    border: {{ block.settings.border_thickness }}px solid {{ block.settings.border_color }};
+    box-sizing: border-box;
+  }
+
+  .ai-contact-schedule-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: {{ block.settings.schedule_image_fit }};
+    display: block;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-contact-section-{{ ai_gen_id }} {
+      padding: {{ block.settings.section_padding_top_mobile }}px {{ block.settings.section_padding_horizontal_mobile }}px {{ block.settings.section_padding_bottom_mobile }}px;
+    }
+
+    .ai-contact-container-{{ ai_gen_id }} {
+      max-width: {{ block.settings.container_width_mobile }}px;
+    }
+
+    .ai-contact-grid-{{ ai_gen_id }} {
+      gap: {{ block.settings.gap_between_items_mobile }}px;
+      margin-bottom: {{ block.settings.gap_between_items_mobile }}px;
+    }
+
+    .ai-contact-item-{{ ai_gen_id }} {
+      height: {{ block.settings.top_items_height_mobile }}px;
+    }
+
+    .ai-contact-schedule-{{ ai_gen_id }} {
+      height: {{ block.settings.schedule_height_mobile }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-contact-section-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-contact-container-{{ ai_gen_id }}">
+    <div class="ai-contact-grid-{{ ai_gen_id }}">
+      <a
+        href="https://wa.me/{{ block.settings.whatsapp_number }}"
+        class="ai-contact-item-{{ ai_gen_id }}"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Contactar por WhatsApp"
+      >
+        {% if block.settings.whatsapp_image %}
+          <img
+            src="{{ block.settings.whatsapp_image | image_url: width: 1000 }}"
+            alt="WhatsApp"
+            loading="lazy"
+            width="{{ block.settings.whatsapp_image.width }}"
+            height="{{ block.settings.whatsapp_image.height }}"
+          >
+        {% else %}
+          <div class="ai-contact-placeholder-{{ ai_gen_id }}">
+            {{ 'image' | placeholder_svg_tag }}
+            <div class="ai-contact-empty-state-{{ ai_gen_id }}">
+              Agregar imagen de WhatsApp
+            </div>
+          </div>
+        {% endif %}
+      </a>
+
+      <a
+        href="mailto:{{ block.settings.email_address }}"
+        class="ai-contact-item-{{ ai_gen_id }}"
+        aria-label="Enviar correo electrónico"
+      >
+        {% if block.settings.email_image %}
+          <img
+            src="{{ block.settings.email_image | image_url: width: 1000 }}"
+            alt="Email"
+            loading="lazy"
+            width="{{ block.settings.email_image.width }}"
+            height="{{ block.settings.email_image.height }}"
+          >
+        {% else %}
+          <div class="ai-contact-placeholder-{{ ai_gen_id }}">
+            {{ 'image' | placeholder_svg_tag }}
+            <div class="ai-contact-empty-state-{{ ai_gen_id }}">
+              Agregar imagen de Email
+            </div>
+          </div>
+        {% endif %}
+      </a>
+    </div>
+
+    <div class="ai-contact-schedule-{{ ai_gen_id }}">
+      {% if block.settings.schedule_image %}
+        <img
+          src="{{ block.settings.schedule_image | image_url: width: 2000 }}"
+          alt="Horarios de atención"
+          loading="lazy"
+          width="{{ block.settings.schedule_image.width }}"
+          height="{{ block.settings.schedule_image.height }}"
+        >
+      {% else %}
+        <div class="ai-contact-placeholder-{{ ai_gen_id }}">
+          {{ 'image' | placeholder_svg_tag }}
+          <div class="ai-contact-empty-state-{{ ai_gen_id }}">
+            Agregar imagen de horarios
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Contacto con imágenes",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "WhatsApp"
+    },
+    {
+      "type": "image_picker",
+      "id": "whatsapp_image",
+      "label": "Imagen de WhatsApp"
+    },
+    {
+      "type": "text",
+      "id": "whatsapp_number",
+      "label": "Número de WhatsApp",
+      "info": "Incluir código de país sin +. Ejemplo: 573001234567",
+      "default": "573001234567"
+    },
+    {
+      "type": "header",
+      "content": "Correo electrónico"
+    },
+    {
+      "type": "image_picker",
+      "id": "email_image",
+      "label": "Imagen de Email"
+    },
+    {
+      "type": "text",
+      "id": "email_address",
+      "label": "Dirección de correo",
+      "default": "contacto@ejemplo.com"
+    },
+    {
+      "type": "header",
+      "content": "Horarios"
+    },
+    {
+      "type": "image_picker",
+      "id": "schedule_image",
+      "label": "Imagen de horarios"
+    },
+    {
+      "type": "header",
+      "content": "Diseño - Desktop"
+    },
+    {
+      "type": "range",
+      "id": "container_width",
+      "min": 400,
+      "max": 1600,
+      "step": 50,
+      "unit": "px",
+      "label": "Ancho del contenedor",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "top_items_height",
+      "min": 100,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "label": "Altura de items superiores",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "schedule_height",
+      "min": 100,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "label": "Altura de horarios",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "gap_between_items",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Espacio entre elementos",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding superior",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding inferior",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_horizontal",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding horizontal",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Diseño - Mobile"
+    },
+    {
+      "type": "range",
+      "id": "container_width_mobile",
+      "min": 280,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "label": "Ancho del contenedor",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "top_items_height_mobile",
+      "min": 80,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "label": "Altura de items superiores",
+      "default": 150
+    },
+    {
+      "type": "range",
+      "id": "schedule_height_mobile",
+      "min": 80,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "label": "Altura de horarios",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "gap_between_items_mobile",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Espacio entre elementos",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding superior",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding inferior",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "section_padding_horizontal_mobile",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding horizontal",
+      "default": 15
+    },
+    {
+      "type": "header",
+      "content": "Estilo de imágenes"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Ajuste de imágenes superiores",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cubrir (recorta si es necesario)"
+        },
+        {
+          "value": "contain",
+          "label": "Contener (muestra completa)"
+        },
+        {
+          "value": "fill",
+          "label": "Rellenar (estira)"
+        }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "select",
+      "id": "schedule_image_fit",
+      "label": "Ajuste de imagen de horarios",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cubrir (recorta si es necesario)"
+        },
+        {
+          "value": "contain",
+          "label": "Contener (muestra completa)"
+        },
+        {
+          "value": "fill",
+          "label": "Rellenar (estira)"
+        }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Radio de bordes",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Bordes"
+    },
+    {
+      "type": "range",
+      "id": "border_thickness",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Grosor del borde",
+      "default": 2
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Color del borde",
+      "default": "#121212"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Contacto con imágenes"
+    }
+  ]
+}
+{% endschema %}

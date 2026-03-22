@@ -1,0 +1,256 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "17633285455bca8c2c": {
+      "type": "_blocks",
+      "settings": {}
+    },
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "vendor": {
+          "type": "text",
+          "settings": {
+            "text": "Tribuxco",
+            "text_style": "uppercase"
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {}
+        },
+        "inventory_VKDtrk": {
+          "type": "inventory",
+          "settings": {
+            "text_style": "body",
+            "inventory_threshold": 0,
+            "show_inventory_quantity": true
+          }
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {
+            "picker_type": "button",
+            "swatch_shape": "circle"
+          }
+        },
+        "quantity_selector": {
+          "type": "quantity_selector",
+          "settings": {}
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": true,
+            "show_gift_card_recipient": true
+          }
+        },
+        "share": {
+          "type": "share",
+          "settings": {
+            "share_label": "Compartir"
+          }
+        }
+      },
+      "block_order": [
+        "vendor",
+        "price",
+        "inventory_VKDtrk",
+        "variant_picker",
+        "quantity_selector",
+        "buy_buttons",
+        "share"
+      ],
+      "settings": {
+        "enable_sticky_info": true,
+        "color_scheme": "scheme-1",
+        "media_size": "medium",
+        "constrain_to_viewport": true,
+        "media_fit": "cover",
+        "gallery_layout": "thumbnail",
+        "mobile_thumbnails": "hide",
+        "media_position": "left",
+        "image_zoom": "lightbox",
+        "hide_variants": true,
+        "enable_video_looping": false,
+        "padding_top": 8,
+        "padding_bottom": 40
+      }
+    },
+    "related-products": {
+      "type": "related-products",
+      "disabled": true,
+      "settings": {
+        "heading": "You may also like",
+        "heading_size": "h2",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "columns_mobile": "2",
+        "color_scheme": "scheme-1",
+        "image_ratio": "square",
+        "image_shape": "default",
+        "show_secondary_image": true,
+        "show_vendor": false,
+        "show_rating": false,
+        "padding_top": 36,
+        "padding_bottom": 28
+      }
+    },
+    "17704096333d4cfa56": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_bc989ce_ajpiXi": {
+          "type": "ai_gen_block_bc989ce",
+          "settings": {
+            "announcement_1": "🚚 Envío gratis en pedidos superiores a $50.000",
+            "announcement_2": "🎉 20% de descuento en toda la tienda",
+            "announcement_3": "",
+            "announcement_4": "",
+            "announcement_5": "",
+            "bar_background_color": "#ecf3fc",
+            "bar_height": 50,
+            "bar_padding": 10,
+            "bar_border_radius": 0,
+            "bar_border_thickness": 1,
+            "bar_border_color": "#3f6a9c",
+            "text_color": "#3f6a9c",
+            "text_size": 14,
+            "text_weight": "600",
+            "arrow_size": 32,
+            "arrow_opacity": 0.7,
+            "arrow_background_color": "#ffffff",
+            "arrow_hover_background_color": "#f3f3f3",
+            "arrow_color": "#121212",
+            "arrow_hover_color": "#121212",
+            "animation_type": "slide_horizontal",
+            "slide_direction": "right_to_left",
+            "autoplay": true,
+            "autoplay_speed": 5
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_730f1dd_a9yetL": {
+          "type": "ai_gen_block_730f1dd",
+          "settings": {
+            "section_title": "Lo que dicen nuestros clientes",
+            "section_subtitle": "Testimonios reales de clientes satisfechos",
+            "title_size": 28,
+            "title_size_mobile": 22,
+            "title_color": "#121212",
+            "title_weight": "700",
+            "title_transform": "none",
+            "title_letter_spacing": 0,
+            "subtitle_size": 15,
+            "subtitle_size_mobile": 13,
+            "subtitle_color": "#666666",
+            "subtitle_weight": "400",
+            "subtitle_transform": "none",
+            "subtitle_letter_spacing": 0,
+            "header_top_spacing": 0,
+            "header_top_spacing_mobile": 0,
+            "title_subtitle_spacing": 12,
+            "title_subtitle_spacing_mobile": 8,
+            "header_bottom_spacing": 40,
+            "header_bottom_spacing_mobile": 24,
+            "cards_top_spacing": 0,
+            "cards_top_spacing_mobile": 0,
+            "text_alignment": "center",
+            "layout_style": "carousel",
+            "columns_desktop": 4,
+            "columns_mobile": "4",
+            "grid_gap": 16,
+            "grid_gap_mobile": 8,
+            "container_width": 1000,
+            "section_padding_top": 8,
+            "section_padding_bottom": 28,
+            "section_padding_top_mobile": 8,
+            "section_padding_bottom_mobile": 8,
+            "background_color": "#ffffff",
+            "card_background": "#f9f9f9",
+            "card_padding": 16,
+            "card_padding_mobile": 8,
+            "card_border_radius": 8,
+            "card_border_width": 0,
+            "card_border_color": "#e0e0e0",
+            "card_shadow_horizontal": 0,
+            "card_shadow_vertical": 2,
+            "card_shadow_blur": 8,
+            "card_shadow_opacity": 10,
+            "content_alignment": "center",
+            "image_shape": "circle",
+            "image_size": 60,
+            "image_size_mobile": 50,
+            "image_border_radius": 8,
+            "image_border_width": 2,
+            "image_border_color": "#e0e0e0",
+            "show_rating": true,
+            "star_size": 16,
+            "star_color": "#ffd700",
+            "star_empty_color": "#e0e0e0",
+            "testimonial_text_size": 13,
+            "testimonial_text_color": "#333333",
+            "name_size": 14,
+            "name_color": "#121212",
+            "role_size": 12,
+            "role_color": "#666666",
+            "show_carousel_controls": true,
+            "carousel_autoplay": false,
+            "carousel_autoplay_speed": 5,
+            "button_background": "#6a91c1",
+            "button_color": "#ffffff",
+            "testimonial_1_enabled": true,
+            "testimonial_1_name": "María González",
+            "testimonial_1_role": "Cliente verificada",
+            "testimonial_1_text": "Excelente producto, superó mis expectativas. Lo recomiendo totalmente.",
+            "testimonial_1_rating": 5,
+            "testimonial_2_enabled": true,
+            "testimonial_2_name": "Carlos Rodríguez",
+            "testimonial_2_role": "Cliente verificado",
+            "testimonial_2_text": "Muy buena calidad y el envío fue rápido. Volveré a comprar sin duda.",
+            "testimonial_2_rating": 5,
+            "testimonial_3_enabled": true,
+            "testimonial_3_name": "Ana Martínez",
+            "testimonial_3_role": "Cliente verificada",
+            "testimonial_3_text": "Me encantó el producto. La atención al cliente fue excelente.",
+            "testimonial_3_rating": 4,
+            "testimonial_4_enabled": true,
+            "testimonial_4_name": "fdsfsfdsert",
+            "testimonial_4_role": "sdfsdfsdf",
+            "testimonial_4_text": "sdfsdff",
+            "testimonial_4_rating": 5,
+            "testimonial_5_enabled": false,
+            "testimonial_5_name": "",
+            "testimonial_5_role": "",
+            "testimonial_5_text": "",
+            "testimonial_5_rating": 5,
+            "testimonial_6_enabled": false,
+            "testimonial_6_name": "",
+            "testimonial_6_role": "",
+            "testimonial_6_text": "",
+            "testimonial_6_rating": 5
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_bc989ce_ajpiXi",
+        "ai_gen_block_730f1dd_a9yetL"
+      ],
+      "settings": {}
+    }
+  },
+  "order": [
+    "17633285455bca8c2c",
+    "main",
+    "related-products",
+    "17704096333d4cfa56"
+  ]
+}

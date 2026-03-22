@@ -1,0 +1,62 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "name": "t:sections.footer.name",
+  "type": "footer",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "blocks": {
+        "brand_information_D34Viy": {
+          "type": "brand_information",
+          "settings": {
+            "show_social": false
+          }
+        },
+        "link_list_AzXi3p": {
+          "type": "link_list",
+          "settings": {
+            "heading": "<strong>AYUDA</strong>",
+            "menu": "footer"
+          }
+        },
+        "text_gUdMAX": {
+          "type": "text",
+          "settings": {
+            "heading": "<strong>CONTACTO</strong>",
+            "subtext": "<p><strong>Correo:</strong> <a href=\"mailto:tribuxco@gmail.com\">tribuxco@gmail.com</a><br/><strong>Tel. (Canadá):</strong> +1 579 372 6432<br/><strong>Tel. (Colombia):</strong> +57 314 877 1490<br/><strong>Dirección (Canadá):</strong> 307A – 1855 Rue Therrien, Brossard, QC, J4W 2Z2<br/><strong>Dirección (Colombia):</strong> Calle 61A No 24-16, Soledad, Atlántico, 083003</p>"
+          }
+        }
+      },
+      "block_order": [
+        "brand_information_D34Viy",
+        "link_list_AzXi3p",
+        "text_gUdMAX"
+      ],
+      "settings": {
+        "color_scheme": "scheme-1",
+        "newsletter_enable": false,
+        "newsletter_heading": "",
+        "enable_follow_on_shop": false,
+        "show_social": true,
+        "enable_country_selector": true,
+        "enable_language_selector": true,
+        "payment_enable": true,
+        "show_policy": true,
+        "margin_top": 0,
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    }
+  },
+  "order": [
+    "footer"
+  ]
+}

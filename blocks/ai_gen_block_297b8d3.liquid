@@ -1,0 +1,460 @@
+{% doc %}
+  @prompt
+    QUIERO UNA SECCION QUE HORIZONTALMENTE ESTE DIVIDA EN DOS LA PARTE DE LA IZQUIERDA QUE SEA PARA UNA IMAGEN QUE CONECTA A WHATSAPP A UN NUMERO EN PARTICULAR Y LA SEGUNDA LA DE LA DERECHA ES PARA UNA IMAGEN QUE CONECTA CON UN CORREO ELECTRONICO, QUIERO QUE PUEDA EDITAR LA POSICION EL TAMAÑO, LOS BORDES ETC  Y ADEMAS QUE ME PERMITA COLOCAR UNA IMAEGN ABAJO LARGA DOND EPUEDA COLOCAR MIS HORARIOS DE ATENCION  QUIERO ADEMAS QUE ME PEMIRTA EDITAR COMO SE AJUSTA LA IMAGEN Y TAMBIEN EL TAMAÑO DE LOS CONTENEDORES DE LAS IMAGENES Y AL ACHO QUE OCUPA TODO EN LA PAGINA TANTO EN MOBILE COMO EN DESKTOP, NO SE ESTAN VIENDO LAS IMAGENES ADEMAS QUIERO QUE ES MOVIL SE VEA IGUAL DOS COLUMNAS UNA PARA WHATSAPP Y UNA PARA CORREO Y ABAJO LA DEL LOS HORARIOS
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-contact-section-{{ ai_gen_id }} {
+    width: 100%;
+    max-width: {{ block.settings.section_max_width }}px;
+    margin: 0 auto;
+    padding: {{ block.settings.section_padding }}px;
+  }
+
+  .ai-contact-top-row-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: {{ block.settings.gap_between_items }}px;
+    margin-bottom: {{ block.settings.gap_between_items }}px;
+  }
+
+  .ai-contact-link-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: {{ block.settings.top_image_height }}px;
+    overflow: hidden;
+    border-radius: {{ block.settings.image_border_radius }}px;
+    border: {{ block.settings.image_border_thickness }}px solid {{ block.settings.image_border_color }};
+  }
+
+  .ai-contact-link-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+  }
+
+  .ai-contact-link-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: {{ block.settings.image_fit }};
+    transition: transform 0.3s ease;
+  }
+
+  .ai-contact-link-{{ ai_gen_id }}:hover img {
+    transform: scale(1.05);
+  }
+
+  .ai-contact-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-contact-image-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 200px;
+    max-height: 200px;
+  }
+
+  .ai-contact-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .ai-contact-schedule-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: {{ block.settings.schedule_image_height }}px;
+    overflow: hidden;
+    border-radius: {{ block.settings.image_border_radius }}px;
+    border: {{ block.settings.image_border_thickness }}px solid {{ block.settings.image_border_color }};
+  }
+
+  .ai-contact-schedule-wrapper-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: {{ block.settings.schedule_image_fit }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-contact-section-{{ ai_gen_id }} {
+      max-width: {{ block.settings.section_max_width_mobile }}px;
+      padding: {{ block.settings.section_padding_mobile }}px;
+    }
+
+    .ai-contact-top-row-{{ ai_gen_id }} {
+      gap: {{ block.settings.gap_between_items_mobile }}px;
+      margin-bottom: {{ block.settings.gap_between_items_mobile }}px;
+    }
+
+    .ai-contact-link-wrapper-{{ ai_gen_id }} {
+      height: {{ block.settings.top_image_height_mobile }}px;
+    }
+
+    .ai-contact-schedule-wrapper-{{ ai_gen_id }} {
+      height: {{ block.settings.schedule_image_height_mobile }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-contact-section-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-contact-top-row-{{ ai_gen_id }}">
+    <div class="ai-contact-link-wrapper-{{ ai_gen_id }}">
+      {% if block.settings.whatsapp_number != blank %}
+        <a
+          href="https://wa.me/{{ block.settings.whatsapp_number | replace: '+', '' | replace: ' ', '' | replace: '-', '' }}"
+          class="ai-contact-link-{{ ai_gen_id }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Contactar por WhatsApp"
+        >
+          {% if block.settings.whatsapp_image %}
+            <img
+              src="{{ block.settings.whatsapp_image | image_url: width: 1000 }}"
+              alt="WhatsApp"
+              loading="lazy"
+              width="{{ block.settings.whatsapp_image.width }}"
+              height="{{ block.settings.whatsapp_image.height }}"
+            >
+          {% else %}
+            <div class="ai-contact-image-placeholder-{{ ai_gen_id }}">
+              {{ 'image' | placeholder_svg_tag }}
+              <div class="ai-contact-empty-state-{{ ai_gen_id }}">
+                Agregar imagen de WhatsApp
+              </div>
+            </div>
+          {% endif %}
+        </a>
+      {% else %}
+        {% if block.settings.whatsapp_image %}
+          <img
+            src="{{ block.settings.whatsapp_image | image_url: width: 1000 }}"
+            alt="WhatsApp"
+            loading="lazy"
+            width="{{ block.settings.whatsapp_image.width }}"
+            height="{{ block.settings.whatsapp_image.height }}"
+          >
+        {% else %}
+          <div class="ai-contact-image-placeholder-{{ ai_gen_id }}">
+            {{ 'image' | placeholder_svg_tag }}
+            <div class="ai-contact-empty-state-{{ ai_gen_id }}">
+              Agregar imagen y número de WhatsApp
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <div class="ai-contact-link-wrapper-{{ ai_gen_id }}">
+      {% if block.settings.email_address != blank %}
+        <a
+          href="mailto:{{ block.settings.email_address }}"
+          class="ai-contact-link-{{ ai_gen_id }}"
+          aria-label="Enviar correo electrónico"
+        >
+          {% if block.settings.email_image %}
+            <img
+              src="{{ block.settings.email_image | image_url: width: 1000 }}"
+              alt="Email"
+              loading="lazy"
+              width="{{ block.settings.email_image.width }}"
+              height="{{ block.settings.email_image.height }}"
+            >
+          {% else %}
+            <div class="ai-contact-image-placeholder-{{ ai_gen_id }}">
+              {{ 'image' | placeholder_svg_tag }}
+              <div class="ai-contact-empty-state-{{ ai_gen_id }}">
+                Agregar imagen de correo
+              </div>
+            </div>
+          {% endif %}
+        </a>
+      {% else %}
+        {% if block.settings.email_image %}
+          <img
+            src="{{ block.settings.email_image | image_url: width: 1000 }}"
+            alt="Email"
+            loading="lazy"
+            width="{{ block.settings.email_image.width }}"
+            height="{{ block.settings.email_image.height }}"
+          >
+        {% else %}
+          <div class="ai-contact-image-placeholder-{{ ai_gen_id }}">
+            {{ 'image' | placeholder_svg_tag }}
+            <div class="ai-contact-empty-state-{{ ai_gen_id }}">
+              Agregar imagen y correo electrónico
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="ai-contact-schedule-wrapper-{{ ai_gen_id }}">
+    {% if block.settings.schedule_image %}
+      <img
+        src="{{ block.settings.schedule_image | image_url: width: 2000 }}"
+        alt="Horarios de atención"
+        loading="lazy"
+        width="{{ block.settings.schedule_image.width }}"
+        height="{{ block.settings.schedule_image.height }}"
+      >
+    {% else %}
+      <div class="ai-contact-image-placeholder-{{ ai_gen_id }}">
+        {{ 'image' | placeholder_svg_tag }}
+        <div class="ai-contact-empty-state-{{ ai_gen_id }}">
+          Agregar imagen de horarios
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Contacto con imágenes",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "WhatsApp"
+    },
+    {
+      "type": "image_picker",
+      "id": "whatsapp_image",
+      "label": "Imagen de WhatsApp"
+    },
+    {
+      "type": "text",
+      "id": "whatsapp_number",
+      "label": "Número de WhatsApp",
+      "placeholder": "+57 300 123 4567"
+    },
+    {
+      "type": "header",
+      "content": "Correo electrónico"
+    },
+    {
+      "type": "image_picker",
+      "id": "email_image",
+      "label": "Imagen de correo"
+    },
+    {
+      "type": "text",
+      "id": "email_address",
+      "label": "Dirección de correo",
+      "placeholder": "contacto@ejemplo.com"
+    },
+    {
+      "type": "header",
+      "content": "Horarios de atención"
+    },
+    {
+      "type": "image_picker",
+      "id": "schedule_image",
+      "label": "Imagen de horarios"
+    },
+    {
+      "type": "header",
+      "content": "Estilo de imágenes superiores"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Ajuste de imagen",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cubrir"
+        },
+        {
+          "value": "contain",
+          "label": "Contener"
+        },
+        {
+          "value": "fill",
+          "label": "Rellenar"
+        }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "range",
+      "id": "top_image_height",
+      "min": 100,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "label": "Altura (escritorio)",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "top_image_height_mobile",
+      "min": 100,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "label": "Altura (móvil)",
+      "default": 200
+    },
+    {
+      "type": "header",
+      "content": "Estilo de imagen de horarios"
+    },
+    {
+      "type": "select",
+      "id": "schedule_image_fit",
+      "label": "Ajuste de imagen",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cubrir"
+        },
+        {
+          "value": "contain",
+          "label": "Contener"
+        },
+        {
+          "value": "fill",
+          "label": "Rellenar"
+        }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "range",
+      "id": "schedule_image_height",
+      "min": 100,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "label": "Altura (escritorio)",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "schedule_image_height_mobile",
+      "min": 100,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "label": "Altura (móvil)",
+      "default": 150
+    },
+    {
+      "type": "header",
+      "content": "Bordes de imágenes"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Radio de borde",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "image_border_thickness",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Grosor de borde",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "image_border_color",
+      "label": "Color de borde",
+      "default": "#cccccc"
+    },
+    {
+      "type": "header",
+      "content": "Diseño de sección"
+    },
+    {
+      "type": "range",
+      "id": "section_max_width",
+      "min": 600,
+      "max": 1600,
+      "step": 50,
+      "unit": "px",
+      "label": "Ancho máximo (escritorio)",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "section_max_width_mobile",
+      "min": 300,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "label": "Ancho máximo (móvil)",
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Espaciado (escritorio)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "section_padding_mobile",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Espaciado (móvil)",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "gap_between_items",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Espacio entre elementos (escritorio)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "gap_between_items_mobile",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Espacio entre elementos (móvil)",
+      "default": 15
+    }
+  ],
+  "presets": [
+    {
+      "name": "Contacto con imágenes"
+    }
+  ]
+}
+{% endschema %}
