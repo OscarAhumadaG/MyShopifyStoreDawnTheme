@@ -259,7 +259,7 @@
           {% assign description = block.settings[description_key] %}
           {% if image != blank %}
             <div class="ai-carousel-slide-{{ ai_gen_id }}" data-slide="{{ i }}">
-              <img src="{{ image | image_url: width:2000 }}" alt="Slide {{ i }}">
+              <img src="{{ image | image_url: width:2000 }}" alt="Slide {{ i }}" width="{{ image.width }}" height="{{ image.height }}" loading="lazy">
               {% if block.settings.show_overlay %}
                 <div class="ai-carousel-overlay-{{ ai_gen_id }}"></div>
               {% endif %}
@@ -355,27 +355,22 @@
 {
   "name": "Banner carrusel completo",
   "settings": [
-    /* ===== Mensaje Desktop ===== */
     { "type":"text",  "id":"message_text_desktop",     "label":"Mensaje (Desktop)", "default":"INFORMACIÓN" },
     { "type":"range", "id":"message_position_desktop", "label":"Posición vertical (Desktop)", "min":0, "max":400, "step":5, "default":60 },
     { "type":"range", "id":"message_size_desktop",     "label":"Tamaño del mensaje (Desktop)", "min":20, "max":120, "step":2, "default":72 },
     { "type":"color", "id":"message_color_desktop",    "label":"Color del mensaje (Desktop)", "default":"#FFFFFF" },
 
-    /* ===== Mensaje Mobile ===== */
     { "type":"text",  "id":"message_text_mobile",      "label":"Mensaje (Mobile)", "default":"INFO" },
     { "type":"range", "id":"message_position_mobile",  "label":"Posición vertical (Mobile)", "min":0, "max":400, "step":5, "default":40 },
     { "type":"range", "id":"message_size_mobile",      "label":"Tamaño del mensaje (Mobile)", "min":16, "max":80,  "step":2, "default":36 },
     { "type":"color", "id":"message_color_mobile",     "label":"Color del mensaje (Mobile)", "default":"#FFFFFF" },
 
-    /* ===== Altura Banner ===== */
     { "type":"range", "id":"banner_height_desktop","label":"Altura del banner (Desktop)","min":300,"max":1000,"step":10,"unit":"px","default":500 },
     { "type":"range", "id":"banner_height_mobile", "label":"Altura del banner (Mobile)","min":200,"max":800, "step":10,"unit":"px","default":360 },
 
-    /* ===== Visual generales ===== */
     { "type":"range","id":"border_radius","label":"Radio del borde","min":0,"max":40,"step":2,"unit":"px","default":0 },
     { "type":"color","id":"background_color","label":"Color de fondo","default":"#000000" },
 
-    /* ===== Slides ===== */
     {"type":"image_picker","id":"image_1","label":"Imagen 1"},
     {"type":"text","id":"title_1","label":"Título 1"},
     {"type":"textarea","id":"description_1","label":"Descripción 1"},
@@ -400,7 +395,6 @@
     { "type":"range","id":"description_size","label":"Tamaño de la descripción por slide","min":12,"max":32,"step":2,"unit":"px","default":18 },
     { "type":"color","id":"text_color","label":"Color del texto de slide","default":"#FFFFFF" },
 
-    /* Overlay / nav / dots / autoplay */
     { "type":"range","id":"overlay_opacity","label":"Opacidad del overlay (%)","min":0,"max":100,"step":5,"default":50 },
     { "type":"checkbox","id":"show_overlay","label":"Mostrar overlay","default":true },
     { "type":"checkbox","id":"show_navigation","label":"Mostrar flechas","default":true },

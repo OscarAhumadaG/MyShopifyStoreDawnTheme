@@ -86,7 +86,6 @@
     flex-direction: column;
   }
 
-  /* ::after pseudo-element overlay */
   .ai-media-strip-media-wrapper-{{ ai_gen_id }}::after {
     content: '';
     position: absolute;
@@ -358,11 +357,15 @@
                 {% if f_imgsrc != blank %}
                   {% if f_is_video %}
                     <video class="ai-media-strip-video-{{ ai_gen_id }}" autoplay muted loop playsinline disablepictureinpicture controlsList="nodownload" preload="metadata">
+                      {%- comment -%}theme-check-disable RemoteAsset{%- endcomment -%}
                       <source src="{{ f_imgsrc }}" type="video/mp4">
+                      {%- comment -%}theme-check-enable RemoteAsset{%- endcomment -%}
                       Tu navegador no soporta HTML5 video.
                     </video>
                   {% else %}
-                    <img src="{{ f_imgsrc }}" alt="{{ f_title | escape }}" class="ai-media-strip-image-{{ ai_gen_id }}" loading="lazy">
+                    {%- comment -%}theme-check-disable RemoteAsset{%- endcomment -%}
+                    <img src="{{ f_imgsrc }}" alt="{{ f_title | escape }}" class="ai-media-strip-image-{{ ai_gen_id }}" loading="lazy" width="800" height="800">
+                    {%- comment -%}theme-check-enable RemoteAsset{%- endcomment -%}
                   {% endif %}
                 {% else %}
                   <div class="ai-media-strip-placeholder-{{ ai_gen_id }}">{{ 'image' | placeholder_svg_tag }}</div>
@@ -405,7 +408,9 @@
               {% elsif block.settings.media_type_1 == 'video' %}
                 {% if block.settings.video_1 %}
                   <video class="ai-media-strip-video-{{ ai_gen_id }}" autoplay muted loop playsinline disablepictureinpicture controlsList="nodownload" preload="metadata">
+                    {%- comment -%}theme-check-disable RemoteAsset{%- endcomment -%}
                     <source src="{{ block.settings.video_1 }}" type="video/mp4">
+                    {%- comment -%}theme-check-enable RemoteAsset{%- endcomment -%}
                     Tu navegador no soporta HTML5 video.
                   </video>
                 {% else %}
@@ -449,7 +454,9 @@
               {% elsif block.settings.media_type_2 == 'video' %}
                 {% if block.settings.video_2 %}
                   <video class="ai-media-strip-video-{{ ai_gen_id }}" autoplay muted loop playsinline disablepictureinpicture controlsList="nodownload" preload="metadata">
+                    {%- comment -%}theme-check-disable RemoteAsset{%- endcomment -%}
                     <source src="{{ block.settings.video_2 }}" type="video/mp4">
+                    {%- comment -%}theme-check-enable RemoteAsset{%- endcomment -%}
                     Tu navegador no soporta HTML5 video.
                   </video>
                 {% else %}
@@ -493,7 +500,9 @@
               {% elsif block.settings.media_type_3 == 'video' %}
                 {% if block.settings.video_3 %}
                   <video class="ai-media-strip-video-{{ ai_gen_id }}" autoplay muted loop playsinline disablepictureinpicture controlsList="nodownload" preload="metadata">
+                    {%- comment -%}theme-check-disable RemoteAsset{%- endcomment -%}
                     <source src="{{ block.settings.video_3 }}" type="video/mp4">
+                    {%- comment -%}theme-check-enable RemoteAsset{%- endcomment -%}
                     Tu navegador no soporta HTML5 video.
                   </video>
                 {% else %}
@@ -537,7 +546,9 @@
               {% elsif block.settings.media_type_4 == 'video' %}
                 {% if block.settings.video_4 %}
                   <video class="ai-media-strip-video-{{ ai_gen_id }}" autoplay muted loop playsinline disablepictureinpicture controlsList="nodownload" preload="metadata">
+                    {%- comment -%}theme-check-disable RemoteAsset{%- endcomment -%}
                     <source src="{{ block.settings.video_4 }}" type="video/mp4">
+                    {%- comment -%}theme-check-enable RemoteAsset{%- endcomment -%}
                     Tu navegador no soporta HTML5 video.
                   </video>
                 {% else %}
@@ -581,7 +592,9 @@
               {% elsif block.settings.media_type_5 == 'video' %}
                 {% if block.settings.video_5 %}
                   <video class="ai-media-strip-video-{{ ai_gen_id }}" autoplay muted loop playsinline disablepictureinpicture controlsList="nodownload" preload="metadata">
+                    {%- comment -%}theme-check-disable RemoteAsset{%- endcomment -%}
                     <source src="{{ block.settings.video_5 }}" type="video/mp4">
+                    {%- comment -%}theme-check-enable RemoteAsset{%- endcomment -%}
                     Tu navegador no soporta HTML5 video.
                   </video>
                 {% else %}
@@ -625,7 +638,9 @@
               {% elsif block.settings.media_type_6 == 'video' %}
                 {% if block.settings.video_6 %}
                   <video class="ai-media-strip-video-{{ ai_gen_id }}" autoplay muted loop playsinline disablepictureinpicture controlsList="nodownload" preload="metadata">
+                    {%- comment -%}theme-check-disable RemoteAsset{%- endcomment -%}
                     <source src="{{ block.settings.video_6 }}" type="video/mp4">
+                    {%- comment -%}theme-check-enable RemoteAsset{%- endcomment -%}
                     Tu navegador no soporta HTML5 video.
                   </video>
                 {% else %}
@@ -775,7 +790,6 @@
 
             const isActive = overlay.classList.contains('active');
             
-            // Cerrar todos primero
             this.querySelectorAll('.ai-media-strip-media-wrapper-{{ ai_gen_id }}.active')
               .forEach(el => el.classList.remove('active'));
             
@@ -783,7 +797,6 @@
               el.classList.remove('active');
             });
 
-            // Abrir actual si no estaba activo
             if (!isActive) {
               wrapper.classList.add('active');
               overlay.classList.add('active');

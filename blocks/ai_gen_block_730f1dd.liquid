@@ -261,7 +261,13 @@
                     class="rev-img-{{ ai_gen_id }}"
                     loading="lazy"
                     fetchpriority="low"
-                   " cy="8" r="4"></circle>
+                    width="240"
+                    height="240"
+                  >
+                {% else %}
+                  <div class="rev-imgph-{{ ai_gen_id }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                      <circle cx="12" cy="8" r="4"></circle>
                       <path d="M4 22c0-4 4-7 8-7s8 3 8 7"></path>
                     </svg>
                   </div>
@@ -332,7 +338,12 @@
                   fetchpriority="low"
                   width="240"
                   height="240"
-                 22c0-4 4-7 8-7s8 3 8 7"></path>
+                >
+              {% else %}
+                <div class="rev-imgph-{{ ai_gen_id }}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <circle cx="12" cy="8" r="4"></circle>
+                    <path d="M4 22c0-4 4-7 8-7s8 3 8 7"></path>
                   </svg>
                 </div>
               {% endif %}

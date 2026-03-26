@@ -1,7 +1,3 @@
-{% doc %}
-  @prompt
-    quiero que las imaganes de mi produto aparezacan a un lado de los detalles de mi producto, eso esn el caso de la vista de webiste pero en el caso de la vista mobile quiero que las informacion de mi producto aparezca debajo, quiero que tenga la posibilidad de cambiar cosas en el titulo tipo de fuente color  tamaño, ademas quiero que aparezca un badge de sale y otro de ahorro que diga cuento es el ahorro, no quiero que aarezcan los decimales  ademas que me permita cambiar tamaño y poisicion  de todo ademas quiero otro boton de comprar ahora , ninguno de los badges aparece, pero yo quiero que esos badges se vean por donde esta el precio y quiero que el de ahora tenga un emoji de eqtueta como de sale que este pegada a la palabra ahorra ademas quiero que sea vea bien profesional  que te permita hacer las ideiciones de esos badges y quitar cada uno individualmente si es el caso que lo requeira, quiero que la teiueta este cerca de la palabra ahorra y que el monto este separado de la pabra ahorra por un espacio el badge de oferta quiero que sea lo primero que aparezca y luego el precion final el precio original ypor ultimo el ahorro el boton de comprar ahora quiero que tenga un movimiento de que se agranda que sea llamativo, ese efecto me gusto y conservalo pero tambien sin que pases el mouse quiero que el boton tenga movimiento de agragarse y encongerse que se vea algo llamativo para el user, bueno me gusta todo lo que tienes pero ahora quiero que  el badge de oferta el precio y el badge de ahorro aparezcan en una misma linea  y que tenga la posibilidad de quitar el que yo desee , ahora quiero que el usuario tenga unas flechas direccionales que le permitan pasar de una imagen a otra en el layout y tambien la posibilidad de darle zoom  por otra parte tambien yo tener la psobilidad en esa parte del precio tener la psoibilidad de ponerlo mas pequeño o mas grande depndiendo a la vista ya que en mobile se ve diferente que en website
-{% enddoc %}
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% style %}
@@ -574,7 +570,7 @@
 
   <div class="ai-product-zoom-modal-{{ ai_gen_id }}" data-zoom-modal>
     <button class="ai-product-zoom-close-{{ ai_gen_id }}" data-zoom-close aria-label="Cerrar zoom">×</button>
-    <img src="" alt="" data-zoom-img>
+    <img alt="" width="1000" height="1000" data-zoom-img>
   </div>
 
   <div class="ai-product-info-{{ ai_gen_id }}">
