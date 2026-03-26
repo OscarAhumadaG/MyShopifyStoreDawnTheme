@@ -37,7 +37,142 @@
         padding-bottom: {{ section.settings.padding_bottom }}px;
       }
     }
-  {%- endstyle -%}
+    /* SHARE + REVIEWS CAPSULA */
+    {%- assign _rb = section.blocks | where: 'type', 'rating-manual' | first -%}
+    {%- assign _share_sz    = _rb.settings.share_icon_size      | default: 14 -%}
+    {%- assign _star_sz     = _rb.settings.star_icon_size       | default: 13 -%}
+    {%- assign _text_sz     = _rb.settings.rating_text_size     | default: 14 -%}
+    {%- assign _cap_px      = _rb.settings.capsule_padding_x    | default: 14 -%}
+    {%- assign _cap_py      = _rb.settings.capsule_padding_y    | default: 8  -%}
+    {%- assign _cap_radius  = _rb.settings.capsule_border_radius | default: 999 -%}
+    {%- assign _cap_bw      = _rb.settings.capsule_border_width  | default: 1  -%}
+
+    .product-meta-capsule {
+      display: inline-flex;
+      align-items: center;
+      padding: {{ _cap_py }}px {{ _cap_px }}px;
+      border: {{ _cap_bw }}px solid;
+      border-radius: {{ _cap_radius }}px;
+      width: fit-content;
+    }
+
+    /* Eliminate default h1 bottom margin so margin_top slider has full control */
+    .product__title h1 {
+      margin-bottom: 0;
+    }
+
+    .product-meta-capsule .share-button-wrapper,
+    .product-meta-capsule .rating-block-manual {
+      display: inline-flex !important;
+      align-items: center !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      line-height: 1 !important;
+      background: transparent !important;
+    }
+
+    .product-meta-capsule .share-button-wrapper {
+      position: relative;
+      padding-right: 10px;
+      margin-right: 2px;
+    }
+
+    .product-meta-capsule .share-copy-btn {
+      padding-right: 8px;
+    }
+
+    .product-meta-capsule .share-button-wrapper::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1px;
+      height: 16px;
+      background: #d8d8d8;
+    }
+
+    .product-meta-capsule .share-button,
+    .product-meta-capsule .share-button details {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .product-meta-capsule .share-button__button {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: {{ _share_sz | plus: 10 }}px !important;
+      height: {{ _share_sz | plus: 10 }}px !important;
+      min-width: {{ _share_sz | plus: 10 }}px !important;
+      min-height: {{ _share_sz | plus: 10 }}px !important;
+      padding: 0 !important;
+      border: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    .product-meta-capsule .share-button__button .svg-wrapper,
+    .product-meta-capsule .share-button__button .svg-wrapper svg {
+      width: {{ _share_sz }}px !important;
+      height: {{ _share_sz }}px !important;
+      display: inline-flex !important;
+    }
+
+    .product-meta-capsule .rating-link,
+    .product-meta-capsule .rating-stars {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      text-decoration: none;
+      color: inherit;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .product-meta-capsule .stars-icon {
+      font-size: {{ _star_sz }}px;
+      line-height: 1;
+    }
+
+    .product-meta-capsule .rating-value {
+      font-size: {{ _text_sz }}px;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .product-meta-capsule .rating-count {
+      font-size: {{ _text_sz }}px;
+      color: #777777;
+      line-height: 1;
+    }
+
+    .share-button-wrapper > share-button > .share-button__button.hidden {
+      display: none !important;
+    }
+
+    .share-button summary {
+      list-style: none;
+    }
+
+    .share-button summary::-webkit-details-marker {
+      display: none;
+    }
+
+    @media screen and (max-width: 749px) {
+      .product-meta-capsule {
+        padding: 7px 12px;
+      }
+
+      .product-meta-capsule .share-button-wrapper {
+        padding-right: 8px;
+      }
+
+      .product-meta-capsule .share-button-wrapper::after {
+        height: 14px;
+      }
+    }
+{%- endstyle -%}
 
   <script src="{{ 'product-info.js' | asset_url }}" defer="defer"></script>
   <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
@@ -84,6 +219,8 @@
           class="product__info-container{% if section.settings.enable_sticky_info %} product__column-sticky{% endif %}"
         >
           {%- assign product_form_id = 'product-form-' | append: section.id -%}
+          {%- assign share_block = section.blocks | where: 'type', 'share' | first -%}
+          {%- assign rating_block = section.blocks | where: 'type', 'rating-manual' | first -%}
 
           {%- for block in section.blocks -%}
             {%- case block.type -%}
@@ -99,12 +236,48 @@
               {%- when 'title' -%}
                 <div class="product__title" {{ block.shopify_attributes }}>
                   <h1>{{ product.title | escape }}</h1>
-                  <a href="{{ product.url }}" class="product__title">
-                    <h2 class="h1">
-                      {{ product.title | escape }}
-                    </h2>
-                  </a>
                 </div>
+
+                {%- if share_block or rating_block -%}
+                  {%- liquid
+                    assign cap_bg     = rating_block.settings.capsule_bg_color     | default: '#f1f1f1'
+                    assign cap_border = rating_block.settings.capsule_border_color | default: '#dddddd'
+                    assign cap_gap    = rating_block.settings.internal_gap         | default: 10
+                    assign cap_mt     = rating_block.settings.margin_top           | default: 10
+                    assign cap_mb     = rating_block.settings.margin_bottom        | default: 16
+                    assign cap_share_icon = rating_block.settings.share_icon_size  | default: 14
+                    assign cap_star_icon  = rating_block.settings.star_icon_size   | default: 13
+                    assign cap_text_size  = rating_block.settings.rating_text_size | default: 14
+
+                    assign meta_ns      = rating_block.settings.metafield_namespace | default: 'custom'
+                    assign meta_key     = rating_block.settings.metafield_key       | default: 'product_rating'
+                    assign rating_mf    = product.metafields[meta_ns][meta_key]
+                    if rating_mf and rating_mf.value
+                      assign rating_entry = rating_mf.value | first
+                      assign meta_rate    = rating_entry.rate    | default: rating_entry.rate.value
+                      assign meta_reviews = rating_entry.reviews | default: rating_entry.reviews.value
+                    else
+                      assign meta_rate    = nil
+                      assign meta_reviews = nil
+                    endif
+                  -%}
+
+                  <div
+                    class="product-meta-capsule"
+                    style="background: {{ cap_bg }}; border-color: {{ cap_border }}; gap: {{ cap_gap }}px; margin-top: {{ cap_mt }}px; margin-bottom: {{ cap_mb }}px;"
+                  >
+                    {%- if share_block -%}
+                      {% liquid
+                        assign share_url = product.selected_variant.url | default: product.url | prepend: request.origin
+                        render 'share-button', block: share_block, share_link: share_url, icon_size: cap_share_icon
+                      %}
+                    {%- endif -%}
+
+                    {%- if rating_block -%}
+                      {% render 'rating-manual', block: rating_block, meta_rate: meta_rate, meta_reviews: meta_reviews, star_size: cap_star_icon, text_size: cap_text_size %}
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
               {%- when 'price' -%}
                 <div id="price-{{ section.id }}" role="status" {{ block.shopify_attributes }}>
                   {%- render 'price',
@@ -469,12 +642,8 @@
                     {{ block.settings.text | default: block.settings.page.title | escape }}
                   </button>
                 </modal-opener>
+              {%- when 'rating-manual' -%}
               {%- when 'share' -%}
-                {% liquid
-                  assign share_url = product.selected_variant.url | default: product.url | prepend: request.origin
-                  render 'share-button', block: block, share_link: share_url
-                %}
-
               {%- when 'variant_picker' -%}
                 {% render 'product-variant-picker', product: product, block: block, product_form_id: product_form_id %}
               {%- when 'buy_buttons' -%}
@@ -485,44 +654,6 @@
                   section_id: section.id,
                   show_pickup_availability: true
                 -%}
-              {%- when 'rating' -%}
-                {%- if product.metafields.reviews.rating.value != blank -%}
-                  <div class="rating-wrapper">
-                    {% liquid
-                      assign rating_decimal = 0
-                      assign decimal = product.metafields.reviews.rating.value.rating | modulo: 1
-                      if decimal >= 0.3 and decimal <= 0.7
-                        assign rating_decimal = 0.5
-                      elsif decimal > 0.7
-                        assign rating_decimal = 1
-                      endif
-                    %}
-                    <div
-                      class="rating"
-                      role="img"
-                      aria-label="{{ 'accessibility.star_reviews_info' | t: rating_value: product.metafields.reviews.rating.value, rating_max: product.metafields.reviews.rating.value.scale_max }}"
-                    >
-                      <span
-                        aria-hidden="true"
-                        class="rating-star"
-                        style="--rating: {{ product.metafields.reviews.rating.value.rating | floor }}; --rating-max: {{ product.metafields.reviews.rating.value.scale_max }}; --rating-decimal: {{ rating_decimal }};"
-                      ></span>
-                    </div>
-                    <p class="rating-text caption">
-                      <span aria-hidden="true">
-                        {{- product.metafields.reviews.rating.value }} /
-                        {{ product.metafields.reviews.rating.value.scale_max -}}
-                      </span>
-                    </p>
-                    <p class="rating-count caption">
-                      <span aria-hidden="true">({{ product.metafields.reviews.rating_count }})</span>
-                      <span class="visually-hidden">
-                        {{- product.metafields.reviews.rating_count }}
-                        {{ 'accessibility.total_reviews' | t -}}
-                      </span>
-                    </p>
-                  </div>
-                {%- endif -%}
               {%- when 'complementary' -%}
                 <product-recommendations
                   class="complementary-products quick-add-hidden{% if block.settings.make_collapsible_row %} is-accordion{% endif %}{% if block.settings.enable_quick_add %} complementary-products-contains-quick-add{% endif %}"
@@ -659,9 +790,6 @@
                             </div>
                           {%- endif -%}
                         </slideshow-component>
-                        {%- if block.settings.make_collapsible_row -%}
-                          </details>
-                        {%- endif -%}
                       </div>
                     </aside>
                   {%- endif -%}
@@ -1182,13 +1310,186 @@
       ]
     },
     {
-      "type": "rating",
-      "name": "t:sections.main-product.blocks.rating.name",
+      "type": "rating-manual",
+      "name": "Product Rating",
       "limit": 1,
       "settings": [
         {
+          "type": "checkbox",
+          "id": "show_rating",
+          "default": true,
+          "label": "Show Rating"
+        },
+        {
+          "type": "range",
+          "id": "rating_value",
+          "min": 0,
+          "max": 5,
+          "step": 0.1,
+          "default": 4.5,
+          "label": "Rating Value (e.g: 4.5)"
+        },
+        {
+          "type": "range",
+          "id": "rating_count",
+          "min": 50,
+          "max": 150,
+          "step": 1,
+          "default": 88,
+          "label": "Number of Reviews"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_count",
+          "default": true,
+          "label": "Show number of reviews"
+        },
+        {
+          "type": "text",
+          "id": "testimonial_section_id",
+          "label": "Testimonials section ID",
+          "default": "testimonios-productos",
+          "info": "The HTML id of the testimonials section to scroll to when clicking the rating"
+        },
+        {
+          "type": "header",
+          "content": "Metafield (optional)"
+        },
+        {
           "type": "paragraph",
-          "content": "t:sections.main-product.blocks.rating.settings.paragraph.content"
+          "content": "Namespace: custom — Key: product_rating. Only change if your metafield has a different key. ⚠️ Type manually, do NOT click the database icon."
+        },
+        {
+          "type": "text",
+          "id": "metafield_namespace",
+          "label": "Namespace (type manually)",
+          "default": "custom"
+        },
+        {
+          "type": "text",
+          "id": "metafield_key",
+          "label": "Key (type manually)",
+          "default": "product_rating"
+        },
+        {
+          "type": "header",
+          "content": "Capsule Style"
+        },
+        {
+          "type": "color",
+          "id": "capsule_bg_color",
+          "label": "Background color",
+          "default": "#f1f1f1"
+        },
+        {
+          "type": "color",
+          "id": "capsule_border_color",
+          "label": "Border color",
+          "default": "#dddddd"
+        },
+        {
+          "type": "range",
+          "id": "capsule_padding_x",
+          "min": 0,
+          "max": 40,
+          "step": 1,
+          "unit": "px",
+          "default": 14,
+          "label": "Capsule padding horizontal"
+        },
+        {
+          "type": "range",
+          "id": "capsule_padding_y",
+          "min": 0,
+          "max": 24,
+          "step": 1,
+          "unit": "px",
+          "default": 8,
+          "label": "Capsule padding vertical"
+        },
+        {
+          "type": "range",
+          "id": "capsule_border_radius",
+          "min": 0,
+          "max": 50,
+          "step": 1,
+          "unit": "px",
+          "default": 50,
+          "label": "Capsule border radius (50 = pill)"
+        },
+        {
+          "type": "range",
+          "id": "capsule_border_width",
+          "min": 0,
+          "max": 4,
+          "step": 1,
+          "unit": "px",
+          "default": 1,
+          "label": "Capsule border width"
+        },
+        {
+          "type": "range",
+          "id": "internal_gap",
+          "min": 0,
+          "max": 30,
+          "step": 1,
+          "unit": "px",
+          "default": 10,
+          "label": "Gap between Share and Rating"
+        },
+        {
+          "type": "range",
+          "id": "margin_top",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "default": 10,
+          "label": "Space above capsule (after title)"
+        },
+        {
+          "type": "range",
+          "id": "margin_bottom",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "default": 16,
+          "label": "Space below capsule (before price)"
+        },
+        {
+          "type": "header",
+          "content": "Icon sizes"
+        },
+        {
+          "type": "range",
+          "id": "share_icon_size",
+          "min": 10,
+          "max": 32,
+          "step": 1,
+          "unit": "px",
+          "default": 14,
+          "label": "Share icon size"
+        },
+        {
+          "type": "range",
+          "id": "star_icon_size",
+          "min": 10,
+          "max": 32,
+          "step": 1,
+          "unit": "px",
+          "default": 13,
+          "label": "Rating star size"
+        },
+        {
+          "type": "range",
+          "id": "rating_text_size",
+          "min": 10,
+          "max": 24,
+          "step": 1,
+          "unit": "px",
+          "default": 14,
+          "label": "Rating number & count size"
         }
       ]
     },

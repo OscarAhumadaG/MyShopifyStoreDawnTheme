@@ -9,8 +9,8 @@
  */
 {
   "current": {
-    "logo": "shopify://shop_images/Copia_de_hombre_5.png",
-    "logo_width": 100,
+    "logo": "shopify://shop_images/05284d03.png",
+    "logo_width": 80,
     "type_header_font": "inter_n4",
     "heading_scale": 100,
     "type_body_font": "inter_n4",
@@ -106,11 +106,11 @@
     "badge_corner_radius": 40,
     "sale_badge_color_scheme": "scheme-63a2e4a7-0108-41c0-9c9e-7ff787bbc220",
     "sold_out_badge_color_scheme": "scheme-5",
-    "brand_headline": "<strong>Tribux</strong>",
-    "brand_description": "<p><strong>Esta es más que una tienda</strong>: es una energía, una manada y un estilo de vida, donde la vibra manda, no las reglas</p>",
-    "brand_image": "shopify://shop_images/Copia_de_hombre_5.png",
-    "brand_image_width": 95,
-    "social_facebook_link": "",
+    "brand_headline": "<strong>TRIBUX</strong>",
+    "brand_description": "<p><strong>ESTA ES MÁS QUE UNA TIENDA:  </strong>ES UNA ENERGÍA, UNA MANADA Y UN ESTILO DE VIDA, DONDE LA VIBRA MANDA, NO LAS REGLAS</p>",
+    "brand_image": "shopify://shop_images/05284d.png",
+    "brand_image_width": 100,
+    "social_facebook_link": "https://www.facebook.com/profile.php?id=61574128798649",
     "social_instagram_link": "https://www.instagram.com/panikstore13?igsh=MWs5dmloYWdwb3RiZg%3D%3D",
     "social_youtube_link": "",
     "social_tiktok_link": "",

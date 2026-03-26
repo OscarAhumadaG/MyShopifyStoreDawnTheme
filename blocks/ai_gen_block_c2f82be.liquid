@@ -1,14 +1,12 @@
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% style %}
-/* WRAPPER */
 .ai-new-in-grid-{{ ai_gen_id }} {
   width: 100%;
   margin: 0;
   padding: 0;
 }
 
-/* HEADER */
 .ai-new-in-grid__header-{{ ai_gen_id }} {
   padding: 20px 0 16px;
 }
@@ -21,7 +19,6 @@
   color: {{ block.settings.heading_color }};
 }
 
-/* GRID DE PRODUCTOS CON PADDING HORIZONTAL MÍNIMO */
 .ai-new-in-grid__products-{{ ai_gen_id }} {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -37,7 +34,6 @@
   }
 }
 
-/* CARD */
 .ai-new-in-grid__product-card-{{ ai_gen_id }} {
   overflow: hidden;
   display: flex;
@@ -45,7 +41,6 @@
   height: 100%;
 }
 
-/* LINK */
 .ai-new-in-grid__link-{{ ai_gen_id }} {
   display: flex;
   flex-direction: column;
@@ -53,7 +48,6 @@
   text-decoration: none;
 }
 
-/* IMAGE WRAPPER */
 .ai-new-in-grid__image-wrapper-{{ ai_gen_id }} {
   position: relative;
   width: 100%;
@@ -61,45 +55,42 @@
   background-color: #f6f6f6;
   aspect-ratio: {% if block.settings.image_ratio == 'square' %}1 / 1{% else %}3 / 4{% endif %};
   flex-shrink: 0;
+  /* touch-action pan-y permite scroll vertical de página pero capturamos el horizontal en JS */
+  touch-action: pan-y;
 }
 
-/* SLIDER INTERNO DE IMÁGENES */
-.ai-new-in-grid__image-slider-{{ ai_gen_id }} {
+/* SLIDER — usa transform, NO scroll */
+.ai-new-in-grid__image-track-{{ ai_gen_id }} {
   display: flex;
   width: 100%;
   height: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+  will-change: transform;
+  transition: transform 0.3s ease;
 }
 
-/* OCULTAR SCROLLBAR NATIVO */
-.ai-new-in-grid__image-slider-{{ ai_gen_id }}::-webkit-scrollbar {
-  display: none;
+.ai-new-in-grid__image-track-{{ ai_gen_id }}.no-transition {
+  transition: none;
 }
 
-.ai-new-in-grid__image-slider-{{ ai_gen_id }} {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* IMAGEN */
-.ai-new-in-grid__image-slider-{{ ai_gen_id }} img {
+.ai-new-in-grid__image-track-{{ ai_gen_id }} img {
   flex: 0 0 100%;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
   display: block;
-  scroll-snap-align: start;
-  transition: transform 0.4s ease;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
 }
 
 /* HOVER ZOOM - SOLO EN DESKTOP */
 @media screen and (min-width: 750px) {
-  .ai-new-in-grid__image-slider-{{ ai_gen_id }} img:hover {
+  .ai-new-in-grid__image-track-{{ ai_gen_id }} img {
+    transition: transform 0.4s ease;
+    pointer-events: auto;
+  }
+  .ai-new-in-grid__image-track-{{ ai_gen_id }} img:hover {
     transform: scale({{ block.settings.zoom_level | divided_by: 10.0 }});
   }
 }
@@ -120,7 +111,7 @@
   z-index: 2;
 }
 
-/* INDICATORS DE IMÁGENES - DISEÑO ULTRA MINIMALISTA */
+/* INDICATORS */
 .ai-new-in-grid__image-indicators-{{ ai_gen_id }} {
   display: none;
   justify-content: center;
@@ -152,16 +143,12 @@
   appearance: none;
 }
 
-.ai-new-in-grid__image-indicator-{{ ai_gen_id }}:hover {
-  background-color: rgba(255, 255, 255, 0.8);
-}
-
 .ai-new-in-grid__image-indicator-{{ ai_gen_id }}.active {
   background-color: rgba(255, 255, 255, 1);
   width: 12px;
 }
 
-/* INFO - CONTAINER FLEX PARA ALINEACIÓN */
+/* INFO */
 .ai-new-in-grid__info-{{ ai_gen_id }} {
   display: flex;
   flex-direction: column;
@@ -172,7 +159,6 @@
   min-height: 80px;
 }
 
-/* TÍTULO CON ALTURA FIJA Y MARGEN IZQUIERDO CONTROLABLE */
 .ai-new-in-grid__title-{{ ai_gen_id }} {
   font-size: 14px;
   font-weight: 500;
@@ -186,7 +172,6 @@
   line-height: 1.3;
 }
 
-/* PRECIO SIEMPRE AL FONDO */
 .ai-new-in-grid__price-{{ ai_gen_id }} {
   font-size: 14px;
   font-weight: 500;
@@ -197,7 +182,6 @@
   border-top: 1px solid #f0f0f0;
 }
 
-/* EMPTY STATE */
 .ai-new-in-grid__empty-state-{{ ai_gen_id }} {
   padding: 60px 20px;
   text-align: center;
@@ -205,7 +189,6 @@
   color: #666;
 }
 
-/* SINGLE IMAGE */
 .ai-new-in-grid__single-image-{{ ai_gen_id }} {
   width: 100%;
   height: 100%;
@@ -263,28 +246,32 @@
 
                 {% assign images = product.images %}
                 {% if images.size > 1 %}
-                  <!-- SLIDER CON MÚLTIPLES IMÁGENES -->
-                  <div class="ai-new-in-grid__image-slider-{{ ai_gen_id }}" data-slider-id="slider-{{ ai_gen_id }}-{{ i }}" data-product-index="{{ i }}">
+                  <div
+                    class="ai-new-in-grid__image-track-{{ ai_gen_id }}"
+                    data-track-id="track-{{ ai_gen_id }}-{{ i }}"
+                    data-total="{{ images.size }}"
+                    data-index="0"
+                  >
                     {% for img in images %}
-                      <img 
+                      <img
                         src="{{ img | image_url: width: 900 }}"
                         alt="{{ img.alt | escape }}"
                         loading="lazy"
                         width="900"
                         height="1200"
+                        draggable="false"
                       >
                     {% endfor %}
                   </div>
 
-                  <!-- INDICADORES DE IMÁGENES -->
                   <div class="ai-new-in-grid__image-indicators-{{ ai_gen_id }}" data-indicators-id="indicators-{{ ai_gen_id }}-{{ i }}">
                     {% for img in images %}
                       <button type="button" class="ai-new-in-grid__image-indicator-{{ ai_gen_id }} {% if forloop.first %}active{% endif %}" data-image-index="{{ forloop.index0 }}" aria-label="Ver imagen {{ forloop.index }}"></button>
                     {% endfor %}
                   </div>
+
                 {% elsif images.size == 1 %}
-                  <!-- IMAGEN ÚNICA -->
-                  <img 
+                  <img
                     src="{{ images[0] | image_url: width: 900 }}"
                     alt="{{ images[0].alt | escape }}"
                     loading="lazy"
@@ -318,140 +305,131 @@
 </new-in-grid-{{ ai_gen_id }}>
 
 <script>
-  (function() {
-    const genId = '{{ ai_gen_id }}';
-    
-    // Inicializar sliders con swipe en mobile
-    document.querySelectorAll('[data-slider-id^="slider-{{ ai_gen_id }}-"]').forEach(slider => {
-      let startX = 0;
-      let currentScroll = 0;
-      let isScrolling = false;
-      let isDragging = false;
-      let velocity = 0;
-      let lastX = 0;
-      let lastTime = 0;
-      let isMobile = window.innerWidth < 750;
+(function() {
+  const SWIPE_THRESHOLD = 30;   // px mínimos para considerar swipe
+  const ANGLE_THRESHOLD = 35;   // grados máximos de desviación vertical para considerar horizontal
 
-      // Detectar redimensionamiento
-      window.addEventListener('resize', () => {
-        isMobile = window.innerWidth < 750;
-      });
+  function initTrack(track) {
+    let startX = 0, startY = 0;
+    let currentX = 0;
+    let dragging = false;
+    let isHorizontal = null; // null = aún no decidido
+    let currentIndex = 0;
+    const total = parseInt(track.dataset.total, 10);
 
-      // Touch events para swipe
-      slider.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX;
-        currentScroll = slider.scrollLeft;
-        isScrolling = true;
-        isDragging = true;
-        lastX = startX;
-        lastTime = Date.now();
-        slider.style.scrollBehavior = 'auto';
-      }, { passive: true });
-
-      slider.addEventListener('touchmove', (e) => {
-        if (!isScrolling) return;
-        
-        const x = e.touches[0].clientX;
-        const walk = (startX - x);
-        const now = Date.now();
-        const timeDelta = now - lastTime;
-        
-        if (timeDelta > 0) {
-          velocity = (x - lastX) / timeDelta;
-        }
-        
-        lastX = x;
-        lastTime = now;
-        slider.scrollLeft = currentScroll + walk;
-        actualizarIndicadores(slider);
-      }, { passive: true });
-
-      slider.addEventListener('touchend', () => {
-        isScrolling = false;
-        isDragging = false;
-        slider.style.scrollBehavior = 'smooth';
-        
-        // Aplicar velocidad de swipe
-        const itemWidth = slider.clientWidth;
-        const currentIndex = Math.round(slider.scrollLeft / itemWidth);
-        
-        if (Math.abs(velocity) > 0.3) {
-          const direction = velocity > 0 ? -1 : 1;
-          const newIndex = Math.max(0, Math.min(
-            Math.ceil(slider.scrollWidth / itemWidth) - 1,
-            currentIndex + direction
-          ));
-          slider.scrollLeft = newIndex * itemWidth;
-        } else {
-          slider.scrollLeft = currentIndex * itemWidth;
-        }
-        
-        setTimeout(() => actualizarIndicadores(slider), 300);
-      }, { passive: true });
-
-      // Detectar scroll para actualizar indicadores
-      slider.addEventListener('scroll', () => {
-        if (!isDragging) {
-          actualizarIndicadores(slider);
-        }
-      }, { passive: true });
-
-      // Actualizar indicadores al cargar
-      setTimeout(() => actualizarIndicadores(slider), 100);
-    });
-
-    // Función para actualizar indicadores
-    function actualizarIndicadores(slider) {
-      const sliderId = slider.getAttribute('data-slider-id');
-      const indicatorsContainer = document.querySelector('[data-indicators-id="' + sliderId.replace('slider-', 'indicators-') + '"]');
-      
-      if (!indicatorsContainer) return;
-
-      const indicators = indicatorsContainer.querySelectorAll('.ai-new-in-grid__image-indicator-' + genId);
-      const scrollLeft = slider.scrollLeft;
-      const itemWidth = slider.clientWidth;
-      
-      // Calcular índice actual
-      const currentIndex = Math.round(scrollLeft / itemWidth);
-      
-      indicators.forEach((indicator, index) => {
-        indicator.classList.toggle('active', index === currentIndex);
-      });
+    function goTo(index, animate) {
+      currentIndex = Math.max(0, Math.min(total - 1, index));
+      track.dataset.index = currentIndex;
+      if (!animate) track.classList.add('no-transition');
+      track.style.transform = 'translateX(' + (-currentIndex * 100) + '%)';
+      if (!animate) {
+        // forzar reflow y quitar clase
+        track.offsetHeight;
+        track.classList.remove('no-transition');
+      }
+      updateIndicators(track, currentIndex);
     }
 
-    // Hacer indicadores clickeables
-    document.querySelectorAll('[data-indicators-id^="indicators-{{ ai_gen_id }}-"]').forEach(indicatorsContainer => {
-      const indicators = indicatorsContainer.querySelectorAll('.ai-new-in-grid__image-indicator-' + genId);
-      const sliderId = indicatorsContainer.getAttribute('data-indicators-id').replace('indicators-', 'slider-');
-      const slider = document.querySelector('[data-slider-id="' + sliderId + '"]');
+    // Touch start
+    track.parentElement.addEventListener('touchstart', function(e) {
+      if (total <= 1) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      currentX = startX;
+      dragging = true;
+      isHorizontal = null;
+    }, { passive: true });
 
-      if (!slider) return;
+    // Touch move
+    track.parentElement.addEventListener('touchmove', function(e) {
+      if (!dragging || total <= 1) return;
 
-      indicators.forEach((indicator) => {
-        indicator.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          
-          const imageIndex = parseInt(indicator.getAttribute('data-image-index'));
-          const scrollPosition = imageIndex * slider.clientWidth;
-          
-          slider.style.scrollBehavior = 'smooth';
-          slider.scrollLeft = scrollPosition;
-          
-          setTimeout(() => actualizarIndicadores(slider), 300);
-        });
-      });
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+
+      // Decidir dirección dominante solo una vez por gesto
+      if (isHorizontal === null) {
+        const angle = Math.abs(Math.atan2(Math.abs(dy), Math.abs(dx)) * 180 / Math.PI);
+        if (angle > ANGLE_THRESHOLD) {
+          // Gesto más vertical → scroll de página, cancelar swipe
+          isHorizontal = false;
+          dragging = false;
+          return;
+        }
+        isHorizontal = true;
+      }
+
+      if (!isHorizontal) return;
+
+      // Prevenir scroll de página mientras arrastramos horizontalmente
+      e.preventDefault();
+      currentX = e.touches[0].clientX;
+
+      // Mostrar desplazamiento en vivo (rubber-band en extremos)
+      const liveOffset = dx / track.parentElement.offsetWidth * 100;
+      const base = -currentIndex * 100;
+      let offset = base + liveOffset;
+      // Resistencia en los bordes
+      if (currentIndex === 0 && dx > 0) offset = base + liveOffset * 0.3;
+      if (currentIndex === total - 1 && dx < 0) offset = base + liveOffset * 0.3;
+
+      track.classList.add('no-transition');
+      track.style.transform = 'translateX(' + offset + '%)';
+    }, { passive: false });
+
+    // Touch end
+    track.parentElement.addEventListener('touchend', function(e) {
+      if (!dragging || !isHorizontal || total <= 1) {
+        dragging = false;
+        return;
+      }
+      dragging = false;
+
+      const dx = currentX - startX;
+      track.classList.remove('no-transition');
+
+      if (dx < -SWIPE_THRESHOLD) {
+        goTo(currentIndex + 1, true);
+      } else if (dx > SWIPE_THRESHOLD) {
+        goTo(currentIndex - 1, true);
+      } else {
+        // Volver al mismo índice
+        goTo(currentIndex, true);
+      }
+    }, { passive: true });
+  }
+
+  function updateIndicators(track, index) {
+    const trackId = track.dataset.trackId;
+    const indicatorsId = trackId.replace('track-', 'indicators-');
+    const container = document.querySelector('[data-indicators-id="' + indicatorsId + '"]');
+    if (!container) return;
+    container.querySelectorAll('[data-image-index]').forEach(function(btn) {
+      btn.classList.toggle('active', parseInt(btn.dataset.imageIndex, 10) === index);
     });
+  }
 
-    // Prevenir que los indicadores causen navegación del link
-    document.querySelectorAll('.ai-new-in-grid__image-indicator-' + genId).forEach(indicator => {
-      indicator.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      });
+  // Inicializar todos los tracks del bloque
+  document.querySelectorAll('[data-track-id^="track-{{ ai_gen_id }}-"]').forEach(initTrack);
+
+  // Indicadores clickeables
+  document.querySelectorAll('[data-indicators-id^="indicators-{{ ai_gen_id }}-"]').forEach(function(container) {
+    container.addEventListener('click', function(e) {
+      const btn = e.target.closest('[data-image-index]');
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const trackId = container.dataset.indicatorsId.replace('indicators-', 'track-');
+      const track = document.querySelector('[data-track-id="' + trackId + '"]');
+      if (!track) return;
+      const idx = parseInt(btn.dataset.imageIndex, 10);
+      track.classList.remove('no-transition');
+      track.style.transform = 'translateX(' + (-idx * 100) + '%)';
+      track.dataset.index = idx;
+      updateIndicators(track, idx);
     });
-  })();
+  });
+})();
 </script>
 
 {% schema %}
@@ -480,7 +458,6 @@
     ], "default": "portrait" },
     
     { "type": "range", "id": "zoom_level", "label": "Nivel de zoom al pasar mouse", "min": 10, "max": 20, "step": 1, "default": 15 },
-    
     { "type": "range", "id": "title_left_margin", "label": "Margen izquierdo del título y precio", "min": 0, "max": 20, "step": 1, "default": 0 },
     
     { "type": "product", "id": "product_1", "label": "Producto 1" },

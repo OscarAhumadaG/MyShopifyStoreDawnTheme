@@ -67,11 +67,13 @@
 .ai-t-carousel-{{ ai_gen_id }}{
   display:flex;
   overflow-x:auto;
-  overflow-y:visible;
+  overflow-y:hidden;
   scroll-behavior:smooth;
   -webkit-overflow-scrolling:touch;
   gap:{{ block.settings.card_spacing_mobile | default:14 }}px;
   padding-bottom:20px;
+  padding-top:6px;        /* ← FIX: espacio para el translateY del hover */
+  margin-top:-6px;        /* ← FIX: compensa el espacio visual */
   
   /* Ocultar scrollbar nativo */
   scrollbar-width:none;
@@ -133,37 +135,26 @@
   }
 }
 
-/* ===== Tarjeta con estructura de grid interno ===== */
+/* ===== Tarjeta ===== */
 .ai-t-card-{{ ai_gen_id }}{
   background:{{ block.settings.card_bg_color | default:'#ffffff' }};
   border-radius:{{ block.settings.card_border_radius | default:12 }}px;
   padding:{{ block.settings.card_padding | default:22 }}px;
   border:{{ block.settings.card_border_width | default:1 }}px solid {{ block.settings.card_border_color | default:'#EAEAEA' }};
   box-shadow:0 4px 14px rgba(0,0,0,.06);
-  display:flex;
-  flex-direction:column;
-  align-items:stretch;
+  display:grid;
+  grid-template-rows: auto auto auto auto 1fr;
+  align-items:start;
+  justify-items:center;
   text-align:center;
-  transition:all .2s ease;
+  transition:.2s ease;
   scroll-snap-align:center;
   scroll-snap-stop:always;
-  min-height:100%;
-  overflow:visible;
 }
 
 .ai-t-card-{{ ai_gen_id }}:hover{
+  transform:translateY(-4px);
   border-color:{{ block.settings.card_border_hover_color | default:'#008060' }};
-  box-shadow:0 12px 24px rgba(0,0,0,.15), 0 4px 14px rgba(0,0,0,.06);
-}
-
-/* ===== Estructura interna de la tarjeta con grid ===== */
-.ai-t-card-content-{{ ai_gen_id }}{
-  display:grid;
-  grid-template-columns:1fr;
-  grid-template-rows:auto auto auto auto 1fr;
-  gap:0;
-  width:100%;
-  height:100%;
 }
 
 /* ===== Avatar ===== */
@@ -172,9 +163,8 @@
   height:{{ block.settings.image_size | default:80 }}px;
   border-radius:50%;
   overflow:hidden;
-  margin:0 auto 12px;
+  margin-bottom:14px;
   flex-shrink:0;
-  grid-row:1;
 }
 
 .ai-t-img-{{ ai_gen_id }}{
@@ -184,105 +174,82 @@
   display:block;
 }
 
-/* ===== Nombre (Altura fija para alineación) ===== */
+/* ===== Nombre ===== */
 .ai-t-name-{{ ai_gen_id }}{
   font-size:{{ block.settings.name_size | default:16 }}px;
   color:{{ block.settings.name_color | default:'#121212' }};
   font-weight:600;
-  margin:0;
-  padding:0 2px;
-  grid-row:2;
-  height:{{ block.settings.name_size | default:16 | times:1.5 }}px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
+  margin:0 0 6px;
+  width:100%;
   white-space:nowrap;
+  overflow:hidden;
   text-overflow:ellipsis;
+  text-align:center;
 }
 
-/* ===== Badge verificada (Altura fija) - Separado del nombre ===== */
+/* ===== Badge verificada ===== */
 .ai-t-badge-{{ ai_gen_id }}{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  gap:4px;
+  gap:6px;
   font-size:{{ block.settings.verified_size | default:13 }}px;
   color:{{ block.settings.verified_color | default:'#008060' }};
-  margin:8px auto 8px;
-  padding:0 4px;
+  margin-bottom:8px;
   font-weight:500;
-  grid-row:3;
-  height:20px;
   width:100%;
   white-space:nowrap;
-  text-overflow:ellipsis;
-  overflow:hidden;
 }
 
-/* ===== Rating (Altura fija) ===== */
+/* ===== Rating ===== */
 .ai-t-rate-{{ ai_gen_id }}{
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:6px;
-  margin:4px auto 12px;
+  gap:8px;
+  margin-bottom:12px;
   flex-wrap:nowrap;
-  grid-row:4;
-  height:28px;
+  white-space:nowrap;
   width:100%;
-  padding:0 2px;
 }
 
 .ai-t-stars-wrap-{{ ai_gen_id }}{
   position:relative;
-  display:inline-flex;
-  align-items:center;
+  display:inline-block;
   font-size:{{ block.settings.star_size | default:20 }}px;
   line-height:1;
-  height:1em;
   flex-shrink:0;
+  white-space:nowrap;
 }
 
 .ai-t-stars-bg-{{ ai_gen_id }}{
   color:{{ block.settings.star_empty_color | default:'#E0E0E0' }};
-  letter-spacing:-2px;
+  white-space:nowrap;
 }
 
 .ai-t-stars-fill-{{ ai_gen_id }}{
   position:absolute;
   top:0;
   left:0;
-  display:inline-flex;
-  align-items:center;
   white-space:nowrap;
   overflow:hidden;
   color:{{ block.settings.star_fill_color | default:'#FFD700' }};
-  letter-spacing:-2px;
 }
 
 .ai-t-rating-number-{{ ai_gen_id }}{
-  font-size:16px;
+  font-size:14px;
   font-weight:600;
   color:#333;
-  min-width:40px;
-  text-align:left;
   flex-shrink:0;
+  white-space:nowrap;
 }
 
-/* ===== Texto del testimonio (crece hasta llenar) ===== */
+/* ===== Texto del testimonio ===== */
 .ai-t-text-{{ ai_gen_id }}{
   font-size:{{ block.settings.text_size | default:14 }}px;
   color:{{ block.settings.text_color | default:'#666666' }};
   line-height:1.6;
   margin:0;
-  padding:0 2px;
-  grid-row:5;
-  display:flex;
-  align-items:flex-start;
-  justify-content:center;
-  width:100%;
-  overflow:hidden;
 }
 
 /* ===== Indicador de scroll (puntitos) ===== */
@@ -332,8 +299,7 @@
 
   .ai-t-card-{{ ai_gen_id }}{
     flex-shrink:0;
-    /* Ancho exacto para 2 tarjetas */
-    width:calc((100vw - {{ block.settings.gutter_x_mobile | default:16 }}px * 2 - {{ block.settings.card_spacing_mobile | default:14 }}px) / 2);
+    width:calc((100vw - {{ block.settings.gutter_x_mobile | default:16 }}px * 2 - {{ block.settings.card_spacing_mobile | default:14 }}px) / 2 - 8px);
     min-width:160px;
     padding:{{ block.settings.card_padding_mobile | default:18 }}px;
   }
@@ -351,7 +317,9 @@
 }
 </style>
 
-<div class="ai-t-wrap-{{ ai_gen_id }}">
+{%- assign anchor_id = block.settings.anchor_id | default: 'testimonios-productos' -%}
+
+<div class="ai-t-wrap-{{ ai_gen_id }}" id="{{ anchor_id }}">
 
   {% if block.settings.title_desktop != blank or block.settings.subtitle != blank %}
     <div class="ai-t-head-{{ ai_gen_id }}">
@@ -413,48 +381,46 @@
       {% endif %}
 
       <div class="ai-t-card-{{ ai_gen_id }}">
-        <div class="ai-t-card-content-{{ ai_gen_id }}">
-          {% if t_imgsrc != blank %}
-            {% assign img_size = block.settings.image_size | default:80 %}
-            <div class="ai-t-imgw-{{ ai_gen_id }}">
-              <img
-                src="{{ t_imgsrc }}"
-                alt="{{ t_name | default:'Avatar de cliente' | escape }}"
-                class="ai-t-img-{{ ai_gen_id }}"
-                width="{{ img_size }}"
-                height="{{ img_size }}"
-                loading="lazy"
-                decoding="async"
-              >
-            </div>
-          {% endif %}
+        {% if t_imgsrc != blank %}
+          {% assign img_size = block.settings.image_size | default:80 %}
+          <div class="ai-t-imgw-{{ ai_gen_id }}">
+            <img
+              src="{{ t_imgsrc }}"
+              alt="{{ t_name | default:'Avatar de cliente' | escape }}"
+              class="ai-t-img-{{ ai_gen_id }}"
+              width="{{ img_size }}"
+              height="{{ img_size }}"
+              loading="lazy"
+              decoding="async"
+            >
+          </div>
+        {% endif %}
 
-          {% if t_name %}
-            <div class="ai-t-name-{{ ai_gen_id }}" title="{{ t_name }}">{{ t_name }}</div>
-          {% endif %}
+        {% if t_name %}
+          <div class="ai-t-name-{{ ai_gen_id }}">{{ t_name }}</div>
+        {% endif %}
 
-          {% if block.settings.show_verified %}
-            <div class="ai-t-badge-{{ ai_gen_id }}">
-              ✓ {{ block.settings.verified_text | default:'Cliente verificada' }}
-            </div>
-          {% endif %}
+        {% if block.settings.show_verified %}
+          <div class="ai-t-badge-{{ ai_gen_id }}">
+            ✓ {{ block.settings.verified_text | default:'Cliente verificada' }}
+          </div>
+        {% endif %}
 
-          {% if has_rating %}
-            <div class="ai-t-rate-{{ ai_gen_id }}">
-              <div class="ai-t-stars-wrap-{{ ai_gen_id }}">
-                <div class="ai-t-stars-bg-{{ ai_gen_id }}">★★★★★</div>
-                <div class="ai-t-stars-fill-{{ ai_gen_id }}" style="width: {{ rating_num | times:20 }}%">
-                  ★★★★★
-                </div>
+        {% if has_rating %}
+          <div class="ai-t-rate-{{ ai_gen_id }}">
+            <div class="ai-t-stars-wrap-{{ ai_gen_id }}">
+              <div class="ai-t-stars-bg-{{ ai_gen_id }}">★★★★★</div>
+              <div class="ai-t-stars-fill-{{ ai_gen_id }}" style="width: {{ rating_num | times:20 }}%">
+                ★★★★★
               </div>
-              <span class="ai-t-rating-number-{{ ai_gen_id }}">{{ rating_num }}</span>
             </div>
-          {% endif %}
+            <span class="ai-t-rating-number-{{ ai_gen_id }}">{{ rating_num }}</span>
+          </div>
+        {% endif %}
 
-          {% if t_text %}
-            <p class="ai-t-text-{{ ai_gen_id }}">{{ t_text }}</p>
-          {% endif %}
-        </div>
+        {% if t_text %}
+          <p class="ai-t-text-{{ ai_gen_id }}">{{ t_text }}</p>
+        {% endif %}
       </div>
 
     {% endfor %}
@@ -488,48 +454,46 @@
         {% endif %}
 
         <div class="ai-t-card-{{ ai_gen_id }}">
-          <div class="ai-t-card-content-{{ ai_gen_id }}">
-            {% if t_imgsrc != blank %}
-              {% assign img_size = block.settings.image_size | default:80 %}
-              <div class="ai-t-imgw-{{ ai_gen_id }}">
-                <img
-                  src="{{ t_imgsrc }}"
-                  alt="{{ t_name | default:'Avatar de cliente' | escape }}"
-                  class="ai-t-img-{{ ai_gen_id }}"
-                  width="{{ img_size }}"
-                  height="{{ img_size }}"
-                  loading="lazy"
-                  decoding="async"
-                >
-              </div>
-            {% endif %}
+          {% if t_imgsrc != blank %}
+            {% assign img_size = block.settings.image_size | default:80 %}
+            <div class="ai-t-imgw-{{ ai_gen_id }}">
+              <img
+                src="{{ t_imgsrc }}"
+                alt="{{ t_name | default:'Avatar de cliente' | escape }}"
+                class="ai-t-img-{{ ai_gen_id }}"
+                width="{{ img_size }}"
+                height="{{ img_size }}"
+                loading="lazy"
+                decoding="async"
+              >
+            </div>
+          {% endif %}
 
-            {% if t_name %}
-              <div class="ai-t-name-{{ ai_gen_id }}" title="{{ t_name }}">{{ t_name }}</div>
-            {% endif %}
+          {% if t_name %}
+            <div class="ai-t-name-{{ ai_gen_id }}">{{ t_name }}</div>
+          {% endif %}
 
-            {% if block.settings.show_verified %}
-              <div class="ai-t-badge-{{ ai_gen_id }}">
-                ✓ {{ block.settings.verified_text | default:'Cliente verificada' }}
-              </div>
-            {% endif %}
+          {% if block.settings.show_verified %}
+            <div class="ai-t-badge-{{ ai_gen_id }}">
+              ✓ {{ block.settings.verified_text | default:'Cliente verificada' }}
+            </div>
+          {% endif %}
 
-            {% if has_rating %}
-              <div class="ai-t-rate-{{ ai_gen_id }}">
-                <div class="ai-t-stars-wrap-{{ ai_gen_id }}">
-                  <div class="ai-t-stars-bg-{{ ai_gen_id }}">★★★★★</div>
-                  <div class="ai-t-stars-fill-{{ ai_gen_id }}" style="width: {{ rating_num | times:20 }}%">
-                    ★★★★★
-                  </div>
+          {% if has_rating %}
+            <div class="ai-t-rate-{{ ai_gen_id }}">
+              <div class="ai-t-stars-wrap-{{ ai_gen_id }}">
+                <div class="ai-t-stars-bg-{{ ai_gen_id }}">★★★★★</div>
+                <div class="ai-t-stars-fill-{{ ai_gen_id }}" style="width: {{ rating_num | times:20 }}%">
+                  ★★★★★
                 </div>
-                <span class="ai-t-rating-number-{{ ai_gen_id }}">{{ rating_num }}</span>
               </div>
-            {% endif %}
+              <span class="ai-t-rating-number-{{ ai_gen_id }}">{{ rating_num }}</span>
+            </div>
+          {% endif %}
 
-            {% if t_text %}
-              <p class="ai-t-text-{{ ai_gen_id }}">{{ t_text }}</p>
-            {% endif %}
-          </div>
+          {% if t_text %}
+            <p class="ai-t-text-{{ ai_gen_id }}">{{ t_text }}</p>
+          {% endif %}
         </div>
 
       {% endfor %}
@@ -561,12 +525,9 @@
 
   let isScrolling = false;
 
-  // Función para verificar si hay más contenido
   function updateScrollIndicator() {
     if (!indicator) return;
-    
     const hasMoreContent = carousel.scrollLeft < carousel.scrollWidth - carousel.offsetWidth - 20;
-    
     if (hasMoreContent) {
       indicator.classList.remove('hidden');
     } else {
@@ -574,55 +535,41 @@
     }
   }
 
-  // Actualizar indicador al cargar
   setTimeout(updateScrollIndicator, 100);
   window.addEventListener('resize', updateScrollIndicator);
 
-  // Actualizar dots y indicador al hacer scroll
   carousel.addEventListener('scroll', () => {
     updateScrollIndicator();
-    
     if (isScrolling) return;
-    
     if (dots.length > 0) {
       const cards = carousel.querySelectorAll('.ai-t-card-' + carouselId);
       const scrollLeft = carousel.scrollLeft;
-
       let currentIndex = 0;
       let minDistance = Infinity;
-
       cards.forEach((card, index) => {
         const cardCenter = card.offsetLeft + card.offsetWidth / 2;
         const carouselCenter = scrollLeft + carousel.offsetWidth / 2;
         const distance = Math.abs(cardCenter - carouselCenter);
-
         if (distance < minDistance) {
           minDistance = distance;
           currentIndex = index;
         }
       });
-
       dots.forEach((dot, index) => {
         dot.classList.toggle('active', index === currentIndex);
       });
     }
   }, { passive: true });
 
-  // Click en dots para navegar
   if (dots.length > 0) {
     dots.forEach((dot, index) => {
       dot.addEventListener('click', () => {
         isScrolling = true;
         const cards = carousel.querySelectorAll('.ai-t-card-' + carouselId);
         const targetCard = cards[index];
-        
         if (targetCard) {
           const scrollPosition = targetCard.offsetLeft - (carousel.offsetWidth / 2) + (targetCard.offsetWidth / 2);
-          carousel.scrollTo({
-            left: scrollPosition,
-            behavior: 'smooth'
-          });
-
+          carousel.scrollTo({ left: scrollPosition, behavior: 'smooth' });
           setTimeout(() => {
             isScrolling = false;
             updateScrollIndicator();
@@ -638,6 +585,15 @@
 {
   "name": "Testimonios de producto",
   "settings": [
+    { "type": "header", "content": "Anchor (scroll link)" },
+    {
+      "type": "text",
+      "id": "anchor_id",
+      "label": "Section anchor ID",
+      "default": "testimonios-productos",
+      "info": "Must match the 'Testimonials section ID' in the Product Rating block. Used for scroll-to links."
+    },
+
     { "type": "header", "content": "Ancho y espaciados del bloque" },
     {
       "type": "range",
@@ -681,7 +637,6 @@
       "label": "Espacio entre título y subtítulo (mobile)",
       "min": 0, "max": 50, "step": 2, "unit": "px", "default": 10
     },
-
     {
       "type": "range",
       "id": "title_size_desktop",
@@ -713,10 +668,8 @@
     { "type": "range", "id": "columns_desktop", "label": "Columnas desktop", "min": 1, "max": 4, "step": 1, "default": 3 },
     { "type": "range", "id": "card_spacing", "label": "Espacio entre tarjetas (desktop)", "min": 8, "max": 40, "step": 2, "unit": "px", "default": 20 },
     { "type": "range", "id": "card_spacing_mobile", "label": "Espacio entre tarjetas (mobile)", "min": 4, "max": 32, "step": 2, "unit": "px", "default": 14 },
-
     { "type": "range", "id": "card_padding", "label": "Padding tarjeta", "min": 10, "max": 40, "step": 2, "unit": "px", "default": 22 },
     { "type": "range", "id": "card_padding_mobile", "label": "Padding tarjeta (mobile)", "min": 8, "max": 36, "step": 2, "unit": "px", "default": 18 },
-
     { "type": "range", "id": "card_border_radius", "label": "Radio borde", "min": 0, "max": 30, "step": 2, "unit": "px", "default": 12 },
     { "type": "color", "id": "card_bg_color", "label": "Fondo tarjeta", "default": "#ffffff" },
     { "type": "range", "id": "image_size", "label": "Tamaño imagen", "min": 40, "max": 120, "step": 5, "unit": "px", "default": 80 },
@@ -743,7 +696,7 @@
     { "type": "range", "id": "card_border_width", "label": "Grosor de borde", "min": 0, "max": 6, "step": 1, "unit": "px", "default": 1 },
     { "type": "color", "id": "card_border_hover_color", "label": "Color de borde (hover)", "default": "#008060" },
 
-    { "type": "header", "content": "Indicadores de scroll (Dots + Chevron)" },
+    { "type": "header", "content": "Indicador de scroll (Dots + Chevron)" },
     { "type": "color", "id": "dot_inactive_color", "label": "Color punto inactivo", "default": "#EAEAEA" },
     { "type": "color", "id": "dot_active_color", "label": "Color punto activo", "default": "#008060" },
     { "type": "color", "id": "scroll_indicator_color", "label": "Color indicador de más contenido", "default": "#008060" },

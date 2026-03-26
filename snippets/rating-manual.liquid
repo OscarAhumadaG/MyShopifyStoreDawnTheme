@@ -1,0 +1,89 @@
+{% comment %}
+  Renders manual product rating.
+  Accepts:
+  - block         {Object}  Block object with settings
+  - meta_rate     {Number}  Rate from metafield (overrides block setting when present)
+  - meta_reviews  {Number}  Review count from metafield (overrides block setting when present)
+  - star_size     {Number}  Star icon size in px (passed from parent)
+  - text_size     {Number}  Rating number & count font size in px (passed from parent)
+{% endcomment %}
+
+{%- assign testimonial_id = block.settings.testimonial_section_id | default: 'testimonios-productos' -%}
+
+{%- if meta_rate != nil -%}
+  {%- assign display_rate = meta_rate -%}
+{%- else -%}
+  {%- assign display_rate = block.settings.rating_value -%}
+{%- endif -%}
+
+{%- if meta_reviews != nil -%}
+  {%- assign display_reviews = meta_reviews -%}
+{%- else -%}
+  {%- assign display_reviews = block.settings.rating_count -%}
+{%- endif -%}
+
+{%- assign resolved_star_size = star_size | default: 13 -%}
+{%- assign resolved_text_size = text_size | default: 14 -%}
+
+<div class="rating-block-manual" {{ block.shopify_attributes }}>
+  {% if block.settings.show_rating %}
+    <a
+      href="#{{ testimonial_id | escape }}"
+      class="rating-link"
+      data-scroll-target="{{ testimonial_id | escape }}"
+      onclick="
+        event.preventDefault();
+        var t = document.getElementById('{{ testimonial_id | escape }}');
+        if (t) { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      "
+    >
+      <span class="rating-stars">
+        <span class="stars-icon" style="font-size: {{ resolved_star_size }}px; line-height: 1;">★</span>
+        <span class="rating-value" style="font-size: {{ resolved_text_size }}px; line-height: 1; font-weight: 600;">
+          {%- assign rating_floor = display_rate | floor -%}
+          {%- if display_rate == rating_floor -%}
+            {{ display_rate }}.0
+          {%- else -%}
+            {{ display_rate }}
+          {%- endif -%}
+        </span>
+        {% if block.settings.show_count %}
+          <span class="rating-count" style="font-size: {{ resolved_text_size }}px; line-height: 1; color: #777;">({{ display_reviews }})</span>
+        {% endif %}
+      </span>
+    </a>
+  {% endif %}
+</div>
+
+<style>
+  .rating-block-manual {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+  }
+
+  .rating-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .rating-link:hover .rating-value,
+  .rating-link:hover .rating-count {
+    text-decoration: underline;
+  }
+
+  .rating-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+  }
+</style>

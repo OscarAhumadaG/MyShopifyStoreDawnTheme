@@ -36,6 +36,73 @@
   }
 {%- endstyle -%}
 
+<!-- Estilos de centrado — carga después de component-card.css -->
+<style>
+  .card-information,
+  .card-information__wrapper {
+    text-align: center !important;
+  }
+
+  .card-information > *,
+  .card-information__wrapper > * {
+    text-align: center !important;
+  }
+
+  .card__heading,
+  .card__heading a,
+  h3.card__heading,
+  h2.card__heading {
+    text-align: center !important;
+  }
+
+  .card-information .caption-with-letter-spacing {
+    display: block !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  .card-information .price,
+  .card-information .price__container {
+    display: flex !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+
+  .card__media {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  .card__media img {
+    margin: 0 auto !important;
+    display: block !important;
+  }
+
+  /* ── ALINEACIÓN VERTICAL: título y precios en la misma línea entre cards ── */
+
+  /* Título con altura fija (2 líneas): todos los precios arrancan en la misma posición */
+  .product-grid .card__heading {
+    min-height: 2.8em !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+
+  /* Reservar espacio para precio tachado aunque no haya oferta, para alinear precio final */
+  .product-grid .price__sale .price-item--regular {
+    display: block !important;
+    min-height: 1.4em !important;
+  }
+  .product-grid .price:not(.price--on-sale)::before {
+    content: '';
+    display: block;
+    min-height: 1.4em;
+  }
+</style>
+
 <div class="section-{{ section.id }}-padding gradient color-{{ section.settings.color_scheme }}">
   {%- paginate collection.products by section.settings.products_per_page -%}
     {% comment %} Sort is the first tabbable element when filter type is vertical {% endcomment %}
@@ -233,7 +300,7 @@
           "label": "t:sections.main-collection-product-grid.settings.columns_mobile.options__2.label"
         }
       ]
-    },    
+    },
     {
       "type": "color_scheme",
       "id": "color_scheme",

@@ -74,6 +74,51 @@
       padding-top: 0.5rem;
     }
   }
+
+  /* ── Mobile language toggle ── */
+  .mobile-lang-toggle {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .mobile-lang-toggle__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 4.4rem;
+    height: 4.4rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: rgb(var(--color-foreground));
+    font-family: inherit;
+    cursor: pointer;
+    line-height: 1;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media screen and (min-width: 990px) {
+    .mobile-lang-toggle {
+      display: none;
+    }
+  }
+
+  @media screen and (max-width: 989px) {
+    .header__icons {
+      margin-right: -3rem;
+      gap: 0;
+    }
+    .header__icons .header__icon {
+      padding: 0;
+    }
+    .mobile-lang-toggle__btn {
+      width: 3rem;
+      height: 3rem;
+    }
+  }
 </style>
 
 {%- style -%}
@@ -247,6 +292,7 @@
           </localization-form>
         {%- endif -%}
       </div>
+
       {% render 'header-search', input_id: 'Search-In-Modal' %}
 
       {%- if shop.customer_accounts_enabled -%}
@@ -285,6 +331,25 @@
         {%- endcase -%}
       {%- endfor -%}
 
+      {%- if section.settings.enable_language_selector and localization.available_languages.size > 1 -%}
+        <localization-form class="large-up-hide mobile-lang-wrap" data-prevent-hide>
+          {%- form 'localization', id: 'MobileLangToggleForm', class: 'mobile-lang-toggle' -%}
+            {%- for language in localization.available_languages -%}
+              {%- if language.iso_code != localization.language.iso_code -%}
+                <button
+                  type="submit"
+                  name="locale_code"
+                  value="{{ language.iso_code }}"
+                  class="mobile-lang-toggle__btn"
+                >
+                  {{ language.iso_code | upcase }}
+                </button>
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endform -%}
+        </localization-form>
+      {%- endif -%}
+
       <a href="{{ routes.cart_url }}" class="header__icon header__icon--cart link focus-inset" id="cart-icon-bubble">
         {% if cart == empty %}
           <span class="svg-wrapper">{{ 'icon-cart-empty.svg' | inline_asset_content }}</span>
@@ -301,6 +366,7 @@
           </div>
         {%- endif -%}
       </a>
+
     </div>
   </header>
 </{{ header_tag }}>

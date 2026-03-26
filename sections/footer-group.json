@@ -17,7 +17,9 @@
         "brand_information_D34Viy": {
           "type": "brand_information",
           "settings": {
-            "show_social": false
+            "show_social": false,
+            "alignment_desktop": "left",
+            "alignment_mobile": "center"
           }
         },
         "link_list_AzXi3p": {
@@ -31,7 +33,7 @@
           "type": "text",
           "settings": {
             "heading": "<strong>CONTACTO</strong>",
-            "subtext": "<p><strong>Correo:</strong> <a href=\"mailto:tribuxco@gmail.com\">tribuxco@gmail.com</a><br/><strong>Tel. (Canadá):</strong> +1 579 372 6432<br/><strong>Tel. (Colombia):</strong> +57 314 877 1490<br/><strong>Dirección (Canadá):</strong> 307A – 1855 Rue Therrien, Brossard, QC, J4W 2Z2<br/><strong>Dirección (Colombia):</strong> Calle 61A No 24-16, Soledad, Atlántico, 083003</p>"
+            "subtext": "<p><strong>EMAIL</strong><br/><a>TRIBUXCO@GMAIL.COM</a></p><p><strong>TELEFONOS</strong><br/>CAN +1 579 372 6432<br/>COL +57 314 877 1490</p><p><strong>UBICACIONES</strong></p><p><strong>CANADÁ</strong><br/>1855 RUE THERRIEN<br/>BROSSARD, QC J4W 2Z2</p><p><strong>COLOMBIA</strong><br/>CALLE 61A #24-16<br/>SOLEDAD, ATLÁNTICO 083003</p>"
           }
         }
       },
@@ -50,8 +52,8 @@
         "enable_language_selector": true,
         "payment_enable": true,
         "show_policy": true,
-        "margin_top": 0,
-        "padding_top": 0,
+        "margin_top": 8,
+        "padding_top": 16,
         "padding_bottom": 0
       }
     }
