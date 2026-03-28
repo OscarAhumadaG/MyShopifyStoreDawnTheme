@@ -54,6 +54,7 @@
       {{ body_font_bold_italic | font_face: font_display: 'swap' }}
       {{ settings.type_header_font | font_face: font_display: 'swap' }}
 
+      {% assign scheme_classes = '' %}
       {% for scheme in settings.color_schemes -%}
         {% assign scheme_classes = scheme_classes | append: ', .color-' | append: scheme.id %}
         {% if forloop.index == 1 -%}
@@ -253,6 +254,29 @@
           font-size: 1.6rem;
         }
       }
+
+      /* Easter egg */
+      .easter-egg-section {
+        background: transparent;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 20px;
+        overflow: hidden;
+        transition: max-height 0.4s ease, padding 0.4s ease, opacity 0.3s ease;
+        max-height: 600px;
+      }
+      .easter-egg-section.is-hidden {
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        opacity: 0;
+      }
+      .easter-egg-section img {
+        max-width: 300px;
+        height: auto;
+      }
     {% endstyle %}
 
     {{ 'base.css' | asset_url | stylesheet_tag }}
@@ -315,6 +339,11 @@
 
     {% sections 'footer-group' %}
 
+    <!-- EASTER EGG -->
+    <div class="easter-egg-section" id="easterEgg">
+      <img src="https://cdn.shopify.com/s/files/1/0943/5444/0507/files/easter-egg_png.png?v=1774650691" alt="Sorpresa" width="300" height="300" loading="lazy">
+    </div>
+
     <ul hidden>
       <li id="a11y-refresh-page-message">{{ 'accessibility.refresh_page' | t }}</li>
       <li id="a11y-new-window-message">{{ 'accessibility.link_messages.new_window' | t }}</li>
@@ -372,5 +401,68 @@
     {%- if settings.cart_type == 'drawer' -%}
       <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
+
+    <script>
+      (function() {
+        var egg = document.getElementById('easterEgg');
+        if (!egg) return;
+
+        var footer = document.querySelector('.shopify-section-group-footer-group');
+        if (footer) {
+          var footerEl = footer.querySelector('.footer') || footer;
+          egg.style.backgroundColor = window.getComputedStyle(footerEl).backgroundColor;
+        }
+
+        var bounceTimer = null;
+        var hidden = false;
+        var lastY = window.scrollY;
+        var bouncing = false;
+
+        function getFooterBottom() {
+          var fg = document.querySelector('.shopify-section-group-footer-group');
+          return fg ? fg.offsetTop + fg.offsetHeight : document.body.scrollHeight;
+        }
+
+        window.addEventListener('scroll', function() {
+          if (bouncing) return;
+
+          var y = window.scrollY;
+          var goingUp = y < lastY;
+          lastY = y;
+
+          if (hidden) {
+            if (goingUp) {
+              var footerBottom = getFooterBottom();
+              if (y < footerBottom - window.innerHeight - 200) {
+                hidden = false;
+                egg.classList.remove('is-hidden');
+              }
+            }
+            return;
+          }
+
+          var rect = egg.getBoundingClientRect();
+          var visible = rect.top < window.innerHeight && rect.bottom > 0;
+
+          if (visible) {
+            clearTimeout(bounceTimer);
+            bounceTimer = setTimeout(function() {
+              bouncing = true;
+              var footerBottom = getFooterBottom();
+              var target = footerBottom - window.innerHeight;
+              window.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
+
+              setTimeout(function() {
+                hidden = true;
+                egg.classList.add('is-hidden');
+                bouncing = false;
+              }, 600);
+            }, 800);
+          } else {
+            clearTimeout(bounceTimer);
+          }
+        });
+      })();
+    </script>
   </body>
 </html>

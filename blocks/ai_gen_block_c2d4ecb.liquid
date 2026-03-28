@@ -128,7 +128,7 @@
 
   .ai-tabs-header-{{ ai_gen_id }}::after {
     right: 0;
-    background: linear-gradient(to left, #ffffff 0%, rgba(255,255,255,0) 100%));
+    background: linear-gradient(to left, #ffffff 0%, rgba(255,255,255,0) 100%);
   }
 
   .ai-tabs-button-{{ ai_gen_id }},
@@ -240,11 +240,7 @@
       });
 
       this.enableDragScroll();
-      
-      // Detectar parámetro de URL del footer
       this.handleUrlParameter();
-
-      // Mostrar identificadores en consola
       this.displayTabIdentifiers();
     }
 
@@ -252,11 +248,8 @@
       const identifiers = [];
       this.buttons.forEach(btn => {
         const slug = btn.dataset.tabSlug;
-        if (slug) {
-          identifiers.push(slug);
-        }
+        if (slug) identifiers.push(slug);
       });
-      
       console.log('%c✅ PESTAÑAS CARGADAS', 'color: green; font-weight: bold; font-size: 14px;');
       console.log('📌 TAB IDENTIFIERS DISPONIBLES:', identifiers);
       console.log('📌 USAR EN FOOTER URLS: /pages/ayuda?tab=IDENTIFICADOR');
@@ -265,16 +258,11 @@
     handleUrlParameter() {
       const params = new URLSearchParams(window.location.search);
       const tabSlug = params.get('tab');
-      
+
       if (tabSlug) {
         const btn = this.querySelector(`[data-tab-slug="${tabSlug}"]`);
         if (btn) {
           this.switchTab(btn.dataset.tab);
-          // Scroll suave hacia la sección
-          setTimeout(() => {
-            this.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 100);
-          console.log(`✅ Pestaña activada: ${tabSlug}`);
         } else {
           console.warn(`⚠️ Pestaña no encontrada: ${tabSlug}`);
         }
@@ -285,18 +273,26 @@
       const el = this.header;
       let isDown = false, startX = 0, scrollLeft = 0;
 
-      const start = (x) => { isDown = true; startX = x - el.offsetLeft; scrollLeft = el.scrollLeft; el.classList.add('dragging'); };
-      const move  = (x) => { if (!isDown) return; const walk = (x - el.offsetLeft - startX); el.scrollLeft = scrollLeft - walk; };
-      const end   = () => { isDown = false; el.classList.remove('dragging'); };
+      // Solo mouse drag para desktop — sin ningún listener touch
+      el.addEventListener('mousedown', (e) => {
+        isDown = true;
+        startX = e.pageX - el.offsetLeft;
+        scrollLeft = el.scrollLeft;
+        el.classList.add('dragging');
+      });
 
-      el.addEventListener('mousedown', (e)=>start(e.pageX));
-      el.addEventListener('mousemove', (e)=>move(e.pageX));
-      document.addEventListener('mouseup', end);
+      el.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        el.scrollLeft = scrollLeft - (e.pageX - el.offsetLeft - startX);
+      });
 
-      el.addEventListener('touchstart', (e)=>start(e.touches[0].pageX), {passive:true});
-      el.addEventListener('touchmove', (e)=>move(e.touches[0].pageX), {passive:true});
-      el.addEventListener('touchend', end);
-      el.addEventListener('touchcancel', end);
+      document.addEventListener('mouseup', () => {
+        isDown = false;
+        el.classList.remove('dragging');
+      });
+
+      // En mobile el scroll horizontal lo maneja el navegador nativamente
+      // con overflow-x: auto y -webkit-overflow-scrolling: touch del CSS
     }
 
     switchTab(tabId) {
@@ -308,8 +304,14 @@
         activeBtn.classList.add('active');
         activeBtn.setAttribute('aria-selected','true');
 
+        // Scroll horizontal puro sin afectar el eje Y de la página
         if (window.innerWidth < 750) {
-          activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+          const header = this.header;
+          const btnLeft = activeBtn.offsetLeft;
+          const btnWidth = activeBtn.offsetWidth;
+          const headerWidth = header.offsetWidth;
+          const targetScroll = btnLeft - (headerWidth / 2) + (btnWidth / 2);
+          header.scrollTo({ left: targetScroll, behavior: 'smooth' });
         }
       }
 

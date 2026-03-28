@@ -55,9 +55,11 @@
             "show_navigation": true,
             "show_dots": true,
             "autoplay": true,
-            "autoplay_interval": 5,
+            "autoplay_interval": 9,
             "nav_button_color": "#ffffff",
+            "nav_opacity": 30,
             "nav_icon_color": "#121212",
+            "nav_icon_opacity": 40,
             "dot_color": "#ffffff"
           },
           "blocks": {}

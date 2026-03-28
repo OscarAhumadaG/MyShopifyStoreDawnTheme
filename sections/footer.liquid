@@ -9,6 +9,9 @@
 {%- style -%}
   .footer {
     margin-top: {{ section.settings.margin_top | times: 0.75 | round: 0 }}px;
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
   }
 
   .section-{{ section.id }}-padding {
@@ -19,6 +22,9 @@
   @media screen and (min-width: 750px) {
     .footer {
       margin-top: {{ section.settings.margin_top }}px;
+      position: sticky;
+      bottom: 0;
+      z-index: 2;
     }
     .section-{{ section.id }}-padding {
       padding-top: {{ section.settings.padding_top }}px;
@@ -218,6 +224,12 @@
 
                   {%- when 'link_list' -%}
                     {%- if block.settings.menu != blank -%}
+                      {%- liquid
+                        assign locale_prefix = ''
+                        if request.locale.iso_code != shop.primary_locale.iso_code
+                          assign locale_prefix = '/' | append: request.locale.iso_code
+                        endif
+                      -%}
                       <div class="footer-accordion">
                         <button class="footer-accordion__toggle" aria-expanded="false" aria-controls="footer-accordion-list-{{ forloop.index }}">
                           <span class="footer-block__heading inline-richtext">{{ block.settings.heading }}</span>
@@ -228,15 +240,15 @@
                             {%- assign final_url = link.url -%}
                             {%- assign title_lower = link.title | downcase -%}
                             {%- if title_lower contains 'término' or title_lower contains 'terms' or title_lower contains 'terminos' -%}
-                              {%- assign final_url = '/pages/ayuda?tab=terms' -%}
+                              {%- assign final_url = locale_prefix | append: '/pages/ayuda?tab=terms' -%}
                             {%- elsif title_lower contains 'envío' or title_lower contains 'envio' or title_lower contains 'shipping' -%}
-                              {%- assign final_url = '/pages/ayuda?tab=shipping' -%}
+                              {%- assign final_url = locale_prefix | append: '/pages/ayuda?tab=shipping' -%}
                             {%- elsif title_lower contains 'contacto' or title_lower contains 'contact' -%}
-                              {%- assign final_url = '/pages/ayuda?tab=contact' -%}
+                              {%- assign final_url = locale_prefix | append: '/pages/ayuda?tab=contact' -%}
                             {%- elsif title_lower contains 'exchange' or title_lower contains 'return' or title_lower contains 'warrant' or title_lower contains 'reembolso' or title_lower contains 'refund' -%}
-                              {%- assign final_url = '/pages/ayuda?tab=refund' -%}
+                              {%- assign final_url = locale_prefix | append: '/pages/ayuda?tab=refund' -%}
                             {%- elsif title_lower contains 'pqrs' or title_lower contains 'complaint' or title_lower contains 'petición' or title_lower contains 'peticion' -%}
-                              {%- assign final_url = '/pages/ayuda?tab=pqrs' -%}
+                              {%- assign final_url = locale_prefix | append: '/pages/ayuda?tab=pqrs' -%}
                             {%- endif -%}
                             <li><a href="{{ final_url }}" class="link link--text list-menu__item list-menu__item--link{% if link.active %} list-menu__item--active{% endif %}">{{ link.title | escape }}</a></li>
                           {%- endfor -%}
