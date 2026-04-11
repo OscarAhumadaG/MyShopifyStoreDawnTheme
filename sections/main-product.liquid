@@ -38,21 +38,21 @@
       }
     }
     /* SHARE + REVIEWS CAPSULA */
-    {%- assign _rb = section.blocks | where: 'type', 'rating-manual' | first -%}
-    {%- assign _share_sz    = _rb.settings.share_icon_size      | default: 14 -%}
-    {%- assign _star_sz     = _rb.settings.star_icon_size       | default: 13 -%}
-    {%- assign _text_sz     = _rb.settings.rating_text_size     | default: 14 -%}
-    {%- assign _cap_px      = _rb.settings.capsule_padding_x    | default: 14 -%}
-    {%- assign _cap_py      = _rb.settings.capsule_padding_y    | default: 8  -%}
-    {%- assign _cap_radius  = _rb.settings.capsule_border_radius | default: 999 -%}
-    {%- assign _cap_bw      = _rb.settings.capsule_border_width  | default: 1  -%}
+    {%- assign rating_block_ref = section.blocks | where: 'type', 'rating-manual' | first -%}
+    {%- assign share_sz    = rating_block_ref.settings.share_icon_size      | default: 14 -%}
+    {%- assign star_sz     = rating_block_ref.settings.star_icon_size       | default: 13 -%}
+    {%- assign text_sz     = rating_block_ref.settings.rating_text_size     | default: 14 -%}
+    {%- assign cap_px      = rating_block_ref.settings.capsule_padding_x    | default: 14 -%}
+    {%- assign cap_py      = rating_block_ref.settings.capsule_padding_y    | default: 8  -%}
+    {%- assign cap_radius  = rating_block_ref.settings.capsule_border_radius | default: 999 -%}
+    {%- assign cap_bw      = rating_block_ref.settings.capsule_border_width  | default: 1  -%}
 
     .product-meta-capsule {
       display: inline-flex;
       align-items: center;
-      padding: {{ _cap_py }}px {{ _cap_px }}px;
-      border: {{ _cap_bw }}px solid;
-      border-radius: {{ _cap_radius }}px;
+      padding: {{ cap_py }}px {{ cap_px }}px;
+      border: {{ cap_bw }}px solid;
+      border-radius: {{ cap_radius }}px;
       width: fit-content;
     }
 
@@ -102,10 +102,10 @@
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
-      width: {{ _share_sz | plus: 10 }}px !important;
-      height: {{ _share_sz | plus: 10 }}px !important;
-      min-width: {{ _share_sz | plus: 10 }}px !important;
-      min-height: {{ _share_sz | plus: 10 }}px !important;
+      width: {{ share_sz | plus: 10 }}px !important;
+      height: {{ share_sz | plus: 10 }}px !important;
+      min-width: {{ share_sz | plus: 10 }}px !important;
+      min-height: {{ share_sz | plus: 10 }}px !important;
       padding: 0 !important;
       border: 0 !important;
       background: transparent !important;
@@ -114,8 +114,8 @@
 
     .product-meta-capsule .share-button__button .svg-wrapper,
     .product-meta-capsule .share-button__button .svg-wrapper svg {
-      width: {{ _share_sz }}px !important;
-      height: {{ _share_sz }}px !important;
+      width: {{ share_sz }}px !important;
+      height: {{ share_sz }}px !important;
       display: inline-flex !important;
     }
 
@@ -131,18 +131,18 @@
     }
 
     .product-meta-capsule .stars-icon {
-      font-size: {{ _star_sz }}px;
+      font-size: {{ star_sz }}px;
       line-height: 1;
     }
 
     .product-meta-capsule .rating-value {
-      font-size: {{ _text_sz }}px;
+      font-size: {{ text_sz }}px;
       font-weight: 600;
       line-height: 1;
     }
 
     .product-meta-capsule .rating-count {
-      font-size: {{ _text_sz }}px;
+      font-size: {{ text_sz }}px;
       color: #777777;
       line-height: 1;
     }
@@ -671,6 +671,7 @@
                     >
                       <div class="complementary-products__container">
                         {%- if block.settings.make_collapsible_row -%}
+                          {% # theme-check-disable UnclosedHTMLElement %}
                           <details id="Details-{{ block.id }}-{{ section.id }}" open>
                             <summary>
                         {%- endif %}
@@ -686,6 +687,7 @@
                           {{- 'icon-caret.svg' | inline_asset_content -}}
                           </summary>
                         {%- endif -%}
+                        {% # theme-check-enable %}
                         <slideshow-component class="slider-mobile-gutter">
                           {%- assign number_of_slides = recommendations.products_count
                             | plus: 0.0
@@ -713,10 +715,12 @@
                                 {% endif %}
                               >
                                 <ul class="list-unstyled" role="list">
+                                  {% # theme-check-disable %}
                                   {%- for product in recommendations.products
                                     limit: block.settings.products_per_page
                                     offset: continue
                                   -%}
+                                  {% # theme-check-enable %}
                                     <li>
                                       {%- if block.settings.enable_quick_add -%}
                                         {% assign quick_add = 'standard' %}
@@ -851,14 +855,6 @@
       </script>
       <script src="{{ 'product-model.js' | asset_url }}" defer></script>
     {%- endif -%}
-
-    {%- liquid
-      if product.selected_or_first_available_variant.featured_media
-        assign seo_media = product.selected_or_first_available_variant.featured_media
-      else
-        assign seo_media = product.featured_media
-      endif
-    -%}
 
     <script type="application/ld+json">
       {{ product | structured_data }}

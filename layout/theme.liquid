@@ -341,7 +341,12 @@
 
     <!-- EASTER EGG -->
     <div class="easter-egg-section" id="easterEgg">
-      <img src="https://cdn.shopify.com/s/files/1/0943/5444/0507/files/easter-egg_png.png?v=1774650691" alt="Sorpresa" width="300" height="300" loading="lazy">
+      
+      {% if request.locale.iso_code == 'es' %}
+        <img src="https://cdn.shopify.com/s/files/1/0943/5444/0507/files/easter-egg_png.png?v=1774656808" alt="Sorpresa" width="300" height="300" loading="lazy">
+      {% else %}
+        <img src="https://cdn.shopify.com/s/files/1/0943/5444/0507/files/easter-egg_png_en.png?v=1774657290" alt="Surprise" width="300" height="300" loading="lazy">
+      {% endif %}
     </div>
 
     <ul hidden>

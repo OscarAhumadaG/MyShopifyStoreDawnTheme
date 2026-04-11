@@ -86,6 +86,10 @@
     .footer-block--text-accordion > .footer-block__heading {
       display: none;
     }
+    .footer-block__brand-info {
+      text-align: var(--bi-mob-ta, left) !important;
+      align-items: var(--bi-mob-ai, flex-start) !important;
+    }
   }
 
   @media screen and (min-width: 750px) {
@@ -135,17 +139,25 @@
     text-underline-offset: 2px;
   }
 
+  /* ── Brand Information block ── */
   .footer-block__brand-info {
     display: flex;
     flex-direction: column;
+    gap: 10px;
     text-align: var(--bi-desk-ta, left);
     align-items: var(--bi-desk-ai, flex-start);
   }
-  @media screen and (max-width: 749px) {
-    .footer-block__brand-info {
-      text-align: var(--bi-mob-ta, left) !important;
-      align-items: var(--bi-mob-ai, flex-start) !important;
-    }
+  .footer-block__brand-info .footer-block__image-wrapper {
+    margin-bottom: 0 !important;
+  }
+  .footer-block__brand-info .footer-block__heading {
+    margin: 0 !important;
+  }
+  .footer-block__brand-info .rte {
+    margin-top: 0 !important;
+  }
+  .footer-block__brand-info .rte p {
+    margin: 0 !important;
   }
 {%- endstyle -%}
 

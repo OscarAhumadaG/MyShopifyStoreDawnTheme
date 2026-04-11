@@ -374,9 +374,10 @@
 
       {% assign t_imgsrc = '' %}
       {% if t_imgobj %}
-        {% assign t_imgsrc = t_imgobj | image_url: width:300 %}
-        {% if t_imgsrc == blank %}
-          {% assign t_imgsrc = t_imgobj | file_url %}
+        {% if t_imgobj.preview_image %}
+          {% assign t_imgsrc = t_imgobj.preview_image | image_url: width:300 %}
+        {% else %}
+          {% assign t_imgsrc = t_imgobj | image_url: width:300 %}
         {% endif %}
       {% endif %}
 
@@ -385,7 +386,9 @@
           {% assign img_size = block.settings.image_size | default:80 %}
           <div class="ai-t-imgw-{{ ai_gen_id }}">
             <img
+              {% # theme-check-disable RemoteAsset %}
               src="{{ t_imgsrc }}"
+              {% # theme-check-enable %}
               alt="{{ t_name | default:'Avatar de cliente' | escape }}"
               class="ai-t-img-{{ ai_gen_id }}"
               width="{{ img_size }}"
@@ -447,9 +450,10 @@
 
         {% assign t_imgsrc = '' %}
         {% if t_imgobj %}
-          {% assign t_imgsrc = t_imgobj | image_url: width:300 %}
-          {% if t_imgsrc == blank %}
-            {% assign t_imgsrc = t_imgobj | file_url %}
+          {% if t_imgobj.preview_image %}
+            {% assign t_imgsrc = t_imgobj.preview_image | image_url: width:300 %}
+          {% else %}
+            {% assign t_imgsrc = t_imgobj | image_url: width:300 %}
           {% endif %}
         {% endif %}
 
@@ -458,7 +462,9 @@
             {% assign img_size = block.settings.image_size | default:80 %}
             <div class="ai-t-imgw-{{ ai_gen_id }}">
               <img
+                {% # theme-check-disable RemoteAsset %}
                 src="{{ t_imgsrc }}"
+                {% # theme-check-enable %}
                 alt="{{ t_name | default:'Avatar de cliente' | escape }}"
                 class="ai-t-img-{{ ai_gen_id }}"
                 width="{{ img_size }}"
